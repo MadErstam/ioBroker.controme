@@ -1,0 +1,101 @@
+{
+	"common": {
+		"name": "controme",
+		"version": "0.0.1",
+		"news": {
+			"0.0.1": {
+				"en": "initial release",
+				"de": "Erstveröffentlichung",
+				"ru": "Начальная версия",
+				"pt": "lançamento inicial",
+				"nl": "Eerste uitgave",
+				"fr": "Première version",
+				"it": "Versione iniziale",
+				"es": "Versión inicial",
+				"pl": "Pierwsze wydanie",
+				"zh-cn": "首次出版"
+			}
+		},
+		"title": "Controme",
+		"titleLang": {
+			"en": "Controme",
+			"de": "Controme",
+			"ru": "Controme",
+			"pt": "Controme",
+			"nl": "Controme",
+			"fr": "Controme",
+			"it": "Controme",
+			"es": "Controme",
+			"pl": "Controme",
+			"zh-cn": "Controme"
+		},
+		"desc": {
+			"en": "Connect to local Controme mini server that controls you home heating system",
+			"de": "Connect to local Controme mini server that controls you home heating system",
+			"ru": "Connect to local Controme mini server that controls you home heating system",
+			"pt": "Connect to local Controme mini server that controls you home heating system",
+			"nl": "Connect to local Controme mini server that controls you home heating system",
+			"fr": "Connect to local Controme mini server that controls you home heating system",
+			"it": "Connect to local Controme mini server that controls you home heating system",
+			"es": "Connect to local Controme mini server that controls you home heating system",
+			"pl": "Connect to local Controme mini server that controls you home heating system",
+			"zh-cn": "Connect to local Controme mini server that controls you home heating system"
+		},
+		"authors": [
+			"MadErstam <erstam@gmx.de>"
+		],
+		"keywords": [
+			"heating",
+			"Controme",
+			"floor heating",
+			"radiator"
+		],
+		"license": "MIT",
+		"platform": "Javascript/Node.js",
+		"main": "main.js",
+		"icon": "controme.png",
+		"enabled": true,
+		"extIcon": "https://raw.githubusercontent.com/MadErstam/ioBroker.controme/master/admin/controme.png",
+		"readme": "https://github.com/MadErstam/ioBroker.controme/blob/master/README.md",
+		"loglevel": "info",
+		"mode": "daemon",
+		"type": "climate-control",
+		"compact": true,
+		"connectionType": "local",
+		"dataSource": "poll",
+		"materialize": true,
+		"dependencies": [
+			{
+				"js-controller": ">=2.0.0"
+			}
+		]
+	},
+	"native": {
+		"option1": true,
+		"option2": "42"
+	},
+	"objects": [],
+	"instanceObjects": [
+		{
+			"_id": "info",
+			"type": "channel",
+			"common": {
+				"name": "Information"
+			},
+			"native": {}
+		},
+		{
+			"_id": "info.connection",
+			"type": "state",
+			"common": {
+				"role": "indicator.connected",
+				"name": "Device or service connected",
+				"type": "boolean",
+				"read": true,
+				"write": false,
+				"def": false
+			},
+			"native": {}
+		}
+	]
+}

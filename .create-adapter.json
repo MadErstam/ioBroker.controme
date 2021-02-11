@@ -1,0 +1,40 @@
+{
+	"cli": true,
+	"adapterName": "controme",
+	"title": "Controme",
+	"description": "Connect to local Controme mini server that controls you home heating system",
+	"keywords": [
+		"heating",
+		"Controme",
+		"floor heating",
+		"radiator"
+	],
+	"expert": "yes",
+	"features": [
+		"adapter"
+	],
+	"adminFeatures": [],
+	"type": "climate-control",
+	"startMode": "daemon",
+	"connectionType": "local",
+	"dataSource": "poll",
+	"connectionIndicator": "yes",
+	"language": "JavaScript",
+	"adminReact": "no",
+	"tools": [
+		"ESLint",
+		"type checking"
+	],
+	"indentation": "Tab",
+	"quotes": "double",
+	"es6class": "yes",
+	"authorName": "MadErstam",
+	"authorGithub": "MadErstam",
+	"authorEmail": "erstam@gmx.de",
+	"gitRemoteProtocol": "HTTPS",
+	"gitCommit": "no",
+	"license": "MIT License",
+	"ci": "gh-actions",
+	"dependabot": "yes",
+	"creatorVersion": "1.31.0"
+}
