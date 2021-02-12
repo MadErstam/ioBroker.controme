@@ -16,46 +16,47 @@
 				"zh-cn": "首次出版"
 			}
 		},
-		"title": "Controme",
+		"title": "ioBroker Controme Adapter",
 		"titleLang": {
-			"en": "Controme",
-			"de": "Controme",
-			"ru": "Controme",
-			"pt": "Controme",
-			"nl": "Controme",
-			"fr": "Controme",
-			"it": "Controme",
-			"es": "Controme",
-			"pl": "Controme",
-			"zh-cn": "Controme"
+			"en": "ioBroker Controme Adapter",
+			"de": "ioBroker Controme Adapter",
+			"ru": "Адаптер ioBroker Controme",
+			"pt": "Adaptador ioBroker Controme",
+			"nl": "ioBroker Controme Adapter",
+			"fr": "Adaptateur Controme ioBroker ",
+			"it": "Adattatore ioBroker Controme",
+			"es": "Adaptador ioBroker Controme",
+			"pl": "ioBroker Controme Adapter",
+			"zh-cn": "ioBroker Controme 适配器"
 		},
 		"desc": {
 			"en": "Connect to local Controme mini server that controls you home heating system",
-			"de": "Connect to local Controme mini server that controls you home heating system",
-			"ru": "Connect to local Controme mini server that controls you home heating system",
-			"pt": "Connect to local Controme mini server that controls you home heating system",
-			"nl": "Connect to local Controme mini server that controls you home heating system",
-			"fr": "Connect to local Controme mini server that controls you home heating system",
-			"it": "Connect to local Controme mini server that controls you home heating system",
-			"es": "Connect to local Controme mini server that controls you home heating system",
-			"pl": "Connect to local Controme mini server that controls you home heating system",
-			"zh-cn": "Connect to local Controme mini server that controls you home heating system"
+			"de": "Verbindung mit lokalem Controme Miniserver, der dein Heizungssystem steuert",
+			"ru": "Подключитесь к локальному мини-серверу Controme, который управляет вашей системой отопления дома",
+			"pt": "Conecte-se ao minisservidor local da Controme que controla o sistema de aquecimento doméstico",
+			"nl": "Maak verbinding met de lokale Controme-miniserver die uw verwarmingssysteem in huis regelt",
+			"fr": "Connectez-vous au mini-serveur Controme local qui contrôle votre système de chauffage domestique",
+			"it": "Collegati al mini server Controme locale che controlla il sistema di riscaldamento domestico",
+			"es": "Conéctese al mini servidor Controme local que controla el sistema de calefacción de su hogar",
+			"pl": "Połącz się z lokalnym mini serwerem Controme, który steruje systemem ogrzewania domu",
+			"zh-cn": "连接到控制您的家庭供暖系统的本地Controme mini服务器"
 		},
 		"authors": [
 			"MadErstam <erstam@gmx.de>"
 		],
 		"keywords": [
-			"heating",
+			"Heating",
 			"Controme",
-			"floor heating",
-			"radiator"
+			"Floor heating",
+			"Radiator",
+			"ioBroker"
 		],
 		"license": "MIT",
 		"platform": "Javascript/Node.js",
 		"main": "main.js",
 		"icon": "controme.png",
 		"enabled": true,
-		"extIcon": "https://raw.githubusercontent.com/MadErstam/ioBroker.controme/master/admin/controme.png",
+		"extIcon": "https://raw.githubusercontent.com/MadErstam/ioBroker.controme/main/admin/controme.png",
 		"readme": "https://github.com/MadErstam/ioBroker.controme/blob/master/README.md",
 		"loglevel": "info",
 		"mode": "daemon",
