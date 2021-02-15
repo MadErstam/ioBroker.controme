@@ -12,6 +12,7 @@ const utils = require("@iobroker/adapter-core");
 // const fs = require("fs");
 const got = require("got");
 const formData = require("form-data");
+const util = require('util')
 
 Number.prototype.round = function (decimals) {
 	return +(Math.round(this + "e+" + decimals) + "e-" + decimals);
@@ -45,7 +46,7 @@ class Controme extends utils.Adapter {
 
 		// The adapters config (in the instance object everything under the attribute "native") is accessible via
 		// this.config:
-		this.log.debug("Controme URL: " + this.config.url + "; HouseID: " + this.config.houseid + "; update interval: " + this.config.interval);
+		this.log.debug("Controme URL: " + this.config.url + "; houseID: " + this.config.houseID + "; update interval: " + this.config.interval);
 		// this.log.info("Force ReInit: " + this.config.forcereinit);
 		// const forceReInit = this.config.forcereinit;
 		const forceReInit = false;
@@ -54,7 +55,7 @@ class Controme extends utils.Adapter {
 			this._clearDevices();
 
 			(async () => {
-				const url = "http://" + this.config.url + "/get/json/v1/" + this.config.houseid + "/rooms/";
+				const url = "http://" + this.config.url + "/get/json/v1/" + this.config.houseID + "/rooms/";
 				try {
 					const response = await got(url);
 
@@ -226,58 +227,56 @@ class Controme extends utils.Adapter {
 	 */
 	onStateChange(id, state) {
 		if (state) {
-			// The state was changed			
-			this.log.info("Room ${id.parent}: state ${id} changed: ${state.val} (ack = ${state.ack})");
+			// The state was changed
+			// if change resulted from user action (ack = false), we need to update the setPointTemp on the server
+			this.log.info(`State ${id} changed: ${state.val} (ack = ${state.ack})`);
+			// extract the roomID from id
+			let roomID = id.match(/\.(\d+)\.\w+$/)[1];
+			if (state.ack == false) {
+				this._setPointTemp(roomID, state.val);
+			}
 		} else {
 			// The state was deleted
 			this.log.info(`state ${id} deleted`);
 		}
 	}
 
-	_setPointTemp(roomID, temperature) {
-		const url = "http://" + this.config.url + "/set/json/v1/1/soll/" + roomID + "/";
+	_setPointTemp(roomID, setPointTemp) {
+		this.log.info(`Trying to set point temperature on Controme mini server for room ${roomID} to ${setPointTemp}`);
+		const url = "http://" + this.config.url + "/set/json/v1/" + this.config.houseID + "/soll/" + roomID + "/";
 		const form = new formData();
 
 		form.append("user", this.config.user);
-		form.append("password": this.config.password);
-		form.append("soll": setpointTemp };
+		form.append("password", this.config.password);
+		form.append("soll", setPointTemp);
 
 		(async () => {
 			try {
-				const response = await got.post(url, { body: form });
-
-				const body = JSON.parse(response.body);
-				this.log.silly("Update response from Controme mini server: " + JSON.stringify(body));
-
-				return 0;
-
+				const { body, statusCode } = await got.post(url, { body: form });
 			} catch (error) {
-				this.log.info(error.response.body);
-
-				return 1;
+				this.log.error(error);
 			}
+		})();
 
-		});
+		// If you need to accept messages in your adapter, uncomment the following block and the corresponding line in the constructor.
+		// /**
+		//  * Some message was sent to this instance over message box. Used by email, pushover, text2speech, ...
+		//  * Using this method requires "common.messagebox" property to be set to true in io-package.json
+		//  * @param {ioBroker.Message} obj
+		//  */
+		// onMessage(obj) {
+		// 	if (typeof obj === "object" && obj.message) {
+		// 		if (obj.command === "send") {
+		// 			// e.g. send email or pushover or whatever
+		// 			this.log.info("send command");
+
+		// 			// Send response in callback if required
+		// 			if (obj.callback) this.sendTo(obj.from, obj.command, "Message received", obj.callback);
+		// 		}
+		// 	}
+		// }
+
 	}
-
-	// If you need to accept messages in your adapter, uncomment the following block and the corresponding line in the constructor.
-	// /**
-	//  * Some message was sent to this instance over message box. Used by email, pushover, text2speech, ...
-	//  * Using this method requires "common.messagebox" property to be set to true in io-package.json
-	//  * @param {ioBroker.Message} obj
-	//  */
-	// onMessage(obj) {
-	// 	if (typeof obj === "object" && obj.message) {
-	// 		if (obj.command === "send") {
-	// 			// e.g. send email or pushover or whatever
-	// 			this.log.info("send command");
-
-	// 			// Send response in callback if required
-	// 			if (obj.callback) this.sendTo(obj.from, obj.command, "Message received", obj.callback);
-	// 		}
-	// 	}
-	// }
-
 }
 
 // @ts-ignore parent is a valid property on module
