@@ -1,7 +1,7 @@
 {
 	"common": {
 		"name": "controme",
-		"version": "0.0.1",
+		"version": "0.1.0",
 		"news": {
 			"0.0.1": {
 				"en": "initial release",
@@ -72,8 +72,12 @@
 		]
 	},
 	"native": {
-		"option1": true,
-		"option2": "42"
+		"url": "192.168.178.",
+		"houseID": "1",
+		"interval": "60",
+		"forceReInit": false,
+		"user": "UserName",
+		"password": "Password"
 	},
 	"objects": [],
 	"instanceObjects": [
