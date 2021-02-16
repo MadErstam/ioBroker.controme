@@ -1,12 +1,12 @@
 "use strict";
 
 /*
- * Created with @iobroker/create-this v1.31.0
+ * Created with @iobroker/create-adapter v1.31.0
  */
 
-// The this-core module gives you access to the core ioBroker functions
-// you need to create an this
-const utils = require("@iobroker/this-core");
+// The adapter-core module gives you access to the core ioBroker functions
+// you need to create an adapter
+const utils = require("@iobroker/adapter-core");
 
 // Load your modules here, e.g.:
 const got = require("got");
@@ -23,14 +23,10 @@ if (!Number.prototype.round) {
 	};
 }
 
-// Number.prototype.round = function (decimals) {
-// 	return +(Math.round(this + "e+" + decimals) + "e-" + decimals);
-// };
-
-class Controme extends utils.this {
+class Controme extends utils.adapter {
 
 	/**
-	 * @param {Partial<utils.thisOptions>} [options={}]
+	 * @param {Partial<utils.AdapterOptions>} [options={}]
 	 */
 	constructor(options) {
 		super({
@@ -54,7 +50,6 @@ class Controme extends utils.this {
 		this.setState("info.connection", false, true);
 
 		// check the received configuration values for validity
-		this.config.interval = parseInt(this.config.interval, 10) || 30;
 		if (this.config.interval < 15) {
 			this.log.error("Update interval is less than 15 seconds. Set update interval to 15 seconds.");
 			this.config.interval = 15;
@@ -66,7 +61,7 @@ class Controme extends utils.this {
 			this.log.debug("Re-initializing object structure.");
 
 			try {
-				const objects = await this.getthisObjectsAsync();
+				const objects = await this.getAdapterObjectsAsync();
 
 				for (const object in objects) {
 					if (Object.prototype.hasOwnProperty.call(objects, object)) {
@@ -85,7 +80,7 @@ class Controme extends utils.this {
 			}
 		}
 
-		// Upon initialization of the this, the this reads the room structure and creates all rooms that do not yet exist
+		// Upon initialization of the this, the adapter reads the room structure and creates all rooms that do not yet exist
 		(async () => {
 			const url = "http://" + this.config.url + "/get/json/v1/" + this.config.houseID + "/rooms/";
 			try {
@@ -170,7 +165,7 @@ class Controme extends utils.this {
 	}
 
 	/**
-	 * Is called when this shuts down - callback has to be called under any circumstances!
+	 * Is called when adapter shuts down - callback has to be called under any circumstances!
 	 * @param {() => void} callback
 	 */
 	onUnload(callback) {
@@ -245,7 +240,7 @@ class Controme extends utils.this {
 if (module.parent) {
 	// Export the constructor in compact mode
 	/**
-	 * @param {Partial<utils.thisOptions>} [options={}]
+	 * @param {Partial<utils.AdapterOptions>} [options={}]
 	 */
 	module.exports = (options) => new Controme(options);
 } else {
