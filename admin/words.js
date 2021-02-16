@@ -63,16 +63,16 @@ systemDictionary = {
 		"zh-cn": "下次开始时在房间里再次阅读"
 	},
 	"user": {
-		"en": "Controme username",
-		"de": "Controme Username",
-		"ru": "Имя пользователя Controme,
-		"pt": "Nome de usuário Controme,
-		"nl": "Controme gebruikersnaam",
-		"fr": "Nom d'utilisateur Controme",
-		"it": "Nome utente Controme",
-		"es": "Nombre de usuario de Controme",
-		"pl": "Nazwa użytkownika Controme",
-		"zh-cn": "controme用户名"
+		"en": "Username",
+		"de": "Benutzername",
+		"ru": "Имя пользователя",
+		"pt": "Nome de usuário",
+		"nl": "Gebruikersnaam",
+		"fr": "Nom d'utilisateur",
+		"it": "Nome utente",
+		"es": "Nombre de usuario",
+		"pl": "Nazwa użytkownika",
+		"zh-cn": "用户名"
 	},
 	"password": {
 		"en": "Password",

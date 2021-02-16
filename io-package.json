@@ -3,7 +3,7 @@
 		"name": "controme",
 		"version": "0.1.0",
 		"news": {
-			"0.0.1": {
+			"0.1.0": {
 				"en": "initial release",
 				"de": "Erstveröffentlichung",
 				"ru": "Начальная версия",
@@ -16,22 +16,22 @@
 				"zh-cn": "首次出版"
 			}
 		},
-		"title": "ioBroker Controme Adapter",
+		"title": "Controme",
 		"titleLang": {
-			"en": "ioBroker Controme Adapter",
-			"de": "ioBroker Controme Adapter",
-			"ru": "Адаптер ioBroker Controme",
-			"pt": "Adaptador ioBroker Controme",
-			"nl": "ioBroker Controme Adapter",
-			"fr": "Adaptateur Controme ioBroker ",
-			"it": "Adattatore ioBroker Controme",
-			"es": "Adaptador ioBroker Controme",
-			"pl": "ioBroker Controme Adapter",
-			"zh-cn": "ioBroker Controme 适配器"
+			"en": "Controme",
+			"de": "Controme",
+			"ru": "Controme",
+			"pt": "Controme",
+			"nl": "Controme",
+			"fr": "Controme",
+			"it": "Controme",
+			"es": "Controme",
+			"pl": "Controme",
+			"zh-cn": "Controme"
 		},
 		"desc": {
 			"en": "Connect to local Controme mini server that controls you home heating system",
-			"de": "Verbindung mit lokalem Controme Miniserver, der dein Heizungssystem steuert",
+			"de": "Verbindet sich mit lokalem Controme Miniserver, der dein Heizungssystem steuert",
 			"ru": "Подключитесь к локальному мини-серверу Controme, который управляет вашей системой отопления дома",
 			"pt": "Conecte-se ao minisservidor local da Controme que controla o sistema de aquecimento doméstico",
 			"nl": "Maak verbinding met de lokale Controme-miniserver die uw verwarmingssysteem in huis regelt",

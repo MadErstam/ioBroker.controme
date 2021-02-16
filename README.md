@@ -12,62 +12,33 @@
 
 **Tests:** ![Test and Release](https://github.com/MadErstam/ioBroker.controme/workflows/Test%20and%20Release/badge.svg)
 
-## controme adapter for ioBroker
+## ioBroker adapter for Controme mini servier
 
-Connect to local Controme mini server that controls you home heating system
+Connect to local Controme mini server using the official API.
 
-## Developer manual
-This section is intended for the developer. It can be deleted later
+Controme is a heating control system with which you can control your floor heating, central heating system, radiators or other forms of climate control. At the core of a Controme Smart-Heat-System is the Controme mini server, a local Raspberry Pi based system. For more information on the Controme Smart-Heat-System, see the [Controme website](https://www.controme.com/).
 
-### Getting started
+The adapter periodically reads the room temperatures from the mini server as well as allows to set the setpoint temperatures on the server from ioBroker. To use this adapter, you need to have Controme activate the API. The adapter is not intended to replace the Controme UI, but shall over basic data and functionality to integrate Controme with other Smart Home devices and services.
 
-You are almost done, only a few steps left:
-1. Create a new repository on GitHub with the name `ioBroker.controme`
-1. Initialize the current folder as a new git repository:  
-	```bash
-	git init
-	git add .
-	git commit -m "Initial commit"
-	```
-1. Link your local repository with the one on GitHub:  
-	```bash
-	git remote add origin https://github.com/MadErstam/ioBroker.controme
-	```
+The adapter provides the following data for each room defined in the Controme UI:
+    | Object | Type | Description |
+    | - | - | - |
+    | room | device | Each room is represented with its Controme room ID and the room name as device name. |
+    | actualTemperature | state | The actual temperature of the room, with a role of level.temperature. This state is read-only. If no room temperature sensor for a particular room is defined, the actual temperature returned from the Controme mini server is null. |
+    | setPointTemperature | state | The target / setpoint temperature of the room, with a role of value.temperature. This state if read/write. | 
+    | temperatureOffset | state | The offset temperature of the room, by which the sensor measurements are different from the actual temperature of the room. The temperature offset value can be set manually in the Controme UI, and in addition is calculated by various Controme modules. This state if read-only. | 
 
-1. Push all files to the GitHub repo:  
-	```bash
-	git push origin master
-	```
-1. Add a new secret under https://github.com/MadErstam/ioBroker.controme/settings/secrets. It must be named `AUTO_MERGE_TOKEN` and contain a personal access token with push access to the repository, e.g. yours. You can create a new token under https://github.com/settings/tokens.
+The [API documentation](https://support.controme.com/api/) can be found on the Controme website.
 
-1. Head over to [main.js](main.js) and start programming!
-
-### Best Practices
-We've collected some [best practices](https://github.com/ioBroker/ioBroker.repositories#development-and-coding-best-practices) regarding ioBroker development and coding in general. If you're new to ioBroker or Node.js, you should
-check them out. If you're already experienced, you should also take a look at them - you might learn something new :)
-
-### Scripts in `package.json`
-Several npm scripts are predefined for your convenience. You can run them using `npm run <scriptname>`
-| Script name | Description |
-|-------------|-------------|
-| `test:js` | Executes the tests you defined in `*.test.js` files. |
-| `test:package` | Ensures your `package.json` and `io-package.json` are valid. |
-| `test:unit` | Tests the adapter startup with unit tests (fast, but might require module mocks to work). |
-| `test:integration` | Tests the adapter startup with an actual instance of ioBroker. |
-| `test` | Performs a minimal test run on package files and your tests. |
-| `check` | Performs a type-check on your code (without compiling anything). |
-| `lint` | Runs `ESLint` to check your code for formatting errors and potential bugs. |
-
-### Writing tests
-When done right, testing code is invaluable, because it gives you the 
-confidence to change your code while knowing exactly if and when 
-something breaks. A good read on the topic of test-driven development 
-is https://hackernoon.com/introduction-to-test-driven-development-tdd-61a13bc92d92. 
-Although writing tests before the code might seem strange at first, but it has very 
-clear upsides.
-
-The template provides you with basic tests for the adapter startup and package files.
-It is recommended that you add your own tests into the mix.
+To start the adapter, the following data need to be provided in the admin settings page for the adapter instance:
+	| Data field | Type | Description |
+    | - | - | - |
+    | url | text | The URL of the Controme mini server. Can be either the IP address or the name. |
+    | house ID | number | The ID of the Controme installation. This should be either 1 or 2 according to the API documentation. |
+    | interval | number | The interval in seconds in which the data is polled from the server. This value should be between 15 seconds and 3600 seconds. Too low values do not make sense, since Controme updates the sensor values only every 3-5 minutes. | 
+    | forceReInit | checkbox | If this checkbox is set, Controme purges the object structure in the ioBroker database and reloads the rooms from the server. This setting is only required when the room structure on the Controme server changes. | 
+	| username | text | The username with which to access the Controme API. This is usually the username of the main Controme user. |
+	| password | password | The password of the user with which to access the Controme API. |
 
 ### Publishing the adapter
 Since you have chosen GitHub Actions as your CI service, you can 
@@ -94,9 +65,22 @@ For later updates, the above procedure is not necessary. Just do the following:
 1. Overwrite the changed files in the adapter directory (`/opt/iobroker/node_modules/iobroker.controme`)
 1. Execute `iobroker upload controme` on the ioBroker host
 
+
+## To Dos
+
+1. Add data validation to config fields
+2. Extend data fields received from Controme mini server (e.g. humidity)
+3. Add sensor data for each sensor and room
+4. Implement target temperature (temporary changes to desired temperature for room) next to setpoint temperature
+5. Add option to set value for virtual sensors
+
+## Know Bugs
+
+1. ...
+
 ## Changelog
 
-### 0.0.1
+### 0.1.0
 * (MadErstam) initial release
 
 ## License
