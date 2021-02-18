@@ -22,7 +22,7 @@ The adapter periodically reads the room temperatures from the mini server as wel
 
 The adapter provides the following data for each room defined in the Controme UI:
     | Object | Type | Description |
-    | - | - | - |
+    | --- | --- | --- |
     | room | device | Each room is represented with its Controme room ID and the room name as device name. |
     | actualTemperature | state | The actual temperature of the room, with a role of level.temperature. This state is read-only. If no room temperature sensor for a particular room is defined, the actual temperature returned from the Controme mini server is null. |
     | setPointTemperature | state | The target / setpoint temperature of the room, with a role of value.temperature. This state if read/write. | 
@@ -32,7 +32,7 @@ The [API documentation](https://support.controme.com/api/) can be found on the C
 
 To start the adapter, the following data need to be provided in the admin settings page for the adapter instance:
 	| Data field | Type | Description |
-    | - | - | - |
+    | --- | --- | --- |
     | url | text | The URL of the Controme mini server. Can be either the IP address or the name. |
     | house ID | number | The ID of the Controme installation. This should be either 1 or 2 according to the API documentation. |
     | interval | number | The interval in seconds in which the data is polled from the server. This value should be between 15 seconds and 3600 seconds. Too low values do not make sense, since Controme updates the sensor values only every 3-5 minutes. | 
