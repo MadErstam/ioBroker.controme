@@ -74,7 +74,7 @@ class Controme extends utils.adapter {
 			}
 
 			try {
-				await this.extendForeignObjectAsync(`system.this.${this.namespace}`, { native: { forceReInit: false } });
+				await this.extendForeignObjectAsync(`system.adapter.${this.namespace}`, { native: { forceReInit: false } });
 			} catch (e) {
 				this.log.error(`Could not set forceReinit to false: ${e.message}`);
 			}
