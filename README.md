@@ -20,25 +20,26 @@ Controme is a heating control system with which you can control your floor heati
 
 The adapter periodically reads the room temperatures from the mini server as well as allows to set the setpoint temperatures on the server from ioBroker. To use this adapter, you need to have Controme activate the API. The adapter is not intended to replace the Controme UI, but shall over basic data and functionality to integrate Controme with other Smart Home devices and services.
 
+
 The adapter provides the following data for each room defined in the Controme UI:
-    | Object | Type | Description |
-    | --- | --- | --- |
-    | room | device | Each room is represented with its Controme room ID and the room name as device name. |
-    | actualTemperature | state | The actual temperature of the room, with a role of level.temperature. This state is read-only. If no room temperature sensor for a particular room is defined, the actual temperature returned from the Controme mini server is null. |
-    | setPointTemperature | state | The target / setpoint temperature of the room, with a role of value.temperature. This state if read/write. | 
-    | temperatureOffset | state | The offset temperature of the room, by which the sensor measurements are different from the actual temperature of the room. The temperature offset value can be set manually in the Controme UI, and in addition is calculated by various Controme modules. This state if read-only. | 
+| Object | Type | Description |
+| --- | --- | --- |
+| room | device | Each room is represented with its Controme room ID and the room name as device name. |
+| actualTemperature | state | The actual temperature of the room, with a role of level.temperature. This state is read-only. If no room temperature sensor for a particular room is defined, the actual temperature returned from the Controme mini server is null. |
+| setPointTemperature | state | The target / setpoint temperature of the room, with a role of value.temperature. This state if read/write. | 
+| temperatureOffset | state | The offset temperature of the room, by which the sensor measurements are different from the actual temperature of the room. The temperature offset value can be set manually in the Controme UI, and in addition is calculated by various Controme modules. This state if read-only. | 
 
 The [API documentation](https://support.controme.com/api/) can be found on the Controme website.
 
 To start the adapter, the following data need to be provided in the admin settings page for the adapter instance:
-	| Data field | Type | Description |
-    | --- | --- | --- |
-    | url | text | The URL of the Controme mini server. Can be either the IP address or the name. |
-    | house ID | number | The ID of the Controme installation. This should be either 1 or 2 according to the API documentation. |
-    | interval | number | The interval in seconds in which the data is polled from the server. This value should be between 15 seconds and 3600 seconds. Too low values do not make sense, since Controme updates the sensor values only every 3-5 minutes. | 
-    | forceReInit | checkbox | If this checkbox is set, Controme purges the object structure in the ioBroker database and reloads the rooms from the server. This setting is only required when the room structure on the Controme server changes. | 
-	| username | text | The username with which to access the Controme API. This is usually the username of the main Controme user. |
-	| password | password | The password of the user with which to access the Controme API. |
+| Data field | Type | Description |
+| --- | --- | --- |
+| url | text | The URL of the Controme mini server. Can be either the IP address or the name. |
+| house ID | number | The ID of the Controme installation. This should be either 1 or 2 according to the API documentation. |
+| interval | number | The interval in seconds in which the data is polled from the server. This value should be between 15 seconds and 3600 seconds. Too low values do not make sense, since Controme updates the sensor values only every 3-5 minutes. | 
+| forceReInit | checkbox | If this checkbox is set, Controme purges the object structure in the ioBroker database and reloads the rooms from the server. This setting is only required when the room structure on the Controme server changes. | 
+| username | text | The username with which to access the Controme API. This is usually the username of the main Controme user. |
+| password | password | The password of the user with which to access the Controme API. |
 
 ### Publishing the adapter
 Since you have chosen GitHub Actions as your CI service, you can 
