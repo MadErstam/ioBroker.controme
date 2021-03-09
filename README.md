@@ -41,34 +41,9 @@ To start the adapter, the following data need to be provided in the admin settin
 | username | text | The username with which to access the Controme API. This is usually the username of the main Controme user. |
 | password | password | The password of the user with which to access the Controme API. |
 
-### Publishing the adapter
-Since you have chosen GitHub Actions as your CI service, you can 
-enable automatic releases on npm whenever you push a new git tag that matches the form 
-`v<major>.<minor>.<patch>`. The necessary steps are described in `.github/workflows/test-and-release.yml`.
-
-To get your adapter released in ioBroker, please refer to the documentation 
-of [ioBroker.repositories](https://github.com/ioBroker/ioBroker.repositories#requirements-for-adapter-to-get-added-to-the-latest-repository).
-
-### Test the adapter manually on a local ioBroker installation
-In order to install the adapter locally without publishing, the following steps are recommended:
-1. Create a tarball from your dev directory:  
-	```bash
-	npm pack
-	```
-1. Upload the resulting file to your ioBroker host
-1. Install it locally (The paths are different on Windows):
-	```bash
-	cd /opt/iobroker
-	npm i /path/to/tarball.tgz
-	```
-
-For later updates, the above procedure is not necessary. Just do the following:
-1. Overwrite the changed files in the adapter directory (`/opt/iobroker/node_modules/iobroker.controme`)
-1. Execute `iobroker upload controme` on the ioBroker host
-
-
 ## To Dos
 
+0. Publish the adapter :)
 1. Add data validation to config fields
 2. Extend data fields received from Controme mini server (e.g. humidity)
 3. Add sensor data for each sensor and room
