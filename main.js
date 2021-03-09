@@ -140,7 +140,7 @@ class Controme extends utils.adapter {
 		}, this.config.interval * 1000);
 
 		// Subscribe to all states that can be written to
-		this.subscribeStates("*.set_point_temperature");
+		this.subscribeStates("*.setPointTemperature");
 
 		this.setState("info.connection", true, true);
 
