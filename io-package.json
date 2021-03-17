@@ -1,8 +1,20 @@
 {
 	"common": {
 		"name": "controme",
-		"version": "0.1.1",
+		"version": "0.1.2",
 		"news": {
+			"0.1.2": {
+				"en": "Preparations for adapter package release",
+				"de": "Vorbereitungen für Release des Adapter-Pakets",
+				"ru": "Подготовка к выпуску пакета адаптера",
+				"pt": "Preparações para o lançamento do pacote do adaptador",
+				"nl": "Voorbereidingen voor het vrijgeven van het adapterpakket",
+				"fr": "Préparatifs pour la sortie du package d'adaptateur",
+				"it": "Preparativi per il rilascio del pacchetto dell'adattatore",
+				"es": "Preparativos para la liberación del paquete del adaptador",
+				"pl": "Przygotowania do wydania pakietu adapterów",
+				"zh-cn": "适配器包装发布的准备工作"
+			},
 			"0.1.1": {
 				"en": "Minor bug fixes",
 				"de": "Kleine Fehlerkorrekturen",
@@ -14,6 +26,18 @@
 				"es": "Pequeñas correcciones de errores",
 				"pl": "Drobne poprawki błędów",
 				"zh-cn": "小错误修复"
+			},
+			"0.1.0": {
+				"en": "initial release",
+				"de": "Erstveröffentlichung",
+				"ru": "Начальная версия",
+				"pt": "lançamento inicial",
+				"nl": "Eerste uitgave",
+				"fr": "Première version",
+				"it": "Versione iniziale",
+				"es": "Versión inicial",
+				"pl": "Pierwsze wydanie",
+				"zh-cn": "首次出版"
 			}
 		},
 		"title": "Controme",
