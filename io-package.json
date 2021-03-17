@@ -1,19 +1,19 @@
 {
 	"common": {
 		"name": "controme",
-		"version": "0.1.0",
+		"version": "0.1.1",
 		"news": {
-			"0.1.0": {
-				"en": "initial release",
-				"de": "Erstveröffentlichung",
-				"ru": "Начальная версия",
-				"pt": "lançamento inicial",
-				"nl": "Eerste uitgave",
-				"fr": "Première version",
-				"it": "Versione iniziale",
-				"es": "Versión inicial",
-				"pl": "Pierwsze wydanie",
-				"zh-cn": "首次出版"
+			"0.1.1": {
+				"en": "Minor bug fixes",
+				"de": "Kleine Fehlerkorrekturen",
+				"ru": "Мелкие исправления ошибок",
+				"pt": "Pequenas correções de bugs",
+				"nl": "Kleine bugfixes",
+				"fr": "Petites corrections de bugs",
+				"it": "Piccole correzioni di bug",
+				"es": "Pequeñas correcciones de errores",
+				"pl": "Drobne poprawki błędów",
+				"zh-cn": "小错误修复"
 			}
 		},
 		"title": "Controme",
