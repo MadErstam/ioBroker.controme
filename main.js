@@ -23,6 +23,14 @@ if (!Number.prototype.round) {
 	};
 }
 
+function decrypt(key, value) {
+	let result = '';
+	for (let i = 0; i < value.length; ++i) {
+		result += String.fromCharCode(key[i % key.length].charCodeAt(0) ^ value.charCodeAt(i));
+	}
+	return result;
+}
+
 class Controme extends utils.adapter {
 
 	/**
@@ -44,10 +52,24 @@ class Controme extends utils.adapter {
 	 * Is called when databases are connected and this received configuration.
 	 */
 	async onReady() {
-		// Initialize your this here
+		// Initialize your adapter here
 
 		// Reset the connection indicator during startup
 		this.setState("info.connection", false, true);
+
+		if (this.supportsFeature && this.supportsFeature("PLUGINS")) {
+			this.getForeignObject("system.config", (err, obj) => {
+				if (!this.supportsFeature || !this.supportsFeature("ADAPTER_AUTO_DECRYPT_NATIVE")) {
+					if (obj && obj.native && obj.native.secret) {
+						//noinspection JSUnresolvedVariable
+						this.config.password = decrypt(obj.native.secret, this.config.password);
+					} else {
+						//noinspection JSUnresolvedVariable
+						this.config.password = decrypt("Zgfr56gFe87jJOM", this.config.password);
+					}
+				}
+			});
+		}
 
 		// check the received configuration values for validity
 		if (this.config.interval < 15) {
@@ -58,7 +80,6 @@ class Controme extends utils.adapter {
 		this.log.debug(`Controme URL: ${this.config.url}; houseID: ${this.config.houseID}; update interval: ${this.config.interval}`);
 
 		if (this.config.forceReInit) {
-			this.log.debug("Re-initializing object structure.");
 
 			try {
 				const objects = await this.getAdapterObjectsAsync();
@@ -68,22 +89,15 @@ class Controme extends utils.adapter {
 						await this.delForeignObjectAsync(object);
 					}
 				}
-
+				this.log.debug(`Purging object structure finished successfully`);
 			} catch (error) {
-				this.log.error(error);
+				this.log.error(`Purging object structure failed with ${error}`);
 			}
 
+			// Read room structure and create all required objects
 			try {
-				await this.extendForeignObjectAsync(`system.adapter.${this.namespace}`, { native: { forceReInit: false } });
-			} catch (e) {
-				this.log.error(`Could not set forceReinit to false: ${e.message}`);
-			}
-		}
 
-		// Upon initialization of the this, the adapter reads the room structure and creates all rooms that do not yet exist
-		(async () => {
-			const url = "http://" + this.config.url + "/get/json/v1/" + this.config.houseID + "/rooms/";
-			try {
+				const url = "http://" + this.config.url + "/get/json/v1/" + this.config.houseID + "/rooms/";
 				const response = await got(url);
 
 				// response JSON contains hierarchical information starting with floors and rooms on these floors
@@ -102,11 +116,49 @@ class Controme extends utils.adapter {
 						}
 					}
 				}
-
+				this.log.debug(`Creating room structure from Controme mini server finished successfully`);
 			} catch (error) {
-				this.log.error(`Reading room structure from Controme mini server finished with error "${error.response.body}"`);
+				this.log.error(`Creating room structure from Controme mini server finished with error "${error.response.body}"`);
 			}
-		})();
+
+			try {
+				const url = "http://" + this.config.url + "/get/json/v1/1/temps/";
+				const response = await got(url);
+
+				const body = JSON.parse(response.body);
+
+				for (const floor in body) {
+					if (Object.prototype.hasOwnProperty.call(body, floor)) {
+						for (const room in body[floor].raeume) {
+							if (Object.prototype.hasOwnProperty.call(body[floor].raeume, room)) {
+								this._createOffsetsForRoom(body[floor].raeume[room]);
+
+								for (const sensor in body[floor].raeume[room].sensoren) {
+									if (Object.prototype.hasOwnProperty.call(body[floor].raeume[room].sensoren, sensor)) {
+										this._createSensorsForRoom(body[floor].raeume[room].id, body[floor].raeume[room].sensoren[sensor]);
+									}
+								}
+							}
+						}
+					}
+				}
+				// the connection indicator is updated when the connection was successful
+				this.log.debug(`Creating data objects for offsets and sensors finished successfully`);
+				this.setStateAsync("info.connection", true, true);
+			} catch (error) {
+				// when an error is received, the connection indicator is updated accordingly
+				this.setStateAsync("info.connection", false, true);
+				this.log.error(`Creating data objects for offsets and sensors finished with error "${error.response.body}"`);
+			}
+
+			try {
+				await this.extendForeignObjectAsync(`system.adapter.${this.namespace}`, { native: { forceReInit: false } });
+			} catch (e) {
+				this.log.error(`Could not set forceReinit to false: ${e.message}`);
+			}
+
+		}
+
 
 		// Start polling temperature data from the server in the defined update interval
 		this.updateInterval = setInterval(() => {
@@ -124,20 +176,8 @@ class Controme extends utils.adapter {
 							for (const room in body[floor].raeume) {
 								if (Object.prototype.hasOwnProperty.call(body[floor].raeume, room)) {
 									this._updateRoom(body[floor].raeume[room]);
-									// Create offsets for the respective room; offset data is only transmitted by the temps API call or the roomoffsets API call 
-									// (where the offset data is fully included in temps), so creating this structure cannot be done when we create the rooms earlier. 
-									// this.log.debug(JSON.stringify(room.offsets));
-									// this._createOffsetsForRoom(room.id, room.offsets);
-
-									// Create sensors for the respective room; sensor data is only transmitted by the temps API call, 
-									// so cannot be done when we create the rooms earlier. 
-									for (const sensor in body[floor].raeume[room].sensoren) {
-										if (Object.prototype.hasOwnProperty.call(body[floor].raeume[room].sensoren, sensor)) {
-											// [CHECK] If it is a performance issue to do this every time, this should only be done when forceReInit is set in admin
-											this._createSensorsForRoom(body[floor].raeume[room].id, body[floor].raeume[room].sensoren[sensor]);
-											this._updateSensorsForRoom(body[floor].raeume[room].id, body[floor].raeume[room].sensoren[sensor]);
-										}
-									}
+									this._updateOffsetsForRoom(body[floor].raeume[room]);
+									this._updateSensorsForRoom(body[floor].raeume[room]);
 								}
 							}
 						}
@@ -147,15 +187,16 @@ class Controme extends utils.adapter {
 				} catch (error) {
 					// when an error is received, the connection indicator is updated accordingly
 					this.setStateAsync("info.connection", false, true);
-					this.log.info(`Polling temperature data from Controme mini server finished with error "${error.response.body}"`);
+					this.log.error(`Polling temperature data from Controme mini server finished with error "${error.response.body}"`);
 				}
 			})();
 
 		}, this.config.interval * 1000);
 
 		// Subscribe to all states that can be written to
-		this.subscribeStates("*.setPointTemperature");
-		this.subscribeStates("*.sensor.*.actualTemperature");
+		this.subscribeStates("*.setpointTemperature");
+		this.subscribeStates("*.sensors.*.actualTemperature");
+		this.subscribeStates("*.offsets.api.*");
 
 		this.setState("info.connection", true, true);
 
@@ -163,44 +204,65 @@ class Controme extends utils.adapter {
 
 	_createObjectsForRoom(room) {
 		const promises = [];
+		this.log.silly(`Creating objects for room ${room.id} (${room.name}): Basic object structure`);
 		promises.push(this.setObjectNotExistsAsync(room.id.toString(), { type: "device", common: { name: room.name }, native: {} }));
-		promises.push(this.setObjectNotExistsAsync(room.id + ".actualTemperature", { type: "state", common: { name: room.name + ".actualTemperature", type: "number", unit: "°C", role: "value.temperature", read: true, write: false }, native: {} }));
-		promises.push(this.setObjectNotExistsAsync(room.id + ".setPointTemperature", { type: "state", common: { name: room.name + ".setPointTemperature", type: "number", unit: "°C", role: "level.temperature", read: true, write: true }, native: {} }));
-		promises.push(this.setObjectNotExistsAsync(room.id + ".temperatureOffset", { type: "state", common: { name: room.name + ".temperatureOffset", type: "number", unit: "°C", role: "value", read: true, write: false }, native: {} }));
+		promises.push(this.setObjectNotExistsAsync(room.id + ".actualTemperature", { type: "state", common: { name: room.name + " actual temperature", type: "number", unit: "°C", role: "value.temperature", read: true, write: false }, native: {} }));
+		promises.push(this.setObjectNotExistsAsync(room.id + ".setpointTemperature", { type: "state", common: { name: room.name + " setpoint temperature", type: "number", unit: "°C", role: "level.temperature", read: true, write: true }, native: {} }));
+		promises.push(this.setObjectNotExistsAsync(room.id + ".temperatureOffset", { type: "state", common: { name: room.name + " temperature offset", type: "number", unit: "°C", role: "value", read: true, write: false }, native: {} }));
+		promises.push(this.setObjectNotExistsAsync(room.id + ".sensors", { type: "channel", common: { name: room.name + " sensors" }, native: {} }));
+		promises.push(this.setObjectNotExistsAsync(room.id + ".offsets", { type: "channel", common: { name: room.name + " offsets" }, native: {} }));
 		return Promise.all(promises);
 	}
 
-	_createOffsetsForRoom(roomID, offsets) {
-		for (const offset in offsets) {
-			this.log.debug(offset);
-			// if (Object.prototype.hasOwnProperty.call(offsets, offset)) {
-			// 	this.log.debug(`${offset}: ${JSON.stringify(offsets[offset])}`);
-			// 	// this.log.debug(`${offset} : ${JSON.stringify(offset)}`);
-			// 	// [CHECK] If it is a performance issue to do this every time, this should only be done when forceReInit is set in admin
-			// 	// this._updateOffsetsForRoom(body[floor].raeume[room], body[floor].raeume[room].offsets[offset]);
-			// }
+	isEmpty(object) {
+		for (var i in object) {
+			return false;
 		}
+		return true;
+	}
 
-		// const promises = [];
-		// promises.push(this.setObjectNotExistsAsync(room.id + ".offsets." + sensor.name, { type: "device", common: { name: sensor.beschreibung }, native: {} }));
-		// promises.push(this.setObjectNotExistsAsync(room.id + ".offsets." + sensor.name + ".isRoomTempSensor", { type: "state", common: { name: sensor.beschreibung + ".isRoomTempSensor", type: "boolean", role: "indicator", read: true, write: false }, native: {} }));
-		// promises.push(this.setObjectNotExistsAsync(room.id + ".offsets." + sensor.name + ".actualTemperature", { type: "state", common: { name: sensor.beschreibung + ".actualTemperature", type: "number", unit: "°C", role: "value.temperature", read: true, write: true }, native: {} }));
-		// return Promise.all(promises);
+	_createOffsetsForRoom(room) {
+		const promises = [];
+		for (const offset in room.offsets) {
+			if (Object.prototype.hasOwnProperty.call(room.offsets, offset)) {
+				if (typeof (room.offsets[offset]) === "object") {
+					if (!this.isEmpty(room.offsets[offset])) {
+						// if offset object is not empty, we create the relevant object structure
+						// this.log.silly(`Creating object structure for offset object ${offset}`);
+						promises.push(this.setObjectNotExistsAsync(room.id + ".offsets." + offset, { type: "channel", common: { name: room.name + " offset " + offset }, native: {} }));
+						for (const offset_item in room.offsets[offset]) {
+							if (Object.prototype.hasOwnProperty.call(room.offsets[offset], offset_item)) {
+								this.log.silly(`Creating objects for room ${room.id}: Offset ${offset}.${offset_item}`);
+								promises.push(this.setObjectNotExistsAsync(room.id + ".offsets." + offset + "." + offset_item, { type: "state", common: { name: room.name + " offset " + offset + " " + offset_item, type: "number", unit: "°C", role: "value", read: true, write: false }, native: {} }));
+							}
+						}
+					} else if (offset == "api") {
+						// for the offset object api, we create a dedicated structure, since it can be used to set api offsets, so needs to be read/write
+						// this.log.silly(`Creating object structure for offset object ${offset}`);
+						this.log.silly(`Creating objects for room ${room.id}: Offset ${offset}.api`);
+						promises.push(this.setObjectNotExistsAsync(room.id + ".offsets." + offset, { type: "channel", common: { name: room.name + " offset " + offset }, native: {} }));
+						promises.push(this.setObjectNotExistsAsync(room.id + ".offsets." + offset + ".api", { type: "state", common: { name: room.name + " offset " + offset + " api", type: "number", unit: "°C", role: "value", read: true, write: true }, native: {} }));
+					}
+				}
+			}
+		}
+		return Promise.all(promises);
 	}
 
 	_createSensorsForRoom(roomID, sensor) {
 		const promises = [];
+		this.log.silly(`Creating objects for room ${roomID}: Sensor ${sensor.name} (${sensor.beschreibung})`);
 		promises.push(this.setObjectNotExistsAsync(roomID + ".sensors." + sensor.name, { type: "device", common: { name: sensor.beschreibung }, native: {} }));
-		promises.push(this.setObjectNotExistsAsync(roomID + ".sensors." + sensor.name + ".isRoomTempSensor", { type: "state", common: { name: sensor.beschreibung + ".isRoomTempSensor", type: "boolean", role: "indicator", read: true, write: false }, native: {} }));
-		promises.push(this.setObjectNotExistsAsync(roomID + ".sensors." + sensor.name + ".actualTemperature", { type: "state", common: { name: sensor.beschreibung + ".actualTemperature", type: "number", unit: "°C", role: "value.temperature", read: true, write: true }, native: {} }));
+		promises.push(this.setObjectNotExistsAsync(roomID + ".sensors." + sensor.name + ".isRoomTemperatureSensor", { type: "state", common: { name: sensor.beschreibung + " is room temperature sensor", type: "boolean", role: "indicator", read: true, write: false }, native: {} }));
+		promises.push(this.setObjectNotExistsAsync(roomID + ".sensors." + sensor.name + ".actualTemperature", { type: "state", common: { name: sensor.beschreibung + " actual temperature", type: "number", unit: "°C", role: "value.temperature", read: true, write: true }, native: {} }));
 		return Promise.all(promises);
 	}
 
 	_updateRoom(room) {
 		const promises = [];
-		this.log.silly(`Updating room ${room.id} (${room.name})`);
+		this.log.silly(`Updating room ${room.id} (${room.name}): Actual temperature ${parseFloat(room.temperatur).round(2)} °C, setpoint temperature ${parseFloat(room.solltemperatur).round(2)} °C, temperature offset ${parseFloat(room.total_offset).round(2)} °C`);
 		promises.push(this.setStateChangedAsync(room.id + ".actualTemperature", parseFloat(room.temperatur).round(2), true));
-		promises.push(this.setStateChangedAsync(room.id + ".setPointTemperature", parseFloat(room.solltemperatur).round(2), true));
+		promises.push(this.setStateChangedAsync(room.id + ".setpointTemperature", parseFloat(room.solltemperatur).round(2), true));
 		promises.push(this.setStateChangedAsync(room.id + ".temperatureOffset", parseFloat(room.total_offset).round(2), true));
 		return Promise.all(promises);
 	}
@@ -217,16 +279,42 @@ class Controme extends utils.adapter {
 		}
 	}
 
-	_updateSensorsForRoom(roomID, sensor) {
+	_updateOffsetsForRoom(room) {
 		const promises = [];
-		promises.push(this.setStateChangedAsync(roomID + ".sensors." + sensor.name + ".isRoomTempSensor", sensor.raumtemperatursensor));
-		// sensor.wert can be either an object or a float
-		if (typeof (sensor.wert) === "object") {
-			this.log.silly(`Updating sensor ${sensor.name} (${sensor.beschreibung}) for room ${roomID} to ${sensor.wert.Temperatur} °C`);
-			promises.push(this.setStateChangedAsync(roomID + ".sensors." + sensor.name + ".actualTemperature", parseFloat(sensor.wert.Temperatur).round(2), true));
-		} else {
-			this.log.silly(`Updating sensor ${sensor.name} (${sensor.beschreibung}) for room ${roomID} to ${sensor.wert} °C`);
-			promises.push(this.setStateChangedAsync(roomID + ".sensors." + sensor.name + ".actualTemperature", parseFloat(sensor.wert).round(2), true));
+		for (const offset in room.offsets) {
+			if (Object.prototype.hasOwnProperty.call(room.offsets, offset)) {
+				if (typeof (room.offsets[offset]) === "object") {
+					if (!this.isEmpty(room.offsets[offset])) {
+						// if offset object is not empty, we update the relevant object structure
+						for (const offset_item in room.offsets[offset]) {
+							if (Object.prototype.hasOwnProperty.call(room.offsets[offset], offset_item)) {
+								this.log.silly(`Updating room ${room.id}: Offset ${offset}.${offset_item} to ${parseFloat(room.offsets[offset][offset_item]).round(2)} °C`);
+								promises.push(this.setStateChangedAsync(room.id + ".offsets." + offset + "." + offset_item, parseFloat(room.offsets[offset][offset_item]).round(2), true));
+							}
+						}
+					}
+				}
+			}
+		}
+		return Promise.all(promises);
+	}
+
+	_updateSensorsForRoom(room) {
+		const promises = [];
+		for (const sensor in room.sensoren) {
+			if (Object.prototype.hasOwnProperty.call(room.sensoren, sensor)) {
+				this.log.silly(`${room.id}.sensors.${room.sensoren[sensor].name}.isRoomTemperatureSensor: ${room.sensoren[sensor].raumtemperatursensor}`);
+				promises.push(this.setStateChangedAsync(room.id + ".sensors." + room.sensoren[sensor].name + ".isRoomTemperatureSensor", room.sensoren[sensor].raumtemperatursensor, true));
+				// sensor.wert can be either an object or a float
+				if (typeof (room.sensoren[sensor].wert) === "object") {
+					//  {"raumtemperatursensor":true,"letzte_uebertragung":"18.03.2021 18:23","name":"05:90:22:a2","wert":{"Helligkeit":null,"Relative Luftfeuchte":null,"Bewegung":null,"Temperatur":21.80392156862745}
+					this.log.silly(`Updating room ${room.id}: Sensor ${room.sensoren[sensor].name} (${room.sensoren[sensor].beschreibung}) to ${room.sensoren[sensor].wert.Temperatur} °C`);
+					promises.push(this.setStateChangedAsync(room.id + ".sensors." + room.sensoren[sensor].name + ".actualTemperature", parseFloat(room.sensoren[sensor].wert.Temperatur).round(2), true));
+				} else {
+					this.log.silly(`Updating room ${room.id}: Sensor ${room.sensoren[sensor].name} (${room.sensoren[sensor].beschreibung}) to ${parseFloat(room.sensoren[sensor].wert).round(2)} °C`);
+					promises.push(this.setStateChangedAsync(room.id + ".sensors." + room.sensoren[sensor].name + ".actualTemperature", parseFloat(room.sensoren[sensor].wert).round(2), true));
+				}
+			}
 		}
 		return Promise.all(promises);
 	}
@@ -272,21 +360,41 @@ class Controme extends utils.adapter {
 		if (state) {
 			// A subscribed state was changed. We need to only react on changes initiated by the used, where ack == false
 			if (state.ack == false) {
-				this.log.debug(`State ${id} changed: ${state.val} (ack = ${state.ack})`);
 				// identify which of the subscribed states has changed
-				if (id.endsWith(".setPointTemperature")) {
+				if (id.endsWith(".setpointTemperature")) {
+					// this.subscribeStates("*.setpointTemperature");
 					// extract the roomID from id
-					const roomID = id.match(/\.(\d+)\.\w+$/);
+					const roomID = id.match(/^controme\.\d\.(\d+)/);
 					if (roomID !== null) {
-						this._setPointTemp(roomID[1], state.val);
+						this.log.debug(`Room ${roomID[1]}: Calling setSetpointTemp(${roomID[1]}, ${state.val})`);
+						this._setSetpointTemp(roomID[1], state.val);
+					} else {
+						this.log.error(`Change of subscribed state ${id} to ${state.val} °C (ack = ${state.ack}) failed`);
 					}
 				} else if (id.endsWith(".actualTemperature")) {
-					// extract the sensorID from id
-					const sensorID = id.match(/\.sensor\.([0-9a-f_:]+)\.\w+$/);
-					if (sensorID !== null) {
-						this.log.debug(`Sensor ID ${sensorID[1]}`);
-						this._setActualTemp(sensorID[1], state.val);
+					// this.subscribeStates("*.sensor.*.actualTemperature");
+					// extract the roomID and sensorID from id
+					const roomID = id.match(/^controme\.\d\.(\d+)/);
+					const sensorID = id.match(/\.sensors\.([0-9a-f_:]+)\./);
+					if (roomID !== null && sensorID !== null) {
+						this.log.debug(`Room ${roomID[1]}: Calling setActualTemp(${roomID[1]}, ${sensorID[1]}, ${state.val})`);
+						this._setActualTemp(roomID[1], sensorID[1], state.val);
+					} else {
+						this.log.error(`Change of subscribed actualTemperature state ${id} to ${state.val} °C (ack = ${state.ack}) failed`);
 					}
+				} else if (id.includes(".offsets.api.")) {
+					// 	this.subscribeStates("*.offsets.api.*");
+					// extract the apiID and sensorID from id
+					const roomID = id.match(/^controme\.\d\.(\d+)/);
+					const apiID = id.match(/offsets\.api\.(.+)/);
+					if (roomID !== null && apiID !== null) {
+						this.log.debug(`Room ${roomID[1]}: Calling setOffsetTemp(${roomID[1]}, ${apiID[1]}, ${state.val})`);
+						this._setOffsetTemp(roomID[1], apiID[1], state.val);
+					} else {
+						this.log.error(`Change of subscribed offset state ${id} to ${state.val} °C (ack = ${state.ack}) failed`);
+					}
+				} else {
+					this.log.error(`Unhandled change of subscribed state: ${id} changed to ${state.val} (ack = ${state.ack})`);
 				}
 			}
 		} else {
@@ -295,26 +403,26 @@ class Controme extends utils.adapter {
 		}
 	}
 
-	_setPointTemp(roomID, setPointTemp) {
-		this.log.debug(`Setting setpoint temperature on Controme mini server for room ${roomID} to ${setPointTemp}`);
+	_setSetpointTemp(roomID, setpointTemp) {
+		this.log.debug(`Room ${roomID}: Setting setpoint temperature to ${setpointTemp} °C`);
 		const url = "http://" + this.config.url + "/set/json/v1/" + this.config.houseID + "/soll/" + roomID + "/";
 		const form = new formData();
 
 		form.append("user", this.config.user);
 		form.append("password", this.config.password);
-		form.append("soll", setPointTemp);
+		form.append("soll", setpointTemp);
 
 		(async () => {
 			try {
 				await got.post(url, { body: form });
 			} catch (error) {
-				this.log.error(error);
+				this.log.error(`Room ${roomID}: Setting setpoint temperature returned an error "${error}"`);
 			}
 		})();
 	}
 
 	_setTargetTemp(roomID, targetTemp, targetDuration) {
-		this.log.debug(`Setting target temperature on Controme mini server for room ${roomID} to ${targetTemp} for ${targetDuration} minutes`);
+		this.log.debug(`Room ${roomID}: Setting target temperature to ${targetTemp} °C for ${targetDuration} minutes`);
 		const url = "http://" + this.config.url + "/set/json/v1/" + this.config.houseID + "/ziel/" + roomID + "/";
 		const form = new formData();
 
@@ -333,8 +441,8 @@ class Controme extends utils.adapter {
 		})();
 	}
 
-	_setActualTemp(sensorID, actualTemp) {
-		this.log.debug(`Setting temperature on Controme mini server for sensor ${sensorID} to ${actualTemp}`);
+	_setActualTemp(roomID, sensorID, actualTemp) {
+		this.log.debug(`Room ${roomID}: Setting actual temperature for sensor ${sensorID} to ${actualTemp} °C`);
 		const url = "http://" + this.config.url + "/set/json/v1/" + this.config.houseID + "/set/";
 		const form = new formData();
 
@@ -347,10 +455,29 @@ class Controme extends utils.adapter {
 			try {
 				const { body } = await got.post(url, { body: form });
 				if (body != "") {
-					this.log.error(`Setting ${sensorID} to ${actualTemp} °C returned an unexpected response "${body}"`);
+					this.log.error(`Room ${roomID}: Setting actual temperature for sensor ${sensorID} returned an unexpected response "${body}"`);
 				}
 			} catch (error) {
-				this.log.error(`Setting ${sensorID} to ${actualTemp} °C returned an error "${error}"`);
+				this.log.error(`Room ${roomID}: Setting actual temperature for sensor ${sensorID} returned an error "${error}"`);
+			}
+		})();
+	}
+
+	_setOffsetTemp(roomID, apiID, offsetTemp) {
+		this.log.debug(`Room ${roomID}: Setting offset temperature for offset ${apiID} to ${offsetTemp} °C`);
+		const url = "http://" + this.config.url + "/set/json/v1/" + this.config.houseID + "/roomoffset/" + roomID + "/";
+		const form = new formData();
+
+		form.append("user", this.config.user);
+		form.append("password", this.config.password);
+		form.append("offset_name", apiID);
+		form.append("offset", offsetTemp);
+
+		(async () => {
+			try {
+				await got.post(url, { body: form });
+			} catch (error) {
+				this.log.error(`Room ${roomID}: Setting offset temperature for offset ${apiID} returned an error "${error}"`);
 			}
 		})();
 	}

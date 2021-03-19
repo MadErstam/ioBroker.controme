@@ -1,8 +1,20 @@
 {
 	"common": {
 		"name": "controme",
-		"version": "0.1.2",
+		"version": "0.2.0",
 		"news": {
+			"0.2.0": {
+				"en": "Added sensors and offsets",
+				"de": "Sensoren und Offsets hinzugefügt",
+				"ru": "Добавлены датчики и смещения",
+				"pt": "Adicionados sensores e deslocamentos",
+				"nl": "Sensoren en offsets toegevoegd",
+				"fr": "Ajout de capteurs et de décalages",
+				"it": "Aggiunti sensori e offset",
+				"es": "Sensores y compensaciones agregados",
+				"pl": "Dodano czujniki i przesunięcia",
+				"zh-cn": "增加了传感器和偏移量"
+			},
 			"0.1.2": {
 				"en": "Preparations for adapter package release",
 				"de": "Vorbereitungen für Release des Adapter-Pakets",
