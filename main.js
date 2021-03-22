@@ -196,7 +196,7 @@ class Controme extends utils.adapter {
 		// Subscribe to all states that can be written to
 		this.subscribeStates("*.setpointTemperature");
 		this.subscribeStates("*.sensors.*.actualTemperature");
-		this.subscribeStates("*.offsets.api.*");
+		this.subscribeStates("*.offsets.*");
 
 		this.setState("info.connection", true, true);
 
@@ -221,6 +221,9 @@ class Controme extends utils.adapter {
 		return true;
 	}
 
+	_createApiOffsetsForRoom(room) {
+	}
+
 	_createOffsetsForRoom(room) {
 		const promises = [];
 		for (const offset in room.offsets) {
@@ -237,14 +240,22 @@ class Controme extends utils.adapter {
 							}
 						}
 					} else if (offset == "api") {
-						// for the offset object api, we create a dedicated structure, since it can be used to set api offsets, so needs to be read/write
+						// for an empty offset object "api", we create a dedicated structure, since it can be used to set api offsets, so needs to be read/write
 						// this.log.silly(`Creating object structure for offset object ${offset}`);
 						this.log.silly(`Creating objects for room ${room.id}: Offset ${offset}.api`);
-						promises.push(this.setObjectNotExistsAsync(room.id + ".offsets." + offset, { type: "channel", common: { name: room.name + " offset " + offset }, native: {} }));
-						promises.push(this.setObjectNotExistsAsync(room.id + ".offsets." + offset + ".api", { type: "state", common: { name: room.name + " offset " + offset + " api", type: "number", unit: "°C", role: "value", read: true, write: true }, native: {} }));
+						promises.push(this.setObjectNotExistsAsync(room.id + ".offsets.api", { type: "channel", common: { name: room.name + " offset api" }, native: {} }));
+						promises.push(this.setObjectNotExistsAsync(room.id + ".offsets.api.api", { type: "state", common: { name: room.name + " offset api api", type: "number", unit: "°C", role: "value", read: true, write: true }, native: {} }));
 					}
 				}
 			}
+		}
+		// Some servers do not include an api module, so the read/write states are not created. Check if "api" exists, if not, create it
+		if (typeof (room.offsets["api"]) === "undefined") {
+			// for the offset object api, we create a dedicated structure, since it can be used to set api offsets, so needs to be read/write
+			// this.log.silly(`Creating object structure for offset object ${offset}`);
+			this.log.info(`Creating objects for room ${room.id}: Offset api.api`);
+			promises.push(this.setObjectNotExistsAsync(room.id + ".offsets.api", { type: "channel", common: { name: room.name + " offset api"}, native: {} }));
+			promises.push(this.setObjectNotExistsAsync(room.id + ".offsets.api.api", { type: "state", common: { name: room.name + " offset api api", type: "number", unit: "°C", role: "value", read: true, write: true }, native: {} }));
 		}
 		return Promise.all(promises);
 	}
@@ -382,11 +393,11 @@ class Controme extends utils.adapter {
 					} else {
 						this.log.error(`Change of subscribed actualTemperature state ${id} to ${state.val} °C (ack = ${state.ack}) failed`);
 					}
-				} else if (id.includes(".offsets.api.")) {
+				} else if (id.includes(".offsets.")) {
 					// 	this.subscribeStates("*.offsets.api.*");
 					// extract the apiID and sensorID from id
 					const roomID = id.match(/^controme\.\d\.(\d+)/);
-					const apiID = id.match(/offsets\.api\.(.+)/);
+					const apiID = id.match(/offsets\.[^.]+\.(.+)/);
 					if (roomID !== null && apiID !== null) {
 						this.log.debug(`Room ${roomID[1]}: Calling setOffsetTemp(${roomID[1]}, ${apiID[1]}, ${state.val})`);
 						this._setOffsetTemp(roomID[1], apiID[1], state.val);

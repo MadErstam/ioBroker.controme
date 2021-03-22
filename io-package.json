@@ -3,6 +3,18 @@
 		"name": "controme",
 		"version": "0.2.0",
 		"news": {
+			"0.2.1": {
+				"en": "Improved offset handling",
+				"de": "Verbessertes Offset-Handling",
+				"ru": "Улучшенная обработка смещения",
+				"pt": "Manuseio de offset aprimorado",
+				"nl": "Verbeterde afhandeling van offset",
+				"fr": "Meilleure gestion des décalages",
+				"it": "Gestione dell'offset migliorata",
+				"es": "Manejo de offset mejorado",
+				"pl": "Ulepszona obsługa offsetów",
+				"zh-cn": "改进的胶印处理"
+			},
 			"0.2.0": {
 				"en": "Added sensors and offsets",
 				"de": "Sensoren und Offsets hinzugefügt",
