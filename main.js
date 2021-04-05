@@ -175,9 +175,47 @@ class Controme extends utils.adapter {
 						if (Object.prototype.hasOwnProperty.call(body, floor)) {
 							for (const room in body[floor].raeume) {
 								if (Object.prototype.hasOwnProperty.call(body[floor].raeume, room)) {
+									this.log.silly(`Processing room ${body[floor].raeume[room].id}`);
 									this._updateRoom(body[floor].raeume[room]);
+									
+									this.getStatesOf("controme.0." + body[floor].raeume[room].id, "offsets", (err, obj) => {
+										for (const offset in obj) {
+											if (Object.prototype.hasOwnProperty.call(obj, offset)) {
+												const roomID = obj[offset]._id.match(/^controme\.\d\.(\d+)/)[1];
+												const offsetChannel = obj[offset]._id.match(/offsets\.([^.]+)\./)[1];
+												const offsetState = obj[offset]._id.match(/offsets\.[^.]+\.([^.]+)/)[1];
+												// this.log.info(obj[offset]._id);
+												// this.log.info(`Offset ${roomID}.${offsetChannel}.${offsetState}`);
+												// this.log.info(typeof(body[floor].raeume[room].offsets));
+												if (offsetChannel in body[floor].raeume[room].offsets) {
+													// this.log.info(`Offset channel ${roomID}.${offsetChannel} still exists`);
+													if (offsetState in body[floor].raeume[room].offsets[offsetChannel]) {
+														// this.log.info(`Offset state ${roomID}.${offsetChannel}.${offsetState} still exists`);
+													} else {
+														// the previously existing offsetState does not exist anymore
+														if (offsetChannel == "api") {
+															// if the previously existing offsetState was created in the api channel, we leave it, but set it to 0°C
+															this.setStateAsync(obj[offset]._id, 0, true);
+														} else {
+															this.log.debug(`Deleting offset state ${this.namespace}.${roomID}.${offsetChannel}.${offsetState}, since it does not appear in Controme server response`);	
+															this.delObjectAsync(obj[offset]._id);
+														}
+													}
+												} else {
+													if (offsetChannel != "api") {
+														this.log.debug(`Deleting offset channel ${this.namespace}.${roomID}.${offsetChannel}, since it does not appear in Controme server response`);
+														this.delObjectAsync(`${this.namespace}.${roomID}.${offsetChannel}`);	
+													}
+												}
+											}
+										}
+									});
+
+									// Controme deletes offsets that have been set via the api; we need to check which offsets still exist and delete those that do no longer exist
+									// this._checkAndDeleteOffsetsForRoom(body[floor].raeume[room]);
 									this._updateOffsetsForRoom(body[floor].raeume[room]);
 									this._updateSensorsForRoom(body[floor].raeume[room]);
+									this.log.silly(`Finished processing room ${body[floor].raeume[room].id}`);
 								}
 							}
 						}
@@ -221,9 +259,6 @@ class Controme extends utils.adapter {
 		return true;
 	}
 
-	_createApiOffsetsForRoom(room) {
-	}
-
 	_createOffsetsForRoom(room) {
 		const promises = [];
 		for (const offset in room.offsets) {
@@ -236,7 +271,8 @@ class Controme extends utils.adapter {
 						for (const offset_item in room.offsets[offset]) {
 							if (Object.prototype.hasOwnProperty.call(room.offsets[offset], offset_item)) {
 								this.log.silly(`Creating objects for room ${room.id}: Offset ${offset}.${offset_item}`);
-								promises.push(this.setObjectNotExistsAsync(room.id + ".offsets." + offset + "." + offset_item, { type: "state", common: { name: room.name + " offset " + offset + " " + offset_item, type: "number", unit: "°C", role: "value", read: true, write: false }, native: {} }));
+								// all states for offset channel api should be read-write, else read-only
+								promises.push(this.setObjectNotExistsAsync(room.id + ".offsets." + offset + "." + offset_item, { type: "state", common: { name: room.name + " offset " + offset + " " + offset_item, type: "number", unit: "°C", role: "value", read: true, write: (offset == "api") }, native: {} }));
 							}
 						}
 					} else if (offset == "api") {
@@ -244,7 +280,7 @@ class Controme extends utils.adapter {
 						// this.log.silly(`Creating object structure for offset object ${offset}`);
 						this.log.silly(`Creating objects for room ${room.id}: Offset ${offset}.api`);
 						promises.push(this.setObjectNotExistsAsync(room.id + ".offsets.api", { type: "channel", common: { name: room.name + " offset api" }, native: {} }));
-						promises.push(this.setObjectNotExistsAsync(room.id + ".offsets.api.api", { type: "state", common: { name: room.name + " offset api api", type: "number", unit: "°C", role: "value", read: true, write: true }, native: {} }));
+						promises.push(this.setObjectNotExistsAsync(room.id + ".offsets.api.raum", { type: "state", common: { name: room.name + " offset api raum", type: "number", unit: "°C", role: "value", read: true, write: true }, native: {} }));
 					}
 				}
 			}
@@ -254,8 +290,8 @@ class Controme extends utils.adapter {
 			// for the offset object api, we create a dedicated structure, since it can be used to set api offsets, so needs to be read/write
 			// this.log.silly(`Creating object structure for offset object ${offset}`);
 			this.log.info(`Creating objects for room ${room.id}: Offset api.api`);
-			promises.push(this.setObjectNotExistsAsync(room.id + ".offsets.api", { type: "channel", common: { name: room.name + " offset api"}, native: {} }));
-			promises.push(this.setObjectNotExistsAsync(room.id + ".offsets.api.api", { type: "state", common: { name: room.name + " offset api api", type: "number", unit: "°C", role: "value", read: true, write: true }, native: {} }));
+			promises.push(this.setObjectNotExistsAsync(room.id + ".offsets.api", { type: "channel", common: { name: room.name + " offset api" }, native: {} }));
+			promises.push(this.setObjectNotExistsAsync(room.id + ".offsets.api.raum", { type: "state", common: { name: room.name + " offset api raum", type: "number", unit: "°C", role: "value", read: true, write: true }, native: {} }));
 		}
 		return Promise.all(promises);
 	}
@@ -314,16 +350,29 @@ class Controme extends utils.adapter {
 		const promises = [];
 		for (const sensor in room.sensoren) {
 			if (Object.prototype.hasOwnProperty.call(room.sensoren, sensor)) {
-				this.log.silly(`${room.id}.sensors.${room.sensoren[sensor].name}.isRoomTemperatureSensor: ${room.sensoren[sensor].raumtemperatursensor}`);
-				promises.push(this.setStateChangedAsync(room.id + ".sensors." + room.sensoren[sensor].name + ".isRoomTemperatureSensor", room.sensoren[sensor].raumtemperatursensor, true));
-				// sensor.wert can be either an object or a float
-				if (typeof (room.sensoren[sensor].wert) === "object") {
-					//  {"raumtemperatursensor":true,"letzte_uebertragung":"18.03.2021 18:23","name":"05:90:22:a2","wert":{"Helligkeit":null,"Relative Luftfeuchte":null,"Bewegung":null,"Temperatur":21.80392156862745}
-					this.log.silly(`Updating room ${room.id}: Sensor ${room.sensoren[sensor].name} (${room.sensoren[sensor].beschreibung}) to ${room.sensoren[sensor].wert.Temperatur} °C`);
-					promises.push(this.setStateChangedAsync(room.id + ".sensors." + room.sensoren[sensor].name + ".actualTemperature", parseFloat(room.sensoren[sensor].wert.Temperatur).round(2), true));
-				} else {
-					this.log.silly(`Updating room ${room.id}: Sensor ${room.sensoren[sensor].name} (${room.sensoren[sensor].beschreibung}) to ${parseFloat(room.sensoren[sensor].wert).round(2)} °C`);
-					promises.push(this.setStateChangedAsync(room.id + ".sensors." + room.sensoren[sensor].name + ".actualTemperature", parseFloat(room.sensoren[sensor].wert).round(2), true));
+				try {
+					this.log.silly(`${room.id}.sensors.${room.sensoren[sensor].name}.isRoomTemperatureSensor: ${room.sensoren[sensor].raumtemperatursensor}`);
+					promises.push(this.setStateChangedAsync(room.id + ".sensors." + room.sensoren[sensor].name + ".isRoomTemperatureSensor", room.sensoren[sensor].raumtemperatursensor, true));
+					// sensor.wert can be either an object or a float
+					if (typeof (room.sensoren[sensor].wert) === "object") {
+						//  {"raumtemperatursensor":true,"letzte_uebertragung":"18.03.2021 18:23","name":"05:90:22:a2","wert":{"Helligkeit":null,"Relative Luftfeuchte":null,"Bewegung":null,"Temperatur":21.80392156862745}
+						this.log.silly(`Updating room ${room.id}: Sensor ${room.sensoren[sensor].name} (${room.sensoren[sensor].beschreibung}) to ${room.sensoren[sensor].wert.Temperatur} °C`);
+						
+						if (isNaN(parseFloat(room.sensoren[sensor].wert.Temperatur))) {
+							this.log.warn(`Room ${room.id}: Temperature value for sensor ${room.sensoren[sensor].name} is not a number`);
+						} else {
+							promises.push(this.setStateChangedAsync(room.id + ".sensors." + room.sensoren[sensor].name + ".actualTemperature", parseFloat(room.sensoren[sensor].wert.Temperatur).round(2), true));
+						}
+					} else {
+						this.log.silly(`Updating room ${room.id}: Sensor ${room.sensoren[sensor].name} (${room.sensoren[sensor].beschreibung}) to ${parseFloat(room.sensoren[sensor].wert).round(2)} °C`);
+						if (isNaN(parseFloat(room.sensoren[sensor].wert))) {
+							this.log.warn(`Room ${room.id}: Value for sensor ${room.sensoren[sensor].name} is not a number`);
+						} else {
+							promises.push(this.setStateChangedAsync(room.id + ".sensors." + room.sensoren[sensor].name + ".actualTemperature", parseFloat(room.sensoren[sensor].wert).round(2), true));
+						}
+					}	
+				} catch (error) {
+					this.log.error(`Room ${room.id}: Updating sensor values returned an error "${error}"`);
 				}
 			}
 		}

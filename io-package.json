@@ -1,8 +1,20 @@
 {
 	"common": {
 		"name": "controme",
-		"version": "0.2.0",
+		"version": "0.2.2",
 		"news": {
+			"0.2.2": {
+				"en": "Bugfixing in offset handling",
+				"de": "Bugfixing in der Offset-Behandlung",
+				"ru": "Исправление ошибок при обработке смещения",
+				"pt": "Correção de bug no manuseio de deslocamento",
+				"nl": "Bugfixing in offset handling",
+				"fr": "Correction de bugs dans la gestion des décalages",
+				"it": "Correzione di bug nella gestione dell'offset",
+				"es": "Corrección de errores en el manejo de compensación",
+				"pl": "Naprawiono błędy w obsłudze offsetu",
+				"zh-cn": "偏移处理中的错误修复"
+			},
 			"0.2.1": {
 				"en": "Improved offset handling",
 				"de": "Verbessertes Offset-Handling",
