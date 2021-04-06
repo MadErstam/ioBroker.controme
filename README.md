@@ -65,6 +65,8 @@ To start the adapter, the following data need to be provided in the admin settin
 
 ## Changelog
 
+### 0.2.3
+* (MadErstam) Bugfixing
 ### 0.2.2
 * (MadErstam) Bugfixing in offset handling
 ### 0.2.1
