@@ -1,6 +1,6 @@
 {
   "name": "iobroker.controme",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Connect to local Controme mini server that controls you home heating system",
   "author": {
     "name": "MadErstam",

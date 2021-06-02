@@ -122,7 +122,7 @@ class Controme extends utils.adapter {
 			}
 
 			try {
-				const url = "http://" + this.config.url + "/get/json/v1/1/temps/";
+				const url = "http://" + this.config.url + "/get/json/v1/" + this.config.houseID + "/temps/";
 				const response = await got(url);
 
 				const body = JSON.parse(response.body);
@@ -163,7 +163,7 @@ class Controme extends utils.adapter {
 		// Start polling temperature data from the server in the defined update interval
 		this.updateInterval = setInterval(() => {
 			this.log.debug("Polling temperature data from mini server");
-			const url = "http://" + this.config.url + "/get/json/v1/1/temps/";
+			const url = "http://" + this.config.url + "/get/json/v1/" + this.config.houseID + "/temps/";
 			(async () => {
 				try {
 					const response = await got(url);
@@ -482,6 +482,7 @@ class Controme extends utils.adapter {
 
 		form.append("user", this.config.user);
 		form.append("password", this.config.password);
+		// [FIXME] SetpointTemp should be checked for validity
 		form.append("soll", setpointTemp);
 
 		(async () => {
@@ -500,6 +501,7 @@ class Controme extends utils.adapter {
 
 		form.append("user", this.config.user);
 		form.append("password", this.config.password);
+		// [FIXME] TargetTemp and Duration should be checked for validity
 		form.append("ziel", targetTemp);
 		// duration can either be set directly or to default duration
 		form.append("duration", targetDuration);
@@ -520,6 +522,7 @@ class Controme extends utils.adapter {
 
 		form.append("user", this.config.user);
 		form.append("password", this.config.password);
+		// [FIXME] SensorID and Value should be checked for validity
 		form.append("sensorid", sensorID);
 		form.append("value", actualTemp);
 
@@ -543,6 +546,7 @@ class Controme extends utils.adapter {
 		form.append("user", this.config.user);
 		form.append("password", this.config.password);
 		form.append("offset_name", apiID);
+		// [FIXME] Offset should be checked for validity
 		form.append("offset", offsetTemp);
 
 		(async () => {

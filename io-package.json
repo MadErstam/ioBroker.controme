@@ -3,6 +3,18 @@
 		"name": "controme",
 		"version": "0.2.3",
 		"news": {
+			"0.2.4": {
+				"en": "Bugfixing",
+				"de": "Fehlerbehebung",
+				"ru": "Исправление ошибок",
+				"pt": "Corrigindo erro",
+				"nl": "Bugfixing",
+				"fr": "Correction de bugs",
+				"it": "Bugfixing",
+				"es": "Corrección de errores",
+				"pl": "Naprawa błędów",
+				"zh-cn": "错误修正"
+			},
 			"0.2.3": {
 				"en": "Bugfixing",
 				"de": "Fehlerbehebung",
