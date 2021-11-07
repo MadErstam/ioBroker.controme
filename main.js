@@ -354,20 +354,23 @@ class Controme extends utils.adapter {
 					this.log.silly(`${room.id}.sensors.${room.sensoren[sensor].name}.isRoomTemperatureSensor: ${room.sensoren[sensor].raumtemperatursensor}`);
 					promises.push(this.setStateChangedAsync(room.id + ".sensors." + room.sensoren[sensor].name + ".isRoomTemperatureSensor", room.sensoren[sensor].raumtemperatursensor, true));
 
-					// sensor.wert can be either an object or a float
-					if (room.sensoren[sensor].wert && typeof (room.sensoren[sensor].wert) === "object") {
-						//  {"raumtemperatursensor":true,"letzte_uebertragung":"18.03.2021 18:23","name":"05:90:22:a2","wert":{"Helligkeit":null,"Relative Luftfeuchte":null,"Bewegung":null,"Temperatur":21.80392156862745}
-						
-						// Check temperatur value for validity; could be null or empty, if sensor is not delivering values
-						if (room.sensoren[sensor].wert.Temperatur) {
-							if (isNaN(parseFloat(room.sensoren[sensor].wert.Temperatur))) {
-								this.log.warn(`Room ${room.id}: Temperature value for sensor ${room.sensoren[sensor].name} is not a number`);
+						// Only if sensor is a room temperature sensor
+						if (room.sensoren[sensor].raumtemperatursensor)	{
+							this.log.debug(`Room ${room.id}: Sensor ${room.sensoren[sensor].name} is a room temperature sensor`);
+							// Check temperatur value for validity; could be null or empty, if sensor is not delivering values
+							if (room.sensoren[sensor].wert.Temperatur) {
+								if (isNaN(parseFloat(room.sensoren[sensor].wert.Temperatur))) {
+									this.log.warn(`Room ${room.id}: Temperature value for sensor ${room.sensoren[sensor].name} is not a number`);
+								} else {
+									this.log.silly(`Updating room ${room.id}: Sensor ${room.sensoren[sensor].name} (${room.sensoren[sensor].beschreibung}) to ${room.sensoren[sensor].wert.Temperatur} °C`);
+									promises.push(this.setStateChangedAsync(room.id + ".sensors." + room.sensoren[sensor].name + ".actualTemperature", parseFloat(room.sensoren[sensor].wert.Temperatur).round(2), true));
+								}
 							} else {
-								this.log.silly(`Updating room ${room.id}: Sensor ${room.sensoren[sensor].name} (${room.sensoren[sensor].beschreibung}) to ${room.sensoren[sensor].wert.Temperatur} °C`);
-								promises.push(this.setStateChangedAsync(room.id + ".sensors." + room.sensoren[sensor].name + ".actualTemperature", parseFloat(room.sensoren[sensor].wert.Temperatur).round(2), true));
+								this.log.warn(`Room ${room.id}: Temperature value for sensor ${room.sensoren[sensor].name} is null or empty`);
 							}
 						} else {
-							this.log.warn(`Room ${room.id}: Temperature value for sensor ${room.sensoren[sensor].name} is null or empty`);
+							this.log.debug(`Room ${room.id}: Sensor ${room.sensoren[sensor].name} is not a room temperature sensor`);
+							// To be implemented: handle Fensterkontakt or Bewegungsmelder
 						}
 
 					} else {
