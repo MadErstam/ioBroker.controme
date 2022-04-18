@@ -17,10 +17,8 @@ if (!Number.prototype.round) {
 		if (typeof decimals === "undefined") {
 			decimals = 0;
 		}
-		return Math.round(
-			this * Math.pow(10, decimals)
-		) / Math.pow(10, decimals);
-	};
+		return Math.round(this * Math.pow(10, decimals)) / Math.pow(10, decimals);
+	}
 }
 
 function decrypt(key, value) {
@@ -49,7 +47,7 @@ class Controme extends utils.adapter {
 	}
 
 	/**
-	 * Is called when databases are connected and this received configuration.
+	 * Is called when databases are connected and adapter received configuration.
 	 */
 	async onReady() {
 		// Initialize your adapter here
@@ -71,13 +69,10 @@ class Controme extends utils.adapter {
 			});
 		}
 
-		// check the received configuration values for validity
-		if (this.config.interval < 15) {
-			this.log.error("Update interval is less than 15 seconds. Set update interval to 15 seconds.");
-			this.config.interval = 15;
-		}
+		const pollInterval = parseInt(this.config.interval) < 15 ? 15 : parseInt(this.config.interval);
 
-		this.log.debug(`Controme URL: ${this.config.url}; houseID: ${this.config.houseID}; update interval: ${this.config.interval}`);
+		this.log.debug(`Controme URL: ${this.config.url}; houseID: ${this.config.houseID}; update interval: ${pollInterval}; warnOnNull: ${this.config.warnOnNull}`);
+
 
 		if (this.config.forceReInit) {
 
@@ -94,142 +89,22 @@ class Controme extends utils.adapter {
 				this.log.error(`Purging object structure failed with ${error}`);
 			}
 
-			// Read room structure and create all required objects
-			try {
+			this.log.debug(`Creating data objects after purge`);
+			await this._createObjects();
 
-				const url = "http://" + this.config.url + "/get/json/v1/" + this.config.houseID + "/rooms/";
-				const response = await got(url);
-
-				// response JSON contains hierarchical information starting with floors and rooms on these floors
-				// we need to iterate through the floors and rooms and create the required structures
-				// rooms will be our devices
-
-				const body = JSON.parse(response.body);
-				// this.log.silly(`Rooms response from Controme mini server: "${JSON.stringify(body)}"`);
-
-				for (const floor in body) {
-					if (Object.prototype.hasOwnProperty.call(body, floor)) {
-						for (const room in body[floor].raeume) {
-							if (Object.prototype.hasOwnProperty.call(body[floor].raeume, room)) {
-								this._createObjectsForRoom(body[floor].raeume[room]);
-							}
-						}
-					}
-				}
-				this.log.debug(`Creating room structure from Controme mini server finished successfully`);
-			} catch (error) {
-				this.log.error(`Creating room structure from Controme mini server finished with error "${error.response.body}"`);
-			}
-
-			try {
-				const url = "http://" + this.config.url + "/get/json/v1/" + this.config.houseID + "/temps/";
-				const response = await got(url);
-
-				const body = JSON.parse(response.body);
-
-				for (const floor in body) {
-					if (Object.prototype.hasOwnProperty.call(body, floor)) {
-						for (const room in body[floor].raeume) {
-							if (Object.prototype.hasOwnProperty.call(body[floor].raeume, room)) {
-								this._createOffsetsForRoom(body[floor].raeume[room]);
-
-								for (const sensor in body[floor].raeume[room].sensoren) {
-									if (Object.prototype.hasOwnProperty.call(body[floor].raeume[room].sensoren, sensor)) {
-										this._createSensorsForRoom(body[floor].raeume[room].id, body[floor].raeume[room].sensoren[sensor]);
-									}
-								}
-							}
-						}
-					}
-				}
-				// the connection indicator is updated when the connection was successful
-				this.log.debug(`Creating data objects for offsets and sensors finished successfully`);
-				this.setStateAsync("info.connection", true, true);
-			} catch (error) {
-				// when an error is received, the connection indicator is updated accordingly
-				this.setStateAsync("info.connection", false, true);
-				this.log.error(`Creating data objects for offsets and sensors finished with error "${error.response.body}"`);
-			}
-
+			// Set foreceReInit to false after re-initialization to avoid recreating the object structure on each adapter restart
 			try {
 				await this.extendForeignObjectAsync(`system.adapter.${this.namespace}`, { native: { forceReInit: false } });
-			} catch (e) {
-				this.log.error(`Could not set forceReinit to false: ${e.message}`);
+			} catch (error) {
+				this.log.error(`Could not set forceReinit to false: ${error}`);
 			}
 
 		}
 
+		this._updateIntervalFunction();
 
-		// Start polling temperature data from the server in the defined update interval
-		this.updateInterval = setInterval(() => {
-			this.log.debug("Polling temperature data from mini server");
-			const url = "http://" + this.config.url + "/get/json/v1/" + this.config.houseID + "/temps/";
-			(async () => {
-				try {
-					const response = await got(url);
-
-					const body = JSON.parse(response.body);
-					// this.log.silly(`Temps response from Controme mini server: "${JSON.stringify(body)}"`);
-
-					for (const floor in body) {
-						if (Object.prototype.hasOwnProperty.call(body, floor)) {
-							for (const room in body[floor].raeume) {
-								if (Object.prototype.hasOwnProperty.call(body[floor].raeume, room)) {
-									this.log.silly(`Processing room ${body[floor].raeume[room].id}`);
-									this._updateRoom(body[floor].raeume[room]);
-
-									this.getStatesOf("controme.0." + body[floor].raeume[room].id, "offsets", (err, obj) => {
-										for (const offset in obj) {
-											if (Object.prototype.hasOwnProperty.call(obj, offset)) {
-												const roomID = obj[offset]._id.match(/^controme\.\d\.(\d+)/)[1];
-												const offsetChannel = obj[offset]._id.match(/offsets\.([^.]+)\./)[1];
-												const offsetState = obj[offset]._id.match(/offsets\.[^.]+\.([^.]+)/)[1];
-												// this.log.info(obj[offset]._id);
-												// this.log.info(`Offset ${roomID}.${offsetChannel}.${offsetState}`);
-												// this.log.info(typeof(body[floor].raeume[room].offsets));
-												if (offsetChannel in body[floor].raeume[room].offsets) {
-													// this.log.info(`Offset channel ${roomID}.${offsetChannel} still exists`);
-													if (offsetState in body[floor].raeume[room].offsets[offsetChannel]) {
-														// this.log.info(`Offset state ${roomID}.${offsetChannel}.${offsetState} still exists`);
-													} else {
-														// the previously existing offsetState does not exist anymore
-														if (offsetChannel == "api") {
-															// if the previously existing offsetState was created in the api channel, we leave it, but set it to 0°C
-															this.setStateAsync(obj[offset]._id, 0, true);
-														} else {
-															this.log.debug(`Deleting offset state ${this.namespace}.${roomID}.${offsetChannel}.${offsetState}, since it does not appear in Controme server response`);
-															this.delObjectAsync(obj[offset]._id);
-														}
-													}
-												} else {
-													if (offsetChannel != "api") {
-														this.log.debug(`Deleting offset channel ${this.namespace}.${roomID}.${offsetChannel}, since it does not appear in Controme server response`);
-														this.delObjectAsync(`${this.namespace}.${roomID}.${offsetChannel}`);
-													}
-												}
-											}
-										}
-									});
-
-									// Controme deletes offsets that have been set via the api; we need to check which offsets still exist and delete those that do no longer exist
-									// this._checkAndDeleteOffsetsForRoom(body[floor].raeume[room]);
-									this._updateOffsetsForRoom(body[floor].raeume[room]);
-									this._updateSensorsForRoom(body[floor].raeume[room]);
-									this.log.silly(`Finished processing room ${body[floor].raeume[room].id}`);
-								}
-							}
-						}
-					}
-					// the connection indicator is updated when the connection was successful
-					this.setStateAsync("info.connection", true, true);
-				} catch (error) {
-					// when an error is received, the connection indicator is updated accordingly
-					this.setStateAsync("info.connection", false, true);
-					this.log.error(`Polling temperature data from Controme mini server finished with error "${error.response.body}"`);
-				}
-			})();
-
-		}, this.config.interval * 1000);
+		// Poll temperature data from the server in the defined update interval
+		this.updateInterval = setInterval(this._updateIntervalFunction.bind(this), pollInterval * 1000);
 
 		// Subscribe to all states that can be written to
 		this.subscribeStates("*.setpointTemperature");
@@ -238,6 +113,193 @@ class Controme extends utils.adapter {
 
 		this.setState("info.connection", true, true);
 
+	}
+
+	_updateIntervalFunction() {
+		this._pollRoomTemps();
+		this._pollOuts();
+	}
+
+	async _pollRoomTemps() {
+		// Poll data from temps API
+		this.log.debug("Polling temperature data from mini server");
+		let body;
+
+		try {
+			const url = "http://" + this.config.url + "/get/json/v1/" + this.config.houseID + "/temps/";
+			const response = await got(url);
+			body = JSON.parse(response.body);
+		} catch (error) {
+			this.setState("info.connection", false, true);
+			this.log.error(`Polling temperature data from Controme mini server finished with error "${error}"`);
+		}
+
+		this.log.silly(`Temps response from Controme mini server: "${JSON.stringify(body)}"`);
+
+		for (const floor in body) {
+			if (Object.prototype.hasOwnProperty.call(body, floor)) {
+				for (const room in body[floor].raeume) {
+					if (Object.prototype.hasOwnProperty.call(body[floor].raeume, room)) {
+						this.log.silly(`Processing room ${body[floor].raeume[room].id}`);
+						this._updateRoom(body[floor].raeume[room]);
+
+						// Controme deletes offsets that have been set via the api; we need to check which offsets still exist and delete those that do no longer exist
+						this._updateOffsetStatesForRoom(body[floor].raeume[room]);
+
+						// update offset and sensor values
+						this._updateOffsetsForRoom(body[floor].raeume[room]);
+						this._updateSensorsForRoom(body[floor].raeume[room]);
+						this.log.silly(`Finished processing room ${body[floor].raeume[room].id}`);
+					}
+				}
+			}
+		}
+		this.setState("info.connection", true, true);
+	}
+
+	async _pollOuts() {
+		// Poll data from outs API
+		this.log.debug("Polling output data from mini server");
+		let body;
+		try {
+			const url = "http://" + this.config.url + "/get/json/v1/" + this.config.houseID + "/outs/";
+			const response = await got(url);
+			body = JSON.parse(response.body);
+		} catch (error) {
+			// when an error is received, the connection indicator is updated accordingly
+			this.setState("info.connection", false, true);
+			this.log.error(`Polling outputs data from Controme mini server finished with error "${error}"`);
+		}
+
+		this.log.silly(`Outs response from Controme mini server: "${JSON.stringify(body)}"`);
+
+		for (const floor in body) {
+			if (Object.prototype.hasOwnProperty.call(body, floor)) {
+				for (const room in body[floor].raeume) {
+					if (Object.prototype.hasOwnProperty.call(body[floor].raeume, room)) {
+						this.log.silly(`Processing outputs for room ${body[floor].raeume[room].id}`);
+
+						this._updateOutputsForRoom(body[floor].raeume[room]);
+
+						this.log.silly(`Finished processing room ${body[floor].raeume[room].id}`);
+					}
+				}
+			}
+		}
+		// the connection indicator is updated when the connection was successful
+		this.setState("info.connection", true, true);
+	}
+
+	_updateOffsetStatesForRoom(room) {
+		// Controme deletes offsets that have been set via the api; we need to check which offsets still exist and delete those that do no longer exist
+		// Get all offset states (states in channel offset) of the respective room and check if these are still included in the temps API response
+		this.getStatesOf("controme.0." + room.id, "offsets", (err, obj) => {										
+			for (const offset in obj) {
+				if (Object.prototype.hasOwnProperty.call(obj, offset)) {
+					const roomID = obj[offset]._id.match(/^controme\.\d\.(\d+)/)[1];
+					const offsetChannel = obj[offset]._id.match(/offsets\.([^.]+)\./)[1];
+					const offsetState = obj[offset]._id.match(/offsets\.[^.]+\.([^.]+)/)[1];
+					// offsetChannels are created by API, FPS, KI, and several other modules
+					if (offsetChannel in room.offsets) {
+						this.log.silly(`Offset channel ${roomID}.${offsetChannel} still exists in API response`);
+						if (offsetState in room.offsets[offsetChannel]) {
+							this.log.silly(`Offset state ${roomID}.${offsetChannel}.${offsetState} still exists in API response`);
+						} else {
+							// the previously existing offsetState does not exist anymore
+							if (offsetChannel == "api") {
+								// if the previously existing offsetState was created in the api channel, we leave it, but set it to 0°C
+								this.log.silly(`Offset state ${offsetState} no longer exists in API response, but is in API channel, so setting it to 0°C`);
+								this.setStateAsync(obj[offset]._id, 0, true);
+							} else {
+								// if the previously existing offsetState was created in any other channel than api, we delete it
+								this.log.debug(`Deleting offset state ${this.namespace}.${roomID}.${offsetChannel}.${offsetState}, since it does not exist in API response`);
+								this.delObjectAsync(obj[offset]._id);
+							}
+						}
+					} else {
+						// if the previously existing offsetChannel does no longer exist in API response, we delete it
+						if (offsetChannel != "api") {
+							this.log.debug(`Deleting offset channel ${this.namespace}.${roomID}.${offsetChannel}, since it does not appear in API response`);
+							this.delObjectAsync(`${this.namespace}.${roomID}.${offsetChannel}`);
+						}
+					}
+				}
+			}
+		});		
+	}
+
+	async _createObjects() {
+		this.log.debug(`  Creating room, offset and sensor objects`);
+		// Read temp API and create all required objects (rooms and sensors)
+		let body;
+		try {
+			const url = "http://" + this.config.url + "/get/json/v1/" + this.config.houseID + "/temps/";
+			const response = await got(url);
+			body = JSON.parse(response.body);
+		} catch (error) {
+			this.log.error(`Polling temps API from mini server to create data objects for rooms, offsets and sensor failed failed with error "${error}"`);
+		}
+	
+		// response JSON contains hierarchical information starting with floors and rooms on these floors
+		// followed by offsets and sensors for each room
+		// we need to iterate through the floors and rooms and create the required structures
+		// rooms will be our devices
+
+		this.log.silly(`Temps response from Controme mini server for creation of objects: "${JSON.stringify(body)}"`);
+
+		for (const floor in body) {
+			if (Object.prototype.hasOwnProperty.call(body[floor], 'raeume')) {
+				const rooms = body[floor].raeume;
+				for (const room in rooms) {
+					if (Object.prototype.hasOwnProperty.call(rooms, room)) {
+						this._createObjectsForRoom(body[floor].raeume[room]);
+						this._createOffsetsForRoom(body[floor].raeume[room]);
+
+						if (Object.prototype.hasOwnProperty.call(rooms[room], 'sensoren')) {
+							for (const sensor in body[floor].raeume[room].sensoren) {
+								if (Object.prototype.hasOwnProperty.call(body[floor].raeume[room].sensoren, sensor)) {
+									this._createSensorsForRoom(body[floor].raeume[room].id, body[floor].raeume[room].sensoren[sensor]);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		this.log.debug(`  Creating out objects  started`);
+		try {
+			const url = "http://" + this.config.url + "/get/json/v1/" + this.config.houseID + "/outs/";
+			const response = await got(url);
+			body = JSON.parse(response.body);
+		} catch (error) {
+			this.log.error(`Polling outs API from mini server to create data objects for outputs failed failed with error "${error}"`);
+		}
+	
+		// response JSON contains hierarchical information starting with floors and rooms on these floors
+		// followed by outputs for each room
+		// we need to iterate through the floors and rooms and add the required output structures to the already created rooms
+
+		this.log.silly(`Outs response from Controme mini server for creation of objects: "${JSON.stringify(body)}"`);
+
+		for (const floor in body) {
+			if (Object.prototype.hasOwnProperty.call(body[floor], 'raeume')) {
+				const rooms = body[floor].raeume;
+				for (const room in rooms) {
+					if (Object.prototype.hasOwnProperty.call(rooms[room], 'ausgang')) {
+						const outputs = rooms[room].ausgang;
+						for (const [key, value] of Object.entries(outputs)) {
+							this.log.silly(`Creating output objects for room ${rooms[room].id}: Output ${key}`);
+							this.setObjectNotExistsAsync(rooms[room].id + ".outputs." + key, { type: "state", common: { name: rooms[room].name + " outputs " + key, type: "string", role: "value", read: true, write: false }, native: {} } );
+						}
+					}
+				}
+			}
+		}
+
+		// the connection indicator is updated when the connection was successful
+		this.log.debug(`Creating data objects for rooms, outputs offsets and sensors finished successfully`);
+		this.setStateAsync("info.connection", true, true);
 	}
 
 	_createObjectsForRoom(room) {
@@ -249,6 +311,7 @@ class Controme extends utils.adapter {
 		promises.push(this.setObjectNotExistsAsync(room.id + ".temperatureOffset", { type: "state", common: { name: room.name + " temperature offset", type: "number", unit: "°C", role: "value", read: true, write: false }, native: {} }));
 		promises.push(this.setObjectNotExistsAsync(room.id + ".sensors", { type: "channel", common: { name: room.name + " sensors" }, native: {} }));
 		promises.push(this.setObjectNotExistsAsync(room.id + ".offsets", { type: "channel", common: { name: room.name + " offsets" }, native: {} }));
+		promises.push(this.setObjectNotExistsAsync(room.id + ".outputs", { type: "channel", common: { name: room.name + " outputs" }, native: {} }));
 		return Promise.all(promises);
 	}
 
@@ -270,7 +333,7 @@ class Controme extends utils.adapter {
 						promises.push(this.setObjectNotExistsAsync(room.id + ".offsets." + offset, { type: "channel", common: { name: room.name + " offset " + offset }, native: {} }));
 						for (const offset_item in room.offsets[offset]) {
 							if (Object.prototype.hasOwnProperty.call(room.offsets[offset], offset_item)) {
-								this.log.silly(`Creating objects for room ${room.id}: Offset ${offset}.${offset_item}`);
+								this.log.silly(`Creating offset objects for room ${room.id}: Offset ${offset}.${offset_item}`);
 								// all states for offset channel api should be read-write, else read-only
 								promises.push(this.setObjectNotExistsAsync(room.id + ".offsets." + offset + "." + offset_item, { type: "state", common: { name: room.name + " offset " + offset + " " + offset_item, type: "number", unit: "°C", role: "value", read: true, write: (offset == "api") }, native: {} }));
 							}
@@ -278,7 +341,7 @@ class Controme extends utils.adapter {
 					} else if (offset == "api") {
 						// for an empty offset object "api", we create a dedicated structure, since it can be used to set api offsets, so needs to be read/write
 						// this.log.silly(`Creating object structure for offset object ${offset}`);
-						this.log.silly(`Creating objects for room ${room.id}: Offset ${offset}.api`);
+						this.log.silly(`Creating offset objects for room ${room.id}: Offset ${offset}.api`);
 						promises.push(this.setObjectNotExistsAsync(room.id + ".offsets.api", { type: "channel", common: { name: room.name + " offset api" }, native: {} }));
 						promises.push(this.setObjectNotExistsAsync(room.id + ".offsets.api.raum", { type: "state", common: { name: room.name + " offset api raum", type: "number", unit: "°C", role: "value", read: true, write: true }, native: {} }));
 					}
@@ -298,7 +361,7 @@ class Controme extends utils.adapter {
 
 	_createSensorsForRoom(roomID, sensor) {
 		const promises = [];
-		this.log.silly(`Creating objects for room ${roomID}: Sensor ${sensor.name} (${sensor.beschreibung})`);
+		this.log.silly(`Creating sensor objects for room ${roomID}: Sensor ${sensor.name} (${sensor.beschreibung})`);
 		promises.push(this.setObjectNotExistsAsync(roomID + ".sensors." + sensor.name, { type: "device", common: { name: sensor.beschreibung }, native: {} }));
 		promises.push(this.setObjectNotExistsAsync(roomID + ".sensors." + sensor.name + ".isRoomTemperatureSensor", { type: "state", common: { name: sensor.beschreibung + " is room temperature sensor", type: "boolean", role: "indicator", read: true, write: false }, native: {} }));
 		promises.push(this.setObjectNotExistsAsync(roomID + ".sensors." + sensor.name + ".actualTemperature", { type: "state", common: { name: sensor.beschreibung + " actual temperature", type: "number", unit: "°C", role: "value.temperature", read: true, write: true }, native: {} }));
@@ -366,7 +429,7 @@ class Controme extends utils.adapter {
 								this.log.silly(`Updating room ${room.id}: Sensor ${room.sensoren[sensor].name} (${room.sensoren[sensor].beschreibung}) to ${room.sensoren[sensor].wert.Temperatur} °C`);
 								promises.push(this.setStateChangedAsync(room.id + ".sensors." + room.sensoren[sensor].name + ".actualTemperature", parseFloat(room.sensoren[sensor].wert.Temperatur).round(2), true));
 							}
-						} else {
+						} else if (this.config.warnOnNull) {
 							this.log.warn(`Room ${room.id}: Temperature value for sensor ${room.sensoren[sensor].name} is null or empty`);
 						}
 
@@ -379,13 +442,25 @@ class Controme extends utils.adapter {
 								this.log.silly(`Updating room ${room.id}: Sensor ${room.sensoren[sensor].name} (${room.sensoren[sensor].beschreibung}) to ${parseFloat(room.sensoren[sensor].wert).round(2)} °C`);
 								promises.push(this.setStateChangedAsync(room.id + ".sensors." + room.sensoren[sensor].name + ".actualTemperature", parseFloat(room.sensoren[sensor].wert).round(2), true));
 							}
-						} else {
+						} else if (this.config.warnOnNull) {
 							this.log.warn(`Room ${room.id}: Temperature value for sensor ${room.sensoren[sensor].name} is null or empty`);
 						}
 					}
 				} catch (error) {
 					this.log.error(`Room ${room.id}: Updating sensor values returned an error "${error}"`);
 				}
+			}
+		}
+		return Promise.all(promises);
+	}
+
+	_updateOutputsForRoom(room) {
+		const promises = [];
+		if (Object.prototype.hasOwnProperty.call(room, 'ausgang')) {
+			const outputs = room.ausgang;
+			for (const [key, value] of Object.entries(outputs)) {
+				this.log.silly(`Updating room ${room.id}: Output: ${key} to ${value}`);
+				promises.push(this.setStateChangedAsync(room.id + ".outputs." + key, parseFloat(value), true));
 			}
 		}
 		return Promise.all(promises);

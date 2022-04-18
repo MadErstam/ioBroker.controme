@@ -1,8 +1,20 @@
 {
 	"common": {
 		"name": "controme",
-		"version": "0.2.4",
+		"version": "0.3.0",
 		"news": {
+			"0.3.0": {
+				"en": "Extended API polling (outputs)",
+				"de": "Erweitertes API-Polling (Ausgänge)",
+				"ru": "Расширенный опрос API (выходы)",
+				"pt": "Pesquisa de API estendida (saídas)",
+				"nl": "Uitgebreide API-polling (uitgangen)",
+				"fr": "Interrogation API étendue (sorties)",
+				"it": "Polling API esteso (output)",
+				"es": "Sondeo API extendido (salidas)",
+				"pl": "Rozszerzone odpytywanie API (wyjścia)",
+				"zh-cn": "扩展 API 轮询（输出）"
+			},
 			"0.2.4": {
 				"en": "Bugfixing",
 				"de": "Fehlerbehebung",
@@ -158,10 +170,11 @@
 	"native": {
 		"url": "192.168.178.",
 		"houseID": "1",
-		"interval": "60",
+		"interval": 60,
 		"forceReInit": false,
 		"user": "UserName",
-		"password": "Password"
+		"password": "Password",
+		"warnOnNull": true
 	},
 	"objects": [],
 	"instanceObjects": [

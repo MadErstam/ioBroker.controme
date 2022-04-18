@@ -85,5 +85,29 @@ systemDictionary = {
 		"es": "Contraseña",
 		"pl": "Hasło",
 		"zh-cn": "密码"
-	}
+	},
+	"warnOnNull": {
+		"en": "Show log warnings for NULL values",
+		"de": "Protokollwarnungen für NULL-werte anzeigen",
+		"ru": "Показать предупреждения журнала для нулевых значений",
+		"pt": "Mostrar avisos de log para valores nulos",
+		"nl": "Logboekwaarschuwingen voor null-waarden weergeven",
+		"fr": "Afficher les avertissements du journal pour les valeurs nulles",
+		"it": "Mostra gli avvisi di registro per i valori Null",
+		"es": "Mostrar advertencias de registro para valores nulos",
+		"pl": "Pokaż ostrzeżenia dziennika dla wartości null",
+		"zh-cn": "显示空值的日志警告"
+	},
+	"MACaddresses": {
+		"en": "MAC addresses of gateways",
+		"de": "MAC-Adressen von Gateways",
+		"ru": "MAC-адреса шлюзов",
+		"pt": "Endereços MAC de gateways",
+		"nl": "MAC-adressen van gateways",
+		"fr": "Adresses MAC des passerelles",
+		"it": "Indirizzi MAC dei gateway",
+		"es": "Direcciones MAC de puertas de enlace",
+		"pl": "Adresy MAC bramek",
+		"zh-cn": "网关的MAC地址"
+	}		
 };

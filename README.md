@@ -37,6 +37,9 @@ The adapter provides the following data for each room defined in the Controme UI
 | sensors.[SENSOR-ID] | device | Each sensor is represented by a device within the sensors channel of the room it is assigned to. |
 | sensors.[SENSOR-ID].isRoomTemperatureSensor | state | This boolean state indicates if a sensor is used as room temperature sensor. For each room, only a single sensor can be used as room temperature sensor. This state is read-only. |
 | sensors.[SENSOR-ID].actualTemperature | state | This state represents the actual temperature measured by the sensor. The state is read/write, but only 1Wire sensors or virtual sensors will accept the provided values. In case you write a value to a real sensor, the value will be overwritten when the next reading is done. |
+| outputs | channel | Outputs typically control valves that control the room's heating. This channel groups all outputs assigned to the respective room. |
+| outputs.[OUTPUT-ID] | device | Each output is represented by a device within the output channel of the room it is assigned to. The output ID number represents the number of the output on the gateway. |
+
 
 The [API documentation](https://support.controme.com/api/) can be found on the Controme website.
 
@@ -47,6 +50,7 @@ To start the adapter, the following data need to be provided in the admin settin
 | house ID | number | The ID of the Controme installation. This should be either 1 or 2 according to the API documentation. |
 | interval | number | The interval in seconds in which the data is polled from the server. This value should be between 15 seconds and 3600 seconds. Too low values do not make sense, since Controme updates the sensor values only every 3-5 minutes. | 
 | forceReInit | checkbox | If this checkbox is set, Controme purges the object structure in the ioBroker database and reloads the rooms from the server. This setting is only required when the room structure on the Controme server changes. | 
+| warnOnNull | checkbox | If this checkbox is set, the adapter writes log warnings when a sensor returns a NULL value. Returning NULL values is expected behaviour for window sensors, but would indicate a connection problem for temperature sensors. The API does not allow to discern between  | 
 | username | text | The username with which to access the Controme API. This is usually the username of the main Controme user. |
 | password | password | The password of the user with which to access the Controme API. This password is encrypted. |
 
