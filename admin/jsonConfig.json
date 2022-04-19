@@ -86,8 +86,8 @@
             "zh-cn": "密码"
         },
         "warnOnNull": {
-            "en": "Show log warnings for NULL values",
-            "de": "Protokollwarnungen für NULL-werte anzeigen",
+            "en": "Show log warnings for Null values",
+            "de": "Protokollwarnungen für Null-Werte anzeigen",
             "ru": "Показать предупреждения журнала для нулевых значений",
             "pt": "Mostrar avisos de log para valores nulos",
             "nl": "Logboekwaarschuwingen voor null-waarden weergeven",

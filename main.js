@@ -12,6 +12,7 @@ const utils = require("@iobroker/adapter-core");
 const got = require("got");
 const formData = require("form-data");
 const { throws } = require("assert");
+const { isObject } = require("iobroker.controme/lib/tools");
 
 if (!Number.prototype.round) {
 	Number.prototype.round = function (decimals) {
@@ -70,7 +71,7 @@ class Controme extends utils.adapter {
 			});
 		}
 
-		const pollInterval = parseInt(this.config.interval) < 15 ? 15 : parseInt(this.config.interval);
+		const pollInterval = (Number.isInteger(this.config.interval) && this.config.interval > 15) ? this.config.interval : 15;
 
 		this.log.debug(`Controme URL: ${this.config.url}; houseID: ${this.config.houseID}; update interval: ${pollInterval}; warnOnNull: ${this.config.warnOnNull}`);
 
@@ -335,7 +336,6 @@ class Controme extends utils.adapter {
 				if (typeof (room.offsets[offset]) === "object") {
 					if (!this.isEmpty(room.offsets[offset])) {
 						// if offset object is not empty, we create the relevant object structure
-						// this.log.silly(`Creating object structure for offset object ${offset}`);
 						promises.push(this.setObjectNotExistsAsync(room.id + ".offsets." + offset, { type: "channel", common: { name: room.name + " offset " + offset }, native: {} }));
 						for (const offset_item in room.offsets[offset]) {
 							if (Object.prototype.hasOwnProperty.call(room.offsets[offset], offset_item)) {
@@ -370,7 +370,31 @@ class Controme extends utils.adapter {
 		this.log.silly(`Creating sensor objects for room ${roomID}: Sensor ${sensor.name} (${sensor.beschreibung})`);
 		promises.push(this.setObjectNotExistsAsync(roomID + ".sensors." + sensor.name, { type: "device", common: { name: sensor.beschreibung }, native: {} }));
 		promises.push(this.setObjectNotExistsAsync(roomID + ".sensors." + sensor.name + ".isRoomTemperatureSensor", { type: "state", common: { name: sensor.beschreibung + " is room temperature sensor", type: "boolean", role: "indicator", read: true, write: false }, native: {} }));
-		promises.push(this.setObjectNotExistsAsync(roomID + ".sensors." + sensor.name + ".actualTemperature", { type: "state", common: { name: sensor.beschreibung + " actual temperature", type: "number", unit: "°C", role: "value.temperature", read: true, write: true }, native: {} }));
+		// sensor.wert can be either single value or object
+		if (isObject(sensor.wert)) {
+			for (const [key, value] of Object.entries(sensor.wert)) {
+				this.log.silly(`Creating individual sensor value objects for room ${roomID}: Sensor value ${key}`);
+				// currently known object values are Helligkeit (brightness), Relative Luftfeuchtigkeit (humidity), Bewegung (motion), Temperatur (temperatur)
+				switch (key) {
+					case "Helligkeit":
+						promises.push(this.setObjectNotExistsAsync(`${roomID}.sensors.${sensor.name}.brightness`, { type: "state", common: { name: `${sensor.beschreibung} brightness`, type: "number", unit: "lux", role: "value.brightness", read: true, write: false }, native: {} }));
+						break;
+					case "Relative Luftfeuchte":
+						promises.push(this.setObjectNotExistsAsync(`${roomID}.sensors.${sensor.name}.humidity`, { type: "state", common: { name: `${sensor.beschreibung} humidity`, type: "number", unit: "%", role: "value.humidity", read: true, write: false }, native: {} }));
+						break;
+					case "Bewegung":
+						promises.push(this.setObjectNotExistsAsync(`${roomID}.sensors.${sensor.name}.motion`, { type: "state", common: { name: sensor.beschreibung + " motion", type: "boolean", role: "sensor.motion", read: true, write: false }, native: {} }));
+						break;
+					case "Temperatur":
+						promises.push(this.setObjectNotExistsAsync(`${roomID}.sensors.${sensor.name}.actualTemperature`, { type: "state", common: { name: sensor.beschreibung + " actual temperature", type: "number", unit: "°C", role: "value.temperature", read: true, write: true }, native: {} }));
+						break;
+					default:
+						promises.push(this.setObjectNotExistsAsync(`${roomID}.sensors.${sensor.name}.${key}`, { type: "state", common: { name: `${sensor.beschreibung} ${key}`, type: "number", unit: "", role: "value", read: true, write: true }, native: {} }));
+				}
+			}
+		} else {
+			promises.push(this.setObjectNotExistsAsync(roomID + ".sensors." + sensor.name + ".actualTemperature", { type: "state", common: { name: sensor.beschreibung + " actual temperature", type: "number", unit: "°C", role: "value.temperature", read: true, write: true }, native: {} }));
+		}
 		return Promise.all(promises);
 	}
 
@@ -571,7 +595,7 @@ class Controme extends utils.adapter {
 				await got.post(url, { body: form });
 			} catch (error) {
 				this.setState("info.connection", false, true);				
-				this.log.error(`Room ${roomID}: Setting setpoint temperature returned an error "${error}"`);
+				this.log.error(`Room ${roomID}: Setting setpoint temperature returned an error "${error.response ? error.response.body : error}"`);
 			}
 		})();
 	}
@@ -593,7 +617,7 @@ class Controme extends utils.adapter {
 				await got.post(url, { body: form });
 			} catch (error) {
 				this.setState("info.connection", false, true);				
-				this.log.error(error);
+				this.log.error(`Room ${roomID}: Setting target temperature returned an error "${error.response ? error.response.body : error}"`);
 			}
 		})();
 	}
@@ -611,13 +635,10 @@ class Controme extends utils.adapter {
 
 		(async () => {
 			try {
-				const { body } = await got.post(url, { body: form });
-				if (body != "") {
-					this.log.error(`Room ${roomID}: Setting actual temperature for sensor ${sensorID} returned an unexpected response "${body}"`);
-				}
+				await got.post(url, { body: form });
 			} catch (error) {
 				this.setState("info.connection", false, true);				
-				this.log.error(`Room ${roomID}: Setting actual temperature for sensor ${sensorID} returned an error "${error}"`);
+				this.log.error(`Room ${roomID}: Setting actual temperature for sensor ${sensorID} returned an error "${error.response ? error.response.body : error}"`);
 			}
 		})();
 	}
@@ -635,7 +656,7 @@ class Controme extends utils.adapter {
 
 		(async () => {
 			try {
-				await got.post(url, { body: form });
+				const {body, statusCode} = await got.post(url, { body: form});		
 			} catch (error) {
 				this.setState("info.connection", false, true);				
 				this.log.error(`Room ${roomID}: Setting offset temperature for offset ${apiID} returned an error "${error}"`);
