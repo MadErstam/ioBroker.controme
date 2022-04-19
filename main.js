@@ -11,6 +11,7 @@ const utils = require("@iobroker/adapter-core");
 // Load your modules here, e.g.:
 const got = require("got");
 const formData = require("form-data");
+const { throws } = require("assert");
 
 if (!Number.prototype.round) {
 	Number.prototype.round = function (decimals) {
@@ -53,7 +54,7 @@ class Controme extends utils.adapter {
 		// Initialize your adapter here
 
 		// Reset the connection indicator during startup
-		this.setState("info.connection", false, true);
+		this.setState("info.connection", false, true);		
 
 		if (this.supportsFeature && this.supportsFeature("PLUGINS")) {
 			this.getForeignObject("system.config", (err, obj) => {
@@ -75,13 +76,16 @@ class Controme extends utils.adapter {
 
 
 		if (this.config.forceReInit) {
-
+			this.log.debug(`Fresh install of adapter or forceReInit selected, rebuilding object structure.`);
 			try {
 				const objects = await this.getAdapterObjectsAsync();
 
 				for (const object in objects) {
 					if (Object.prototype.hasOwnProperty.call(objects, object)) {
-						await this.delForeignObjectAsync(object);
+						this.log.silly(`Purging: ${object}`);
+						if (!object.endsWith("info.connection")) {
+							await this.delForeignObjectAsync(object);
+						}
 					}
 				}
 				this.log.debug(`Purging object structure finished successfully`);
@@ -89,7 +93,7 @@ class Controme extends utils.adapter {
 				this.log.error(`Purging object structure failed with ${error}`);
 			}
 
-			this.log.debug(`Creating data objects after purge`);
+			this.log.debug(`Creating data objects`);
 			await this._createObjects();
 
 			// Set foreceReInit to false after re-initialization to avoid recreating the object structure on each adapter restart
@@ -237,6 +241,7 @@ class Controme extends utils.adapter {
 			const response = await got(url);
 			body = JSON.parse(response.body);
 		} catch (error) {
+			this.setState("info.connection", false, true);
 			this.log.error(`Polling temps API from mini server to create data objects for rooms, offsets and sensor failed failed with error "${error}"`);
 		}
 	
@@ -273,6 +278,7 @@ class Controme extends utils.adapter {
 			const response = await got(url);
 			body = JSON.parse(response.body);
 		} catch (error) {
+			this.setState("info.connection", false, true);			
 			this.log.error(`Polling outs API from mini server to create data objects for outputs failed failed with error "${error}"`);
 		}
 	
@@ -564,6 +570,7 @@ class Controme extends utils.adapter {
 			try {
 				await got.post(url, { body: form });
 			} catch (error) {
+				this.setState("info.connection", false, true);				
 				this.log.error(`Room ${roomID}: Setting setpoint temperature returned an error "${error}"`);
 			}
 		})();
@@ -585,6 +592,7 @@ class Controme extends utils.adapter {
 			try {
 				await got.post(url, { body: form });
 			} catch (error) {
+				this.setState("info.connection", false, true);				
 				this.log.error(error);
 			}
 		})();
@@ -608,6 +616,7 @@ class Controme extends utils.adapter {
 					this.log.error(`Room ${roomID}: Setting actual temperature for sensor ${sensorID} returned an unexpected response "${body}"`);
 				}
 			} catch (error) {
+				this.setState("info.connection", false, true);				
 				this.log.error(`Room ${roomID}: Setting actual temperature for sensor ${sensorID} returned an error "${error}"`);
 			}
 		})();
@@ -628,6 +637,7 @@ class Controme extends utils.adapter {
 			try {
 				await got.post(url, { body: form });
 			} catch (error) {
+				this.setState("info.connection", false, true);				
 				this.log.error(`Room ${roomID}: Setting offset temperature for offset ${apiID} returned an error "${error}"`);
 			}
 		})();
