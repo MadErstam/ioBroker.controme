@@ -134,7 +134,7 @@
                     },
                     "sm": 6,
                     "md": 3,
-                    "lg": 1,                    
+                    "lg": 1                   
                 },
                 "interval": {
                     "type": "number",
@@ -144,7 +144,7 @@
                     "help": "s",
                     "sm": 6,
                     "md": 3,
-                    "lg": 1,                    
+                    "lg": 1                 
                 },
                 "forceReInit": {
                     "newLine": true,
@@ -175,7 +175,7 @@
                     "sm": 4,
                     "md": 3,
                     "lg": 2
-                },
+                }
             }
         }
     }
