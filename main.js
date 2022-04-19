@@ -290,7 +290,7 @@ class Controme extends utils.adapter {
 						const outputs = rooms[room].ausgang;
 						for (const [key, value] of Object.entries(outputs)) {
 							this.log.silly(`Creating output objects for room ${rooms[room].id}: Output ${key}`);
-							this.setObjectNotExistsAsync(rooms[room].id + ".outputs." + key, { type: "state", common: { name: rooms[room].name + " outputs " + key, type: "string", role: "value", read: true, write: false }, native: {} } );
+							this.setObjectNotExistsAsync(rooms[room].id + ".outputs." + key, { type: "state", common: { name: rooms[room].name + " outputs " + key, type: "number", role: "value", read: true, write: false }, native: {} } );
 						}
 					}
 				}
