@@ -4,16 +4,16 @@
 		"version": "0.3.0",
 		"news": {
 			"0.3.0": {
-				"en": "Extended API polling (outputs)",
-				"de": "Erweitertes API-Polling (Ausgänge)",
-				"ru": "Расширенный опрос API (выходы)",
-				"pt": "Pesquisa de API estendida (saídas)",
-				"nl": "Uitgebreide API-polling (uitgangen)",
-				"fr": "Interrogation API étendue (sorties)",
-				"it": "Polling API esteso (output)",
-				"es": "Sondeo API extendido (salidas)",
-				"pl": "Rozszerzone odpytywanie API (wyjścia)",
-				"zh-cn": "扩展 API 轮询（输出）"
+				"en": "Extended API polling (outputs, gateways)",
+				"de": "Erweitertes API-Polling (Ausgänge, Gateways)",
+				"ru": "Расширенный опрос API (выходы, шлюзы)",
+				"pt": "Pesquisa de API estendida (saídas, gateways)",
+				"nl": "Uitgebreide API-polling (outputs, gateways)",
+				"fr": "Interrogation de l'API étendue (sorties, passerelles)",
+				"it": "Polling API esteso (output, gateway)",
+				"es": "Sondeo API extendido (salidas, puertas de enlace)",
+				"pl": "Rozszerzone odpytywanie API (wyjścia, bramy)",
+				"zh-cn": "扩展 API 轮询（输出、网关）"
 			},
 			"0.2.4": {
 				"en": "Bugfixing",
@@ -140,6 +140,9 @@
 		"authors": [
 			"MadErstam <erstam@gmx.de>"
 		],
+		"mode": "daemon",
+		"platform": "Javascript/Node.js",
+		"loglevel": "info",
 		"keywords": [
 			"Heating",
 			"Controme",
@@ -147,25 +150,33 @@
 			"Radiator",
 			"ioBroker"
 		],
-		"license": "MIT",
-		"platform": "Javascript/Node.js",
-		"main": "main.js",
-		"icon": "controme.png",
+		"preserveSettings": "custom",
+		"supportCustoms": true,
+		"getHistory": true,
 		"enabled": true,
-		"extIcon": "https://raw.githubusercontent.com/MadErstam/ioBroker.controme/main/admin/controme.png",
-		"readme": "https://github.com/MadErstam/ioBroker.controme/blob/master/README.md",
-		"loglevel": "info",
-		"mode": "daemon",
-		"type": "climate-control",
-		"compact": true,
-		"connectionType": "local",
-		"dataSource": "poll",
+		"stopBeforeUpdate": true,
 		"materialize": true,
+		"compact": true,
+		"license": "MIT",
+		"readme": "https://github.com/MadErstam/ioBroker.controme/blob/master/README.md",
+		"icon": "controme.png",
+		"extIcon": "https://raw.githubusercontent.com/MadErstam/ioBroker.controme/main/admin/controme.png",
+		"type": "climate-control",
 		"dependencies": [
 			{
-				"js-controller": ">=2.0.0"
+				"js-controller": ">=3.0.0",
+				"admin": ">=4.0.10"
 			}
-		]
+		],
+		"main": "main.js",
+		"connectionType": "local",
+		"dataSource": "poll",
+		"installedFrom": "MadErstam/ioBroker.controme#35b1cc5e4fd69fca20b22e0b40c543526f3ca550",
+		"adminUI": {
+			"config": "json"
+		},
+		"jsonCustom": false,
+		"jsonConfig": true
 	},
 	"native": {
 		"url": "192.168.178.",
@@ -173,9 +184,12 @@
 		"interval": 60,
 		"forceReInit": false,
 		"user": "UserName",
-		"password": "Password",
-		"warnOnNull": true
+		"warnOnNull": true,
+		"password": "Password"
 	},
+	"encryptedNative": [
+		"password"
+	],
 	"objects": [],
 	"instanceObjects": [
 		{

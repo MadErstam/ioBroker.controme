@@ -1,27 +1,39 @@
 {
-  "name": "iobroker.controme",
-  "version": "0.3.0",
-  "description": "Connect to local Controme mini server that controls you home heating system",
+  "_from": "github:MadErstam/ioBroker.controme#35b1cc5e4fd69fca20b22e0b40c543526f3ca550",
+  "_id": "iobroker.controme@0.3.0",
+  "_inBundle": false,
+  "_integrity": "",
+  "_location": "/iobroker.controme",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "git",
+    "raw": "MadErstam/ioBroker.controme#35b1cc5e4fd69fca20b22e0b40c543526f3ca550",
+    "rawSpec": "MadErstam/ioBroker.controme#35b1cc5e4fd69fca20b22e0b40c543526f3ca550",
+    "saveSpec": "github:MadErstam/ioBroker.controme#35b1cc5e4fd69fca20b22e0b40c543526f3ca550",
+    "fetchSpec": null,
+    "gitCommittish": "35b1cc5e4fd69fca20b22e0b40c543526f3ca550"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "github:MadErstam/ioBroker.controme#35b1cc5e4fd69fca20b22e0b40c543526f3ca550",
+  "_spec": "MadErstam/ioBroker.controme#35b1cc5e4fd69fca20b22e0b40c543526f3ca550",
+  "_where": "/opt/iobroker",
   "author": {
     "name": "MadErstam",
     "email": "erstam@gmx.de"
   },
-  "homepage": "https://github.com/MadErstam/ioBroker.controme",
-  "license": "MIT",
-  "keywords": [
-    "heating",
-    "Controme",
-    "floor heating",
-    "radiator"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/MadErstam/ioBroker.controme"
+  "bugs": {
+    "url": "https://github.com/MadErstam/ioBroker.controme/issues"
   },
+  "bundleDependencies": false,
   "dependencies": {
     "@iobroker/adapter-core": "^2.4.0",
     "got": "^11.8.1"
   },
+  "deprecated": false,
+  "description": "Connect to local Controme mini server that controls you home heating system",
   "devDependencies": {
     "@iobroker/testing": "^2.4.2",
     "@types/chai": "^4.2.15",
@@ -43,18 +55,28 @@
     "sinon-chai": "^3.5.0",
     "typescript": "^4.1.5"
   },
+  "homepage": "https://github.com/MadErstam/ioBroker.controme",
+  "keywords": [
+    "heating",
+    "Controme",
+    "floor heating",
+    "radiator"
+  ],
+  "license": "MIT",
   "main": "main.js",
+  "name": "iobroker.controme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MadErstam/ioBroker.controme.git"
+  },
   "scripts": {
+    "check": "tsc --noEmit -p tsconfig.check.json",
+    "lint": "eslint",
+    "test": "npm run test:js && npm run test:package",
+    "test:integration": "mocha test/integration --exit",
     "test:js": "mocha --config test/mocharc.custom.json \"{!(node_modules|test)/**/*.test.js,*.test.js,test/**/test!(PackageFiles|Startup).js}\"",
     "test:package": "mocha test/package --exit",
-    "test:unit": "mocha test/unit --exit",
-    "test:integration": "mocha test/integration --exit",
-    "test": "npm run test:js && npm run test:package",
-    "check": "tsc --noEmit -p tsconfig.check.json",
-    "lint": "eslint"
+    "test:unit": "mocha test/unit --exit"
   },
-  "bugs": {
-    "url": "https://github.com/MadErstam/ioBroker.controme/issues"
-  },
-  "readmeFilename": "README.md"
+  "version": "0.3.0"
 }

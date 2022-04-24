@@ -97,17 +97,89 @@
             "pl": "Pokaż ostrzeżenia dziennika dla wartości null",
             "zh-cn": "显示空值的日志警告"
         },
-        "MACaddresses": {
-            "en": "MAC addresses of gateways",
-            "de": "MAC-Adressen von Gateways",
-            "ru": "MAC-адреса шлюзов",
-            "pt": "Endereços MAC de gateways",
-            "nl": "MAC-adressen van gateways",
-            "fr": "Adresses MAC des passerelles",
-            "it": "Indirizzi MAC dei gateway",
-            "es": "Direcciones MAC de puertas de enlace",
-            "pl": "Adresy MAC bramek",
-            "zh-cn": "网关的MAC地址"
+        "gatewaySettings": {
+            "en": "Gateway settings",
+            "de": "Gateway-Einstellungen",
+            "ru": "Настройки шлюза",
+            "pt": "Configurações do gateway",
+            "nl": "Gateway-instellingen",
+            "fr": "Paramètres de la passerelle",
+            "it": "Impostazioni del gateway",
+            "es": "Configuración de la puerta de enlace",
+            "pl": "Ustawienia bramy",
+            "zh-cn": "网关设置"
+        },        
+        "gatewayMAC": {
+            "en": "Gateway MAC address",
+            "de": "Gateway MAC-Adresse",
+            "ru": "MAC-адрес шлюза",
+            "pt": "Endereço MAC do gateway",
+            "nl": "Gateway MAC-adres",
+            "fr": "Adresse MAC de la passerelle",
+            "it": "Indirizzo MAC del gateway",
+            "es": "Dirección MAC de la puerta de enlace",
+            "pl": "Adres MAC bramy",
+            "zh-cn": "网关 MAC 地址"
+        },           
+        "gatewayType": {
+            "en": "Gateway type",
+            "de": "Gateway-Typ",
+            "ru": "Тип шлюза",
+            "pt": "Tipo de gateway",
+            "nl": "Gateway-type:",
+            "fr": "Type de passerelle",
+            "it": "Tipo di gateway",
+            "es": "Tipo de puerta de enlace",
+            "pl": "Typ bramy",
+            "zh-cn": "网关类型"
+        },           
+        "gatewayName": {
+            "en": "Gateway name",
+            "de": "Gateway-Name",
+            "ru": "Имя шлюза",
+            "pt": "Nome do gateway",
+            "nl": "Gatewaynaam",
+            "fr": "Nom de la passerelle",
+            "it": "Nome del gateway",
+            "es": "Nombre de la puerta de enlace",
+            "pl": "Nazwa bramy",
+            "zh-cn": "网关名称"
+        },           
+        "gatewayIsUniversal": {
+            "en": "Is universal gateway",
+            "de": "Ist Universal-Gateway",
+            "ru": "Является универсальным шлюзом",
+            "pt": "É gateway universal",
+            "nl": "Is universele gateway",
+            "fr": "Est une passerelle universelle",
+            "it": "È un gateway universale",
+            "es": "es puerta de enlace universal",
+            "pl": "Czy uniwersalna brama",
+            "zh-cn": "是通用网关"
+        },
+        "gatewayOutsID": {
+            "en": "Output ID",
+            "de": "Ausgangs-ID",
+            "ru": "Выходной идентификатор",
+            "pt": "ID de saída",
+            "nl": "Uitgangs-ID",
+            "fr": "ID de sortie",
+            "it": "ID di uscita",
+            "es": "ID de salida",
+            "pl": "Identyfikator wyjścia",
+            "zh-cn": "输出 ID"
+        },
+        "gatewayOutsName": {
+            "en": "Output Name",
+            "de": "Ausgangsname",
+            "ru": "Выходное имя",
+            "pt": "Nome de saída",
+            "nl": "Uitgangsnaam:",
+            "fr": "Nom de la sortie",
+            "it": "Nome di uscita",
+            "es": "Nombre de salida",
+            "pl": "Nazwa wyjścia",
+            "zh-cn": "输出名称"
         }        
     },
     "items": {
@@ -120,10 +192,26 @@
                     "label": "url",
                     "sm": 12,
                     "md": 6,
-                    "lg": 3,
+                    "lg": 6,
                     "newLine": true
                 },
+                "user": {
+                    "type": "text",
+                    "label": "user",
+                    "sm": 6,
+                    "md": 3,
+                    "lg": 3
+                },
+                "password": {
+                    "type": "password",
+                    "label": "password",
+                    "repeat": false,
+                    "sm": 6,
+                    "md": 3,
+                    "lg": 3
+                },                
                 "houseID": {
+                    "newLine": true,
                     "type": "number",
                     "min": 0,
                     "max": 255,
@@ -134,7 +222,7 @@
                     },
                     "sm": 6,
                     "md": 3,
-                    "lg": 1                   
+                    "lg": 3
                 },
                 "interval": {
                     "type": "number",
@@ -144,37 +232,108 @@
                     "help": "s",
                     "sm": 6,
                     "md": 3,
-                    "lg": 1                 
+                    "lg": 3
                 },
                 "forceReInit": {
-                    "newLine": true,
                     "type": "checkbox",
                     "label": "forceReInit",
-                    "sm": 4,
+                    "sm": 6,
                     "md": 3,
-                    "lg": 2
-                },
-                "user": {
-                    "type": "text",
-                    "label": "user",
-                    "sm": 4,
-                    "md": 3,
-                    "lg": 2
-                },
-                "password": {
-                    "type": "password",
-                    "label": "password",
-                    "sm": 4,
-                    "md": 3,
-                    "lg": 2
+                    "lg": 3
                 },
                 "warnOnNull": {
-                    "newLine": true,
                     "type": "checkbox",
                     "label": "warnOnNull",
-                    "sm": 4,
+                    "sm": 6,
                     "md": 3,
-                    "lg": 2
+                    "lg": 3
+                }
+            }
+        },
+        "gatewayTab": {
+            "type": "panel",
+            "label": "Gateway settings",
+            "items": {
+                "gateways": {
+                    "type": "table",
+                    "label": "Gateways",
+                    "nodelete": false,
+                    "sm": 12,
+                    "md": 12,
+                    "lg": 12,
+                    "items": [
+                        {
+                            "type": "text",
+                            "attr": "gatewayMAC",
+                            "width": "30%",
+                            "title": "gatewayMAC",
+                            "filter": true,
+                            "sort": true,
+                            "default": ""
+                        },
+                        {
+                            "type": "select",
+                            "attr": "gatewayType",
+                            "title": "gatewayType",
+                            "width": "30%",
+                            "options": [
+                                {"label": "Floor GW Smart/Pro", "value": "gwFloor"},
+                                {"label": "Universal GW Pro", "value": "gwUniPro"},
+                                {"label": "Universal GW Mini", "value": "gwUniMini"}
+                            ],
+                            "filter": false,
+                            "sort": false,
+                            "default": ""
+                        },
+                        {
+                            "type": "text",
+                            "attr": "gatewayName",
+                            "width": "40%",
+                            "title": "gatewayName",
+                            "filter": false,
+                            "sort": false,
+                            "default": ""
+                        }
+                    ]
+                },
+                "gatewayOuts": {
+                    "type": "table",
+                    "label": "Gateway outputs",
+                    "nodelete": false,
+                    "sm": 12,
+                    "md": 12,
+                    "lg": 12,
+                    "items": [
+                        {
+                            "type": "text",
+                            "attr": "gatewayOutsMAC",
+                            "width": "30%",
+                            "title": "gatewayOutsMAC",
+                            "filter": true,
+                            "sort": true,
+                            "default": ""
+                        },
+                        {
+                            "type": "number",
+                            "attr": "gatewayOutsID",
+                            "title": "gatewayOutsID",
+                            "width": "30%",
+                            "min": 1,
+                            "max": 15,
+                            "filter": false,
+                            "sort": false,
+                            "default": 1
+                        },
+                        {
+                            "type": "text",
+                            "attr": "gatewayOutsName",
+                            "width": "40%",
+                            "title": "gatewayOutsName",
+                            "filter": false,
+                            "sort": false,
+                            "default": ""
+                        }
+                    ]
                 }
             }
         }
