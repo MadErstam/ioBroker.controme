@@ -515,66 +515,6 @@ class Controme extends utils.adapter {
 			}
 		}
 
-		// this.log.debug(`~  Creating output objects for gateways`);
-		// for (const gatewayOutput of this.config.gatewayOuts) {
-		// 	// this.config.gatewayOuts is an array of objects, one for each output of the gateway
-		// 	let gateway
-		// 	if
-
-		// 	this.log.silly(`Creating gateway objects for ${gw.gatewayMAC}`);
-		// 	promises.push(this.setObjectNotExistsAsync("gateways", { type: "channel", common: { name: "Gateway data" }, native: {} }));
-		// 	promises.push(this.setObjectNotExistsAsync(gw.gatewayMAC, { type: "device", common: { name: gw.gatewayName }, native: {} }));
-		// 	promises.push(this.setObjectNotExistsAsync(gw.gatewayMAC + ".gatewayType", { type: "state", common: { name: gw.gatewayName + " type", type: "string", unit: "", role: "state", read: true, write: false }, native: {} }));
-		// 	promises.push(this.setObjectNotExistsAsync(gw.gatewayMAC + ".isUniversal", { type: "state", common: { name: gw.gatewayName + " isUniversal", type: "boolean", unit: "", role: "state", read: true, write: false }, native: {} }));
-
-		// 	_setGatewayObjects(gw) {
-		// 		const promises = [];
-		// 		this.log.silly(`Setting gateway objects for ${gw.gatewayMAC}`);
-		// 		promises.push(this.setStateAsync(gw.gatewayMAC + ".gatewayType", gw.gatewayType, true));
-		// 		promises.push(this.setStateAsync(gw.gatewayMAC + ".isUniversal", (gw.gatewayType == "gwUniMini" || gw.gatewayType == "gwUniPro"), true));
-		// 		return Promise.all(promises);
-		// 	}
-
-		// 	_createGatewayOutputObjects(gwo) {
-		// 		const promises = [];
-		// 		this.log.silly(`Creating gateway output object for ${gwo.gatewayOutsMAC} Output ${gwo.gatewayOutsID}`);
-		// 		promises.push(this.setObjectNotExistsAsync(gwo.gatewayOutsMAC + ".outputs." + gwo.gatewayOutsID, { type: "state", common: { name: gwo.gatewayOutsName, type: "boolean", unit: "", role: "state", read: true, write: false }, native: {} }));
-		// 		return Promise.all(promises);
-		// 	}
-
-
-		// }
-
-		// the connection indicator is updated when the connection was successful
-
-		// let body;
-		// try {
-		// 	const url = "http://" + this.config.url + "/get/json/v1/" + this.config.houseID + "/outs/";
-		// 	const response = await got(url);
-		// 	body = JSON.parse(response.body);
-		// } catch (error) {
-		// 	// when an error is received, the connection indicator is updated accordingly
-		// 	this.setState("info.connection", false, true);
-		// 	this.log.error(`Polling outputs data from Controme mini server finished with error "${error}"`);
-		// }
-
-		// this.log.silly(`Outs response from Controme mini server: "${JSON.stringify(body)}"`);
-
-		// for (const floor in body) {
-		// 	if (Object.prototype.hasOwnProperty.call(body, floor)) {
-		// 		for (const room in body[floor].raeume) {
-		// 			if (Object.prototype.hasOwnProperty.call(body[floor].raeume, room)) {
-		// 				this.log.silly(`Processing outputs for room ${body[floor].raeume[room].id}`);
-
-		// 				this._updateOutputsForRoom(body[floor].raeume[room]);
-
-		// 				this.log.silly(`Finished processing room ${body[floor].raeume[room].id}`);
-		// 			}
-		// 		}
-		// 	}
-		// }
-		// // the connection indicator is updated when the connection was successful
-		// this.setState("info.connection", true, true);
 	}
 
 	_updateRoom(room) {
