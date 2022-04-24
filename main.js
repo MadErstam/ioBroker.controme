@@ -134,7 +134,9 @@ class Controme extends utils.adapter {
 	_updateIntervalFunction() {
 		this._pollRoomTemps();
 		this._pollOuts();
-		this._pollGateways();
+		if (this.config.gateways != null && typeof this.config.gateways[Symbol.iterator] === 'function') {
+			this._pollGateways();
+		}
 	}
 
 	async _createObjects() {
@@ -207,23 +209,29 @@ class Controme extends utils.adapter {
 		}
 
 		this.log.debug(`~  Creating gateway objects`);
-		for (const gateway of this.config.gateways) {
-			// this.config.gateways is an array of objects, one for each gateway 
-			const promises = this._createGatewayObjects(gateway);
-			Promise.all(promises)
-				.then(() => {
-					this._setGatewayObjects(gateway);
-				})
-				.catch((error) => {
-					this.log.error(`Setting newly created gateway states failed with error ${error}`);
-				})
+		if (this.config.gateways != null && typeof this.config.gateways[Symbol.iterator] === 'function') {
+			for (const gateway of this.config.gateways) {
+				// this.config.gateways is an array of objects, one for each gateway 
+				const promises = this._createGatewayObjects(gateway);
+				Promise.all(promises)
+					.then(() => {
+						this._setGatewayObjects(gateway);
+					})
+					.catch((error) => {
+						this.log.error(`Setting newly created gateway states failed with error ${error}`);
+					})
+			}
+
+			if (this.config.gatewayOuts != null && typeof this.config.gatewayOuts[Symbol.iterator] === 'function') {
+				this.log.debug(`~  Creating output objects for gateways`);
+				for (const gatewayOutput of this.config.gatewayOuts) {
+					// this.config.gatewayOuts is an array of objects, one for each output of the gateway
+					this._createGatewayOutputObjects(gatewayOutput);
+				}
+			}
+
 		}
 
-		this.log.debug(`~  Creating output objects for gateways`);
-		for (const gatewayOutput of this.config.gatewayOuts) {
-			// this.config.gatewayOuts is an array of objects, one for each output of the gateway
-			this._createGatewayOutputObjects(gatewayOutput);
-		}
 
 		// the connection indicator is updated when the connection was successful
 	}
@@ -477,7 +485,7 @@ class Controme extends utils.adapter {
 			if (gateway.gatewayType == "gwUniPro") {
 				const outputs = await this.getStatesOfAsync(`${this.namespace}.${gateway.gatewayMAC}`, "outputs");
 				for (const output in outputs) {
-					let outputID = outputs[output]._id.substring(outputs[output]._id.lastIndexOf('.')+1);
+					let outputID = outputs[output]._id.substring(outputs[output]._id.lastIndexOf('.') + 1);
 					try {
 						const url = `http://${this.config.url}/get/${gateway.gatewayMAC}/${outputID}/`;
 						const response = await got(url);
@@ -488,7 +496,7 @@ class Controme extends utils.adapter {
 						this.setState("info.connection", false, true);
 						this.log.error(`Polling gateway data on ${gateway.gatewayMAC} from Controme mini server finished with error "${error}"`);
 					}
-					const gatewayOutState = body.substring(1,body.length-1);
+					const gatewayOutState = body.substring(1, body.length - 1);
 					this.log.silly(`Setting gateway output ${gateway.gatewayMAC}:${outputID} to ${parseInt(gatewayOutState)}`);
 					this.setStateAsync(outputs[output]._id, parseInt(gatewayOutState), true);
 				}
@@ -503,13 +511,13 @@ class Controme extends utils.adapter {
 					this.setState("info.connection", false, true);
 					this.log.error(`Polling gateway data on ${gateway.gatewayMAC} from Controme mini server finished with error "${error}"`);
 				}
-				if (typeof(body) === "string") {
-					const gatewayOuts = body.substring(1,body.length-1).split(';');
+				if (typeof (body) === "string") {
+					const gatewayOuts = body.substring(1, body.length - 1).split(';');
 					const outputs = await this.getStatesOfAsync(`${this.namespace}.${gateway.gatewayMAC}`, "outputs");
 					for (const output in outputs) {
-						let outputID = outputs[output]._id.substring(outputs[output]._id.lastIndexOf('.')+1);
-						this.setStateAsync(outputs[output]._id, parseFloat(gatewayOuts[outputID-1]), true);
-						this.log.silly(`Setting gateway output ${gateway.gatewayMAC}:${outputID} to ${parseFloat(gatewayOuts[outputID-1])}`);
+						let outputID = outputs[output]._id.substring(outputs[output]._id.lastIndexOf('.') + 1);
+						this.setStateAsync(outputs[output]._id, parseFloat(gatewayOuts[outputID - 1]), true);
+						this.log.silly(`Setting gateway output ${gateway.gatewayMAC}:${outputID} to ${parseFloat(gatewayOuts[outputID - 1])}`);
 					}
 				}
 			}
