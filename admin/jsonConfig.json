@@ -305,7 +305,9 @@
                     "lg": 12,
                     "items": [
                         {
-                            "type": "text",
+                            "type": "selectSendTo",
+                            "command": "getMAC",
+                            "alsoDependsOn": "data.gateways",
                             "attr": "gatewayOutsMAC",
                             "width": "30%",
                             "title": "gatewayOutsMAC",

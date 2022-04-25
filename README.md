@@ -24,21 +24,26 @@ The adapter periodically reads the room temperatures from the mini server as wel
 The adapter provides the following data for each room defined in the Controme UI:
 | Object | Type | Description |
 | --- | --- | --- |
-| room | device | Each room is represented with its Controme room ID and the room name as device name. |
-| actualTemperature | state | The actual temperature of the room, with a role of level.temperature. This state is read-only. If no room temperature sensor for a particular room is defined, the actual temperature returned from the Controme mini server is null. |
-| setPointTemperature | state | The target / setpoint temperature of the room, with a role of value.temperature. This state is read/write. | 
-| temperatureOffset | state | The offset temperature of the room, by which the sensor measurements are different from the actual temperature of the room. The temperature offset value can be set manually in the Controme UI, and in addition is calculated by various Controme modules. This state if read-only. | 
-| offsets | channel | Offsets are added or subtracted from the setpoint room temperature. This channel groups all offsets that belong to the respective room. |
-| offsets.[OFFSET-GROUP] | channel | Each offset source is repesented by a dedicated channel within the offsets channel of the room the offset belongs to. |
-| offsets.[OFFSET-GROUP].[OFFSET] | state | The individual offset state represent the different adjustments made by the Controme mini server. These states are read-only. |
-| offsets.api | channel | This offset group is special, since its states can be written to and can be used to manipulate the actual room offset. |
-| offsets.api.api | state | This offset state is created by default by the adapter. You can use it to manipulate the actual room offsets. The offset values are reset by the server each 10 minutes. This state is read/write. |
-| sensors | channel | Sensors provide the actual measurements associated with the room. This channel groups all sensors assigned to the respective room. |
-| sensors.[SENSOR-ID] | device | Each sensor is represented by a device within the sensors channel of the room it is assigned to. |
-| sensors.[SENSOR-ID].isRoomTemperatureSensor | state | This boolean state indicates if a sensor is used as room temperature sensor. For each room, only a single sensor can be used as room temperature sensor. This state is read-only. |
-| sensors.[SENSOR-ID].actualTemperature | state | This state represents the actual temperature measured by the sensor. The state is read/write, but only 1Wire sensors or virtual sensors will accept the provided values. In case you write a value to a real sensor, the value will be overwritten when the next reading is done. |
-| outputs | channel | Outputs typically control valves that control the room's heating. This channel groups all outputs assigned to the respective room. |
-| outputs.[OUTPUT-ID] | device | Each output is represented by a device within the output channel of the room it is assigned to. The output ID number represents the number of the output on the gateway. |
+| roomID | device | Each room is represented with its Controme room ID and the room name as device name. |
+| roomID.actualTemperature | state | The actual temperature of the room, with a role of level.temperature. This state is read-only. If no room temperature sensor for a particular room is defined, the actual temperature returned from the Controme mini server is null. |
+| roomID.setPointTemperature | state | The target / setpoint temperature of the room, with a role of value.temperature. This state is read/write. | 
+| roomID.temperatureOffset | state | The offset temperature of the room, by which the sensor measurements are different from the actual temperature of the room. The temperature offset value can be set manually in the Controme UI, and in addition is calculated by various Controme modules. This state if read-only. | 
+| roomID.offsets | channel | Offsets are added or subtracted from the setpoint room temperature. This channel groups all offsets that belong to the respective room. |
+| roomID.offsets.[OFFSET-GROUP] | channel | Each offset source is repesented by a dedicated channel within the offsets channel of the room the offset belongs to. |
+| roomID.offsets.[OFFSET-GROUP].[OFFSET] | state | The individual offset state represent the different adjustments made by the Controme mini server. These states are read-only. |
+| roomID.offsets.api | channel | This offset group is special, since its states can be written to and can be used to manipulate the actual room offset. |
+| roomID.offsets.api.api | state | This offset state is created by default by the adapter. You can use it to manipulate the actual room offsets. The offset values are reset by the server each 10 minutes. This state is read/write. |
+| roomID.sensors | channel | Sensors provide the actual measurements associated with the room. This channel groups all sensors assigned to the respective room. |
+| roomID.sensors.[SENSOR-ID] | device | Each sensor is represented by a device within the sensors channel of the room it is assigned to. |
+| roomID.sensors.[SENSOR-ID].isRoomTemperatureSensor | state | This boolean state indicates if a sensor is used as room temperature sensor. For each room, only a single sensor can be used as room temperature sensor. This state is read-only. |
+| roomID.sensors.[SENSOR-ID].actualTemperature | state | This state represents the actual temperature measured by the sensor. The state is read/write, but only 1Wire sensors or virtual sensors will accept the provided values. In case you write a value to a real sensor, the value will be overwritten when the next reading is done. |
+| roomID.outputs | channel | Outputs typically control valves that control the room's heating. This channel groups all outputs assigned to the respective room. |
+| roomID.outputs.[OUTPUT-ID] | state | Each output is represented by a state within the output channel of the room it belongs to. The output ID number represents the number of the output on the gateway. |
+| gatewayMAC | device | Each gateway is represented with its MAC address and the gateway name as device name. |
+| gatewayMAC.gatewayType | state | The type of the gateway. Currently, there are four controme gateways: floor gateway smart, floor gateway pro, universal gateway mini, universal gateway pro. |
+| gatewayMAC.isUniversal | state | Indicates if gateway is one of the universal gateways. Data from universal gateways need to be polled in a different way. |
+| gatewayMAC.outputs | channel | Outputs typically control valves that control the room's heating for floor gateways or devices in the heating room (pumps, valves). This channel groups all outputs of the respective gateway. |
+| gatewayMAC.outputs.[OUTPUT-ID] | state | Each output is represented by a state within the output channel of the gateway it is assigned to. The output ID number represents the number of the output on the gateway as setup in the configuration. |
 
 
 The [API documentation](https://support.controme.com/api/) can be found on the Controme website.
@@ -53,12 +58,21 @@ To start the adapter, the following data need to be provided in the admin settin
 | warnOnNull | checkbox | If this checkbox is set, the adapter writes log warnings when a sensor returns a NULL value. Returning NULL values is expected behaviour for window sensors, but would indicate a connection problem for temperature sensors. The API does not allow to discern between  | 
 | username | text | The username with which to access the Controme API. This is usually the username of the main Controme user. |
 | password | password | The password of the user with which to access the Controme API. This password is encrypted. |
+| gateways | table | All gateways that the adapter shall poll the data for have to be configures with three values: |
+| gateways.gatewayMAC | string | The MAC address of the individual gateway. |
+| gateways.type | string | The type of the respective gateway. Can be either Floor Gateway Smart/Pro, Universal Gateway Mini or Universal Gateway Pro. |
+| gateways.name | string | The name of the respective gateway. |
+| gatewayOutputs | table | All outputs of all gateways that the adapter shall poll the data for have to be configures with three values: |
+| gatewayOutputs.gatewayMAC | string | The MAC address of the individual gateway. This has to match one of the gatewayMAC values configured in the gateways table. Please note that currently, the adapter does not validate if the gateway MAC addresses match to those configured in the gateways table. So please pay attention that gateway MAC addresses match in both tables. |
+| gatewayOutputs.outputID | number | The output ID of the respective gateway that shall be polled. For mini gateways, this number has to be 1 to 8, for other gateways is can be 1 to 15. |
+| gatewayOutputs.outputName | string | The name of the respective output of the gateway. |
+
 
 ## To Dos
 
 1. (in progress) Publish the adapter :)
 2. Add data validation to config fields
-3. Extend data fields received from Controme mini server (e.g. humidity)
+3. (done, testing pending) Extend data fields received from Controme mini server (e.g. humidity)
 4. (done) Add sensor data for each sensor and room
 5. Implement target temperature (temporary changes to desired temperature for room) next to setpoint temperature
 6. (done) Add option to set value for virtual sensors
@@ -68,7 +82,12 @@ To start the adapter, the following data need to be provided in the admin settin
 1. ...
 
 ## Changelog
-
+<!--
+  Placeholder for the next version (at the beginning of the line):
+  ### **WORK IN PROGRESS**
+-->
+## **WORK IN PROGRESS**
+* (MadErstam) Cleaning up adapter, bugfixing, extended readme
 ### 0.3.0
 * (MadErstam) Extended API polling (outputs, gateways)
 ### 0.2.4
@@ -91,7 +110,7 @@ To start the adapter, the following data need to be provided in the admin settin
 ## License
 MIT License
 
-Copyright (c) 2021 MadErstam <erstam@gmx.de>
+Copyright (c) 2022 MadErstam <erstam@gmx.de>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

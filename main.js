@@ -11,9 +11,8 @@ const utils = require("@iobroker/adapter-core");
 // Load your modules here, e.g.:
 const got = require("got");
 const formData = require("form-data");
-const { throws } = require("assert");
 const { isObject } = require("iobroker.controme/lib/tools");
-const { runInThisContext } = require("vm");
+
 
 if (!Number.prototype.round) {
 	Number.prototype.round = function (decimals) {
@@ -22,14 +21,6 @@ if (!Number.prototype.round) {
 		}
 		return Math.round(this * Math.pow(10, decimals)) / Math.pow(10, decimals);
 	}
-}
-
-function decrypt(key, value) {
-	let result = '';
-	for (let i = 0; i < value.length; ++i) {
-		result += String.fromCharCode(key[i % key.length].charCodeAt(0) ^ value.charCodeAt(i));
-	}
-	return result;
 }
 
 class Controme extends utils.adapter {
@@ -120,15 +111,15 @@ class Controme extends utils.adapter {
 		if (isObject(obj)) {
 			this.log.debug(`onMessage called with obj: ${JSON.stringify(obj)}`);
 		}
-		if (obj) {
-			switch (obj.command) {
-				case 'command':
-					if (obj.callback) {
-						adapter.sendTo(obj.from, obj.command, ports.map(item => ({ "label": item.path, "value": item.path })), obj.callback);
-					}
-					break;
-			}
-		}
+		// if (obj) {
+		// 	switch (obj.command) {
+		// 		case 'command':
+		// 			if (obj.callback) {
+		// 				this.log.debug(`onMessage called with obj: ${JSON.stringify(obj)}`);
+		// 			}
+		// 			break;
+		// 	}
+		// }
 	}
 
 	_updateIntervalFunction() {
