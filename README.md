@@ -86,7 +86,7 @@ To start the adapter, the following data need to be provided in the admin settin
   Placeholder for the next version (at the beginning of the line):
   ### **WORK IN PROGRESS**
 -->
-## **WORK IN PROGRESS**
+### **WORK IN PROGRESS**
 * (MadErstam) Cleaning up adapter, bugfixing, extended readme
 ### 0.3.0
 * (MadErstam) Extended API polling (outputs, gateways)
