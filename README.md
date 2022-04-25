@@ -89,6 +89,9 @@ To start the adapter, the following data need to be provided in the admin settin
 ### **WORK IN PROGRESS**
 * (MadErstam) Prepare for release
 
+### 0.3.4-alpha.0 (2022-04-25)
+* (MadErstam) Prepare for release
+
 ### 0.3.3 (2022-04-25)
 * (MadErstam) Updated dependencies
 
