@@ -678,7 +678,7 @@ class Controme extends utils.adapter {
 						this.log.error(`Change of subscribed actualTemperature state ${id} to ${state.val} °C (ack = ${state.ack}) failed`);
 					}
 				} else if (id.includes(".offsets.")) {
-					// 	this.subscribeStates("*.offsets.api.*");
+					// this.subscribeStates("*.offsets.api.*");
 					// extract the apiID and sensorID from id
 					const roomID = id.match(/^controme\.\d\.(\d+)/);
 					const apiID = id.match(/offsets\.[^.]+\.(.+)/);
@@ -699,87 +699,122 @@ class Controme extends utils.adapter {
 	}
 
 	_setSetpointTemp(roomID, setpointTemp) {
-		this.log.debug(`Room ${roomID}: Setting setpoint temperature to ${setpointTemp} °C`);
 		const url = "http://" + this.config.url + "/set/json/v1/" + this.config.houseID + "/soll/" + roomID + "/";
 		const form = new formData();
 
 		form.append("user", this.config.user);
 		form.append("password", this.config.password);
 		// [FIXME] SetpointTemp should be checked for validity
-		form.append("soll", setpointTemp);
+		if (typeof setpointTemp === 'number' && isFinite(setpointTemp)) {
 
-		(async () => {
-			try {
-				await got.post(url, { body: form });
-			} catch (error) {
-				this.setState("info.connection", false, true);
-				this.log.error(`Room ${roomID}: Setting setpoint temperature returned an error "${error.response ? error.response.body : error}"`);
-			}
-		})();
+			setpointTemp = Math.trunc((Math.round(setpointTemp * 8) / 8) * 100) / 100;
+			form.append("soll", setpointTemp);
+
+			(async () => {
+				try {
+					await got.post(url, { body: form });
+					this.log.debug(`Room ${roomID}: Setting setpoint temperature to ${setpointTemp} °C`);
+				} catch (error) {
+					this.setState("info.connection", false, true);
+					this.log.error(`Room ${roomID}: Setting setpoint temperature returned an error "${error.response ? error.response.body : error}"`);
+				}
+			})();
+		} else {
+			this.log.error(`Room ${roomID}: New setpoint temperature is not a number.`);
+		}			
 	}
 
 	_setTargetTemp(roomID, targetTemp, targetDuration) {
-		this.log.debug(`Room ${roomID}: Setting target temperature to ${targetTemp} °C for ${targetDuration} minutes`);
 		const url = "http://" + this.config.url + "/set/json/v1/" + this.config.houseID + "/ziel/" + roomID + "/";
 		const form = new formData();
 
 		form.append("user", this.config.user);
 		form.append("password", this.config.password);
-		// [FIXME] TargetTemp and Duration should be checked for validity
-		form.append("ziel", targetTemp);
-		// duration can either be set directly or to default duration
-		form.append("duration", targetDuration);
 
-		(async () => {
-			try {
-				await got.post(url, { body: form });
-			} catch (error) {
-				this.setState("info.connection", false, true);
-				this.log.error(`Room ${roomID}: Setting target temperature returned an error "${error.response ? error.response.body : error}"`);
+		if (typeof targetTemp === 'number' && isFinite(targetTemp)) {
+			// According to the API documentation, Controme accepts only values that are a multiple of 0.125 and that are send with max two decimals (0.125 -> 0.12)
+			// We therefore need to round the targetTemp to that value (22.1 => 22.12)
+			targetTemp = Math.trunc((Math.round(targetTemp * 8) / 8) * 100) / 100;
+
+			form.append("ziel", targetTemp);
+
+			if (typeof targetTemp === 'number' && isFinite(targetTemp)) {
+				// duration can either be set directly (as a value in minutes) or to default duration (if value is 0)
+
+				form.append("duration", duration > 0 ? Math.round(targetDuration) : "default");
+
+				(async () => {
+					try {
+						await got.post(url, { body: form });
+						this.log.debug(`Room ${roomID}: Setting target temperature to ${targetTemp} °C for ${targetDuration} minutes`);
+					} catch (error) {
+						this.setState("info.connection", false, true);
+						this.log.error(`Room ${roomID}: Setting target temperature returned an error "${error.response ? error.response.body : error}"`);
+					}
+				})();
+			} else {
+				this.log.error(`Room ${roomID}: Duration for setting of target temperature is not a number.`);
 			}
-		})();
+		} else {
+			this.log.error(`Room ${roomID}: New target temperature is not a number.`);
+		}
 	}
 
 	_setActualTemp(roomID, sensorID, actualTemp) {
-		this.log.debug(`Room ${roomID}: Setting actual temperature for sensor ${sensorID} to ${actualTemp} °C`);
 		const url = "http://" + this.config.url + "/set/json/v1/" + this.config.houseID + "/set/";
 		const form = new formData();
 
 		form.append("user", this.config.user);
 		form.append("password", this.config.password);
-		// [FIXME] SensorID and Value should be checked for validity
+		// [FIXME] SensorID should be checked for validity
 		form.append("sensorid", sensorID);
-		form.append("value", actualTemp);
 
-		(async () => {
-			try {
-				await got.post(url, { body: form });
-			} catch (error) {
-				this.setState("info.connection", false, true);
-				this.log.error(`Room ${roomID}: Setting actual temperature for sensor ${sensorID} returned an error "${error.response ? error.response.body : error}"`);
-			}
-		})();
+		if (typeof actualTemp === 'number' && isFinite(actualTemp)) {
+			// According to the API documentation, Controme accepts only values that are a multiple of 0.125 and that are send with max two decimals (0.125 -> 0.12)
+			// We therefore need to round the actualTemp to that value (22.1 => 22.12)
+			actualTemp = Math.trunc((Math.round(actualTemp * 8) / 8) * 100) / 100;
+			form.append("value", actualTemp);
+
+			(async () => {
+				try {
+					await got.post(url, { body: form });
+					this.log.debug(`Room ${roomID}: Setting actual temperature for sensor ${sensorID} to ${actualTemp} °C`);
+				} catch (error) {
+					this.setState("info.connection", false, true);
+					this.log.error(`Room ${roomID}: Setting actual temperature for sensor ${sensorID} returned an error "${error.response ? error.response.body : error}"`);
+				}
+			})();
+		} else {
+			this.log.error(`Room ${roomID}: Actual temperature for sensor "${sensorID}" is not a number.`);
+		}
 	}
 
 	_setOffsetTemp(roomID, apiID, offsetTemp) {
-		this.log.debug(`Room ${roomID}: Setting offset temperature for offset ${apiID} to ${offsetTemp} °C`);
 		const url = "http://" + this.config.url + "/set/json/v1/" + this.config.houseID + "/roomoffset/" + roomID + "/";
 		const form = new formData();
 
 		form.append("user", this.config.user);
 		form.append("password", this.config.password);
 		form.append("offset_name", apiID);
-		// [FIXME] Offset should be checked for validity
-		form.append("offset", offsetTemp);
+		if (typeof offsetTemp === 'number' && isFinite(offsetTemp)) {
+			// According to the API documentation, Controme accepts only values that are a multiple of 0.125 and that are send with max two decimals (0.125 -> 0.12)
+			// We therefore need to round the offsetTemp to that value (22.1 => 22.12)
+			offsetTemp = Math.trunc((Math.round(offsetTemp * 8) / 8) * 100) / 100;
+			form.append("offset", offsetTemp);
 
-		(async () => {
-			try {
-				const { body, statusCode } = await got.post(url, { body: form });
-			} catch (error) {
-				this.setState("info.connection", false, true);
-				this.log.error(`Room ${roomID}: Setting offset temperature for offset ${apiID} returned an error "${error}"`);
-			}
-		})();
+			(async () => {
+				try {
+					const { body, statusCode } = await got.post(url, { body: form });
+					this.log.debug(`Room ${roomID}: Setting offset temperature for offset ${apiID} to ${offsetTemp} °C`);
+				} catch (error) {
+					this.setState("info.connection", false, true);
+					this.log.error(`Room ${roomID}: Setting offset temperature for offset "${apiID}" returned an error "${error}"`);
+				}
+			})();
+		} else {
+			this.log.error(`Room ${roomID}: New offset temperature for offset "${apiID}" is not a number.`);
+		}
+
 	}
 
 }
