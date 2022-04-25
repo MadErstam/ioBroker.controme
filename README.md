@@ -86,24 +86,33 @@ To start the adapter, the following data need to be provided in the admin settin
   Placeholder for the next version (at the beginning of the line):
   ### **WORK IN PROGRESS**
 -->
-### **WORK IN PROGRESS**
+### 0.3.1 (2022-04-25)
 * (MadErstam) Cleaning up adapter, bugfixing, extended readme
+
 ### 0.3.0
 * (MadErstam) Extended API polling (outputs, gateways)
+
 ### 0.2.4
 * (MadErstam) Bugfixing
+
 ### 0.2.3
 * (MadErstam) Bugfixing
+
 ### 0.2.2
 * (MadErstam) Bugfixing in offset handling
+
 ### 0.2.1
 * (MadErstam) Improved offset handling
+
 ### 0.2.0
 * (MadErstam) Added sensors and offsets
+
 ### 0.1.2
 * (MadErstam) Preparations for adapter package release
+
 ### 0.1.1
 * (MadErstam) Minor bug fixes
+
 ### 0.1.0
 * (MadErstam) initial release
 
