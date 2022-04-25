@@ -86,6 +86,9 @@ To start the adapter, the following data need to be provided in the admin settin
   Placeholder for the next version (at the beginning of the line):
   ### **WORK IN PROGRESS**
 -->
+### **WORK IN PROGRESS**
+* (MadErstam) Prepare for release
+
 ### 0.3.1 (2022-04-25)
 * (MadErstam) Cleaning up adapter, bugfixing, extended readme
 
