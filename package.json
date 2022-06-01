@@ -35,7 +35,7 @@
   "deprecated": false,
   "description": "Connect to local Controme mini server that controls you home heating system",
   "devDependencies": {
-    "@alcalzone/release-script": "^3.5.6",
+    "@alcalzone/release-script": "^3.5.9",
     "@iobroker/testing": "^2.4.2",
     "@types/chai": "^4.2.15",
     "@types/chai-as-promised": "^7.1.3",
