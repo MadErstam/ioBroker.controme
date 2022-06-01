@@ -1,0 +1,5 @@
+chore: release v0.3.4-alpha.2
+
+* (MadErstam) Added validation of setTargetTemp, setSetpointTemp, setActualTemp, setOffsetTemp values
+* (MadErstam) Changed dependencies
+* (MadErstam) Cleaning up
