@@ -86,6 +86,11 @@ To start the adapter, the following data need to be provided in the admin settin
   Placeholder for the next version (at the beginning of the line):
   ### **WORK IN PROGRESS**
 -->
+### **WORK IN PROGRESS**
+* (MadErstam) Added validation of setTargetTemp, setSetpointTemp, setActualTemp, setOffsetTemp values
+* (MadErstam) Changed dependencies
+* (MadErstam) Cleaning up
+
 ### 0.3.4-alpha.1 (2022-04-25)
 * (MadErstam) Prepare for release
 

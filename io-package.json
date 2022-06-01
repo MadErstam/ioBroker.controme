@@ -3,6 +3,18 @@
 		"name": "controme",
 		"version": "0.3.0",
 		"news": {
+			"0.3.5": {
+				"en": "Data validation and bugfixing",
+				"de": "Datenvalidierung und Fehlerbehebung",
+				"ru": "Проверка данных и исправление ошибок",
+				"pt": "Validação de dados e correção de bugs",
+				"nl": "Gegevensvalidatie en bugfixing",
+				"fr": "Validation des données et correction de bogues",
+				"it": "Convalida dei dati e correzione di bug",
+				"es": "Validación de datos y corrección de errores.",
+				"pl": "Walidacja danych i naprawianie błędów",
+				"zh-cn": "数据验证和错误修复"
+			},
 			"0.3.0": {
 				"en": "Extended API polling (outputs, gateways)",
 				"de": "Erweitertes API-Polling (Ausgänge, Gateways)",
