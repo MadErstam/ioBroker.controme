@@ -178,6 +178,9 @@
 		"jsonCustom": false,
 		"jsonConfig": true
 	},
+	"encryptedNative": [
+		"password"
+	],
 	"native": {
 		"url": "192.168.178.",
 		"houseID": "1",
@@ -185,11 +188,18 @@
 		"forceReInit": false,
 		"user": "UserName",
 		"warnOnNull": true,
-		"password": "Password"
+		"password": "Password",
+		"gateways": {
+			"gatewayMAC": "A0-A0-A0-A0-A0-A0",
+			"gatewayType": "gwFloor",
+			"gatewayName": "Gateway Name"
+		},
+		"gatewayOuts": {
+			"gatewayOutsMAC": "A0-A0-A0-A0-A0-A0",
+			"gatewayOutsID": 1,
+			"gatewayOutsName": "Gateway Outout Name"
+		}
 	},
-	"encryptedNative": [
-		"password"
-	],
 	"objects": [],
 	"instanceObjects": [
 		{

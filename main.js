@@ -54,7 +54,7 @@ class Controme extends utils.adapter {
 
 		const pollInterval = (Number.isInteger(this.config.interval) && this.config.interval > 15) ? this.config.interval : 15;
 
-		this.log.debug(`Controme URL: ${this.config.url}; houseID: ${this.config.houseID}; update interval: ${pollInterval}; warnOnNull: ${this.config.warnOnNull}`);
+		this.log.debug(`Controme URL: ${this.config.url}; houseID: ${this.config.houseID}; user: ${this.config.user}; update interval: ${pollInterval}; warnOnNull: ${this.config.warnOnNull}`);
 
 
 		if (this.config.forceReInit) {
@@ -710,13 +710,16 @@ class Controme extends utils.adapter {
 			setpointTemp = Math.trunc((Math.round(setpointTemp * 8) / 8) * 100) / 100;
 			form.append("soll", setpointTemp);
 
+			this.log.debug(`_setSetpointTemp: form = "${JSON.stringify(form)}"`);
+
 			(async () => {
 				try {
 					await got.post(url, { body: form });
 					this.log.debug(`Room ${roomID}: Setting setpoint temperature to ${setpointTemp} °C`);
 				} catch (error) {
 					this.setState("info.connection", false, true);
-					this.log.error(`Room ${roomID}: Setting setpoint temperature returned an error "${error.response ? error.response.body : error}"`);
+					this.log.error(`Room ${roomID}: Setting setpoint temperature returned an error "${error}"`);
+					// this.log.error(`Room ${roomID}: Setting setpoint temperature returned an error "${error.response ? error.response.body : error}"`);
 				}
 			})();
 		} else {
@@ -729,7 +732,7 @@ class Controme extends utils.adapter {
 		const form = new formData();
 
 		form.append("user", this.config.user);
-		form.append("password", this.config.password);
+		form.append("password", this.config.password);		
 
 		if (typeof targetTemp === 'number' && isFinite(targetTemp)) {
 			// According to the API documentation, Controme accepts only values that are a multiple of 0.125 and that are send with max two decimals (0.125 -> 0.12)
@@ -742,6 +745,8 @@ class Controme extends utils.adapter {
 				// duration can either be set directly (as a value in minutes) or to default duration (if value is 0)
 
 				form.append("duration", duration > 0 ? Math.round(targetDuration) : "default");
+
+				this.log.debug(`_setTargetTemp: form = "${JSON.stringify(form)}"`);
 
 				(async () => {
 					try {
@@ -775,6 +780,8 @@ class Controme extends utils.adapter {
 			actualTemp = Math.trunc((Math.round(actualTemp * 8) / 8) * 100) / 100;
 			form.append("value", actualTemp);
 
+			this.log.debug(`_setActualTemp: form = "${JSON.stringify(form)}"`);
+
 			(async () => {
 				try {
 					await got.post(url, { body: form });
@@ -794,13 +801,17 @@ class Controme extends utils.adapter {
 		const form = new formData();
 
 		form.append("user", this.config.user);
-		form.append("password", this.config.password);
+		form.append("password", this.config.password);		
+
 		form.append("offset_name", apiID);
+		
 		if (typeof offsetTemp === 'number' && isFinite(offsetTemp)) {
 			// According to the API documentation, Controme accepts only values that are a multiple of 0.125 and that are send with max two decimals (0.125 -> 0.12)
 			// We therefore need to round the offsetTemp to that value (22.1 => 22.12)
 			offsetTemp = Math.trunc((Math.round(offsetTemp * 8) / 8) * 100) / 100;
 			form.append("offset", offsetTemp);
+
+			this.log.debug(`_setOffsetTemp: form = "${JSON.stringify(form)}"`);
 
 			(async () => {
 				try {
