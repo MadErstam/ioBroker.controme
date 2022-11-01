@@ -10,7 +10,7 @@
   },
   "bundleDependencies": false,
   "dependencies": {
-    "@iobroker/adapter-core": "^2.4.0",
+    "@iobroker/adapter-core": "^2.6.7",
     "got": "^11.8.5"
   },
   "deprecated": false,
