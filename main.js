@@ -660,7 +660,7 @@ class Controme extends utils.adapter {
 					// this.subscribeStates("*.setpointTemperature");
 					// extract the roomID from id
 					const roomID = id.match(/^controme\.\d\.(\d+)/);
-					if (roomID !== null) {
+					if (roomID !== null && state.val !== null) {
 						this.log.debug(`Room ${roomID[1]}: Calling setSetpointTemp(${roomID[1]}, ${state.val})`);
 						this._setSetpointTemp(roomID[1], state.val);
 					} else {
@@ -671,7 +671,7 @@ class Controme extends utils.adapter {
 					// extract the roomID and sensorID from id
 					const roomID = id.match(/^controme\.\d\.(\d+)/);
 					const sensorID = id.match(/\.sensors\.([0-9a-f_:]+)\./);
-					if (roomID !== null && sensorID !== null) {
+					if (roomID !== null && sensorID !== null && state.val !== null) {
 						this.log.debug(`Room ${roomID[1]}: Calling setActualTemp(${roomID[1]}, ${sensorID[1]}, ${state.val})`);
 						this._setActualTemp(roomID[1], sensorID[1], state.val);
 					} else {
@@ -682,7 +682,7 @@ class Controme extends utils.adapter {
 					// extract the apiID and sensorID from id
 					const roomID = id.match(/^controme\.\d\.(\d+)/);
 					const apiID = id.match(/offsets\.[^.]+\.(.+)/);
-					if (roomID !== null && apiID !== null) {
+					if (roomID !== null && apiID !== null && state.val !== null) {
 						this.log.debug(`Room ${roomID[1]}: Calling setOffsetTemp(${roomID[1]}, ${apiID[1]}, ${state.val})`);
 						this._setOffsetTemp(roomID[1], apiID[1], state.val);
 					} else {
