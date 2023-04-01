@@ -11,7 +11,7 @@
   "bundleDependencies": false,
   "dependencies": {
     "@iobroker/adapter-core": "^2.4.0",
-    "got": "^11.8.5"
+    "got": "^12.6.0"
   },
   "deprecated": false,
   "description": "Connect to local Controme mini server that controls you home heating system",
