@@ -6,7 +6,10 @@
 
 // The adapter-core module gives you access to the core ioBroker functions
 // you need to create an adapter
-const utils = require("@iobroker/adapter-core");
+
+const { Adapter } = require("@iobroker/adapter-core");
+
+// const utils = require("@iobroker/adapter-core");
 
 // Load your modules here, e.g.:
 const got = require('got').default;
@@ -20,7 +23,7 @@ function roundTo(number, decimals = 0) {
     return Math.round(number * Math.pow(10, decimals)) / Math.pow(10, decimals);	
 }
 
-class Controme extends utils.adapter {
+class Controme extends Adapter {
 
 	/**
 	 * @param {Partial<utils.AdapterOptions>} [options={}]
@@ -557,7 +560,8 @@ class Controme extends utils.adapter {
 		promises.push(this.setStateChangedAsync(room.id + ".setpointTemperaturePerm", roundTo(parseFloat(room.perm_solltemperatur), 2), true));
 		promises.push(this.setStateChangedAsync(room.id + ".is_temporary_mode", room.is_temporary_mode == 'true', true));
 		promises.push(this.setStateChangedAsync(room.id + ".temporary_mode_remaining", parseInt(room.remaining_time), true));
-		promises.push(this.setStateChangedAsync(room.id + ".temporary_mode_end", dayjs(room.mode_end_datetime), true));
+		// Parse date into proper UNIX date: promises.push(this.setStateChangedAsync(room.id + ".temporary_mode_end", dayjs(room.mode_end_datetime), true));
+		promises.push(this.setStateChangedAsync(room.id + ".temporary_mode_end", room.mode_end_datetime, true));
 		promises.push(this.setStateChangedAsync(room.id + ".humidity", parseInt(room.luftfeuchte), true));
 		promises.push(this.setStateChangedAsync(room.id + ".mode", room.betriebsart, true));
 		return Promise.all(promises);

@@ -1,6 +1,6 @@
 {
   "name": "iobroker.controme",
-  "version": "0.3.4-alpha.2",
+  "version": "0.4.0",
   "author": {
     "name": "MadErstam",
     "email": "erstam@gmx.de"
@@ -8,9 +8,9 @@
   "bugs": {
     "url": "https://github.com/MadErstam/ioBroker.controme/issues"
   },
-  "bundleDependencies": false,
+  "bundleDependencies": [],
   "dependencies": {
-    "@iobroker/adapter-core": "^2.4.0",
+    "@iobroker/adapter-core": "^3.2.2",
     "dayjs": "^1.11.13",
     "got": "^11.8.5"
   },

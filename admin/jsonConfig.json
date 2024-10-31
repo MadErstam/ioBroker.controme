@@ -257,7 +257,6 @@
                 "gateways": {
                     "type": "table",
                     "label": "Gateways",
-                    "nodelete": false,
                     "sm": 12,
                     "md": 12,
                     "lg": 12,
@@ -299,7 +298,6 @@
                 "gatewayOuts": {
                     "type": "table",
                     "label": "Gateway outputs",
-                    "nodelete": false,
                     "sm": 12,
                     "md": 12,
                     "lg": 12,
