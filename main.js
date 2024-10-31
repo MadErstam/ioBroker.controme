@@ -13,9 +13,8 @@ const utils = require("@iobroker/adapter-core");
 
 // Load your modules here, e.g.:
 const got = require('got').default;
+const { HTTPError } = require('got');  // Import HTTPError for specific error checking
 const dayjs = require('dayjs');
-const customParseFormat = require("dayjs/plugin/customParseFormat");
-dayjs.extend(customParseFormat);
 const formData = require('form-data');
 const { isObject } = require("iobroker.controme/lib/tools");
 
@@ -137,7 +136,7 @@ class Controme extends utils.Adapter {
 		let body;
 		try {
 			const url = "http://" + this.config.url + "/get/json/v1/" + this.config.houseID + "/temps/";
-			const response = await got(url);
+			const response = await got.get(url);
 			body = JSON.parse(response.body);
 		} catch (error) {
 			this.setState("info.connection", false, true);
@@ -410,7 +409,7 @@ class Controme extends utils.Adapter {
 
 		try {
 			const url = "http://" + this.config.url + "/get/json/v1/" + this.config.houseID + "/temps/";
-			const response = await got(url);
+			const response = await got.get(url);
 			body = JSON.parse(response.body);
 		} catch (error) {
 			this.setState("info.connection", false, true);
@@ -446,7 +445,7 @@ class Controme extends utils.Adapter {
 		let body;
 		try {
 			const url = "http://" + this.config.url + "/get/json/v1/" + this.config.houseID + "/outs/";
-			const response = await got(url);
+			const response = await got.get(url);
 			body = JSON.parse(response.body);
 		} catch (error) {
 			// when an error is received, the connection indicator is updated accordingly
@@ -489,7 +488,7 @@ class Controme extends utils.Adapter {
 					let outputID = outputs[output]._id.substring(outputs[output]._id.lastIndexOf('.') + 1);
 					try {
 						const url = `http://${this.config.url}/get/${gateway.gatewayMAC}/${outputID}/`;
-						const response = await got(url);
+						const response = await got.get(url);
 						body = response.body;
 						// gateway API returns string in the format <0;0;0;0;0;0;0;0;0;0;0;0;0;0;0>
 
@@ -510,7 +509,7 @@ class Controme extends utils.Adapter {
 				this.log.debug(`Polling all outputs for gateway ${gateway.gatewayName} from mini server `);
 				try {
 					const url = `http://${this.config.url}/get/${gateway.gatewayMAC}/all/`;
-					const response = await got(url);
+					const response = await got.get(url);
 					body = response.body;
 					// gateway API returns string in the format <0;0;0;0;0;0;0;0;0;0;0;0;0;0;0>
 				} catch (error) {
@@ -560,8 +559,11 @@ class Controme extends utils.Adapter {
 		promises.push(this.setStateChangedAsync(room.id + ".setpointTemperaturePerm", roundTo(parseFloat(room.perm_solltemperatur), 2), true));
 		promises.push(this.setStateChangedAsync(room.id + ".is_temporary_mode", room.is_temporary_mode == 'true', true));
 		promises.push(this.setStateChangedAsync(room.id + ".temporary_mode_remaining", parseInt(room.remaining_time), true));
-		// Parse date into proper UNIX date: promises.push(this.setStateChangedAsync(room.id + ".temporary_mode_end", dayjs(room.mode_end_datetime), true));
-		promises.push(this.setStateChangedAsync(room.id + ".temporary_mode_end", room.mode_end_datetime, true));
+		if (room.mode_end_datetime == null) {
+			promises.push(this.setStateChangedAsync(room.id + ".temporary_mode_end", room.mode_end_datetime, true));
+		} else {
+			promises.push(this.setStateChangedAsync(room.id + ".temporary_mode_end", dayjs(room.mode_end_datetime).unix(), true));
+		}
 		promises.push(this.setStateChangedAsync(room.id + ".humidity", parseInt(room.luftfeuchte), true));
 		promises.push(this.setStateChangedAsync(room.id + ".mode", room.betriebsart, true));
 		return Promise.all(promises);
@@ -664,7 +666,7 @@ class Controme extends utils.Adapter {
 		try {
 			this.log.debug("Stopping update interval.");
 			// Here you must clear all timeouts or intervals that may still be active
-			clearInterval(this.updateInterval);
+			if (this.updateInterval != null) { clearInterval(this.updateInterval); }
 			callback();
 		} catch (e) {
 			callback();
@@ -796,7 +798,16 @@ class Controme extends utils.Adapter {
 						this.log.debug(`Room ${roomID}: Setting target temperature to ${targetTemp} °C for ${targetDuration} minutes`);
 					} catch (error) {
 						this.setState("info.connection", false, true);
-						this.log.error(`Room ${roomID}: Setting target temperature returned an error "${error.response ? error.response.body : error}"`);
+
+						if (error instanceof HTTPError) {
+							this.log.error(`Room ${roomID}: Setting target temperature returned an error: ${error.response?.body || error.message}`);
+						} else if (error instanceof Error) {
+							// Generic Error handling
+							this.log.error(`Room ${roomID}: Setting target temperature returned an error: ${error.message}`);
+						} else {
+							// Fallback for unknown errors
+							this.log.error(`Room ${roomID}: Setting target temperature returned an unknown error: ${String(error)}`);							
+						}
 					}
 				})();
 			} else {
@@ -822,7 +833,7 @@ class Controme extends utils.Adapter {
 			actualTemp = Math.trunc((Math.round(actualTemp * 8) / 8) * 100) / 100;
 			form.append("value", actualTemp);
 
-			this.log.debug(`_setActualTemp: form = "${JSON.stringify(form)}"`);
+			this.log.silly(`_setActualTemp: form = "${JSON.stringify(form)}"`);
 
 			(async () => {
 				try {
@@ -830,7 +841,16 @@ class Controme extends utils.Adapter {
 					this.log.debug(`Room ${roomID}: Setting actual temperature for sensor ${sensorID} to ${actualTemp} °C`);
 				} catch (error) {
 					this.setState("info.connection", false, true);
-					this.log.error(`Room ${roomID}: Setting actual temperature for sensor ${sensorID} returned an error "${error.response ? error.response.body : error}"`);
+
+					if (error instanceof HTTPError) {
+						this.log.error(`Room ${roomID}: Setting actual temperature for sensor ${sensorID} returned an error: ${error.response?.body || error.message}`);
+					} else if (error instanceof Error) {
+						// Generic Error handling
+						this.log.error(`Room ${roomID}: Setting actual temperature for sensor ${sensorID} returned an error: ${error.message}`);
+					} else {
+						// Fallback for unknown errors
+						this.log.error(`Room ${roomID}: Setting actual temperature for sensor ${sensorID} returned an unknown error: ${String(error)}`);
+					}
 				}
 			})();
 		} else {
