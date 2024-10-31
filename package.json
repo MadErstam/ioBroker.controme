@@ -11,6 +11,7 @@
   "bundleDependencies": false,
   "dependencies": {
     "@iobroker/adapter-core": "^2.4.0",
+    "dayjs": "^1.11.13",
     "got": "^11.8.5"
   },
   "deprecated": false,

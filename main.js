@@ -9,18 +9,15 @@
 const utils = require("@iobroker/adapter-core");
 
 // Load your modules here, e.g.:
-const got = require("got");
-const formData = require("form-data");
+const got = require('got').default;
+const dayjs = require('dayjs');
+const customParseFormat = require("dayjs/plugin/customParseFormat");
+dayjs.extend(customParseFormat);
+const formData = require('form-data');
 const { isObject } = require("iobroker.controme/lib/tools");
 
-
-if (!Number.prototype.round) {
-	Number.prototype.round = function (decimals) {
-		if (typeof decimals === "undefined") {
-			decimals = 0;
-		}
-		return Math.round(this * Math.pow(10, decimals)) / Math.pow(10, decimals);
-	}
+function roundTo(number, decimals = 0) {
+    return Math.round(number * Math.pow(10, decimals)) / Math.pow(10, decimals);	
 }
 
 class Controme extends utils.adapter {
@@ -175,7 +172,7 @@ class Controme extends utils.adapter {
 		this.log.debug(`~  Creating output objects for rooms`);
 		try {
 			const url = "http://" + this.config.url + "/get/json/v1/" + this.config.houseID + "/outs/";
-			const response = await got(url);
+			const response = await got.get(url);
 			body = JSON.parse(response.body);
 		} catch (error) {
 			this.setState("info.connection", false, true);
@@ -201,9 +198,10 @@ class Controme extends utils.adapter {
 
 		this.log.debug(`~  Creating gateway objects`);
 		if (this.config.gateways != null && typeof this.config.gateways[Symbol.iterator] === 'function') {
-			for (const gateway of this.config.gateways) {
-				// this.config.gateways is an array of objects, one for each gateway 
-				const promises = this._createGatewayObjects(gateway);
+			const gateways = Array.isArray(this.config.gateways) ? this.config.gateways : [this.config.gateways];
+			for (const gateway of gateways) {
+					// gateways is an array of objects, one for each output of the gateway
+					const promises = this._createGatewayObjects(gateway);
 				Promise.all(promises)
 					.then(() => {
 						this._setGatewayObjects(gateway);
@@ -214,9 +212,11 @@ class Controme extends utils.adapter {
 			}
 
 			if (this.config.gatewayOuts != null && typeof this.config.gatewayOuts[Symbol.iterator] === 'function') {
+				const gatewayOuts = Array.isArray(this.config.gatewayOuts) ? this.config.gatewayOuts : [this.config.gatewayOuts];
 				this.log.debug(`~  Creating output objects for gateways`);
-				for (const gatewayOutput of this.config.gatewayOuts) {
-					// this.config.gatewayOuts is an array of objects, one for each output of the gateway
+
+				for (const gatewayOutput of gatewayOuts) {
+					// gatewayOuts is an array of objects, one for each output of the gateway
 					this._createGatewayOutputObjects(gatewayOutput);
 				}
 			}
@@ -234,6 +234,12 @@ class Controme extends utils.adapter {
 		promises.push(this.setObjectNotExistsAsync(room.id + ".actualTemperature", { type: "state", common: { name: room.name + " actual temperature", type: "number", unit: "°C", role: "value.temperature", read: true, write: false }, native: {} }));
 		promises.push(this.setObjectNotExistsAsync(room.id + ".setpointTemperature", { type: "state", common: { name: room.name + " setpoint temperature", type: "number", unit: "°C", role: "level.temperature", read: true, write: true }, native: {} }));
 		promises.push(this.setObjectNotExistsAsync(room.id + ".temperatureOffset", { type: "state", common: { name: room.name + " temperature offset", type: "number", unit: "°C", role: "value", read: true, write: false }, native: {} }));
+		promises.push(this.setObjectNotExistsAsync(room.id + ".setpointTemperaturePerm", { type: "state", common: { name: room.name + " permanent setpoint temperature", type: "number", unit: "°C", role: "level.temperature", read: true, write: true }, native: {} }));
+		promises.push(this.setObjectNotExistsAsync(room.id + ".is_temporary_mode", { type: "state", common: { name: room.name + " is in temporary mode", type: "boolean", unit: "", role: "indicator", read: true, write: false }, native: {} }));
+		promises.push(this.setObjectNotExistsAsync(room.id + ".temporary_mode_remaining", { type: "state", common: { name: room.name + "  temporary mode remaining time ", type: "number", unit: "s", role: "value.interval", read: true, write: false }, native: {} }));
+		promises.push(this.setObjectNotExistsAsync(room.id + ".temporary_mode_end", { type: "state", common: { name: room.name + "  temporary mode end time ", type: "string", unit: "", role: "value.datetime", read: true, write: false }, native: {} }));
+		promises.push(this.setObjectNotExistsAsync(room.id + ".humidity", { type: "state", common: { name: room.name + " humidity", type: "number", unit: "%", role: "value.humidity", read: true, write: false }, native: {} }));
+		promises.push(this.setObjectNotExistsAsync(room.id + ".mode", { type: "state", common: { name: room.name + " operating mode", type: "string", unit: "", role: "level.mode", read: true, write: false }, native: {} }));
 		promises.push(this.setObjectNotExistsAsync(room.id + ".sensors", { type: "channel", common: { name: room.name + " sensors" }, native: {} }));
 		promises.push(this.setObjectNotExistsAsync(room.id + ".offsets", { type: "channel", common: { name: room.name + " offsets" }, native: {} }));
 		promises.push(this.setObjectNotExistsAsync(room.id + ".outputs", { type: "channel", common: { name: room.name + " outputs" }, native: {} }));
@@ -468,8 +474,10 @@ class Controme extends utils.adapter {
 		// Poll gateway data from outputs API
 		this.log.debug("Polling gateways API from mini server");
 
-		for (const gateway of this.config.gateways) {
-			// this.config.gateways is an array of objects, one for each gateway
+
+		const gateways = Array.isArray(this.config.gateways) ? this.config.gateways : [this.config.gateways];
+		for (const gateway of gateways) {
+			// gateways is an array of objects, one for each gateway
 			// for gateways other than universal gateways (where state isUniversal is true), we can query the outputs API with /all/			
 			// for universal gateways we need to query each output individually
 			let body;
@@ -507,8 +515,8 @@ class Controme extends utils.adapter {
 					const outputs = await this.getStatesOfAsync(`${this.namespace}.${gateway.gatewayMAC}`, "outputs");
 					for (const output in outputs) {
 						let outputID = outputs[output]._id.substring(outputs[output]._id.lastIndexOf('.') + 1);
-						this.setStateAsync(outputs[output]._id, parseFloat(gatewayOuts[outputID - 1]), true);
-						this.log.silly(`Setting gateway output ${gateway.gatewayMAC}:${outputID} to ${parseFloat(gatewayOuts[outputID - 1])}`);
+						this.setStateAsync(outputs[output]._id, parseFloat(gatewayOuts[parseInt(outputID) - 1]), true);
+						this.log.silly(`Setting gateway output ${gateway.gatewayMAC}:${outputID} to ${parseFloat(gatewayOuts[parseInt(outputID) - 1])}`);
 					}
 				}
 			}
@@ -516,12 +524,37 @@ class Controme extends utils.adapter {
 
 	}
 
+
+	/*
+
+		promises.push(this.setObjectNotExistsAsync(room.id.toString(), { type: "device", common: { name: room.name }, native: {} }));
+		promises.push(this.setObjectNotExistsAsync(room.id + ".actualTemperature", { type: "state", common: { name: room.name + " actual temperature", type: "number", unit: "°C", role: "value.temperature", read: true, write: false }, native: {} }));
+		promises.push(this.setObjectNotExistsAsync(room.id + ".setpointTemperature", { type: "state", common: { name: room.name + " setpoint temperature", type: "number", unit: "°C", role: "level.temperature", read: true, write: true }, native: {} }));
+		promises.push(this.setObjectNotExistsAsync(room.id + ".temperatureOffset", { type: "state", common: { name: room.name + " temperature offset", type: "number", unit: "°C", role: "value", read: true, write: false }, native: {} }));
+		promises.push(this.setObjectNotExistsAsync(room.id + ".setpointTemperaturePerm", { type: "state", common: { name: room.name + " permanent setpoint temperature", type: "number", unit: "°C", role: "level.temperature", read: true, write: true }, native: {} }));
+		promises.push(this.setObjectNotExistsAsync(room.id + ".is_temporary_mode", { type: "state", common: { name: room.name + " is in temporary mode", type: "boolean", unit: "", role: "indicator", read: true, write: false }, native: {} }));
+		promises.push(this.setObjectNotExistsAsync(room.id + ".temporary_mode_remaining", { type: "state", common: { name: room.name + "  temporary mode remaining time ", type: "number", unit: "s", role: "value.interval", read: true, write: false }, native: {} }));
+		promises.push(this.setObjectNotExistsAsync(room.id + ".temporary_mode_end", { type: "state", common: { name: room.name + "  temporary mode end time ", type: "string", unit: "", role: "value.datetime", read: true, write: false }, native: {} }));
+		promises.push(this.setObjectNotExistsAsync(room.id + ".humidity", { type: "state", common: { name: room.name + " humidity", type: "number", unit: "%", role: "value.humidity", read: true, write: false }, native: {} }));
+		promises.push(this.setObjectNotExistsAsync(room.id + ".mode", { type: "state", common: { name: room.name + " operating mode", type: "string", unit: "", role: "level.mode", read: true, write: false }, native: {} }));
+		promises.push(this.setObjectNotExistsAsync(room.id + ".sensors", { type: "channel", common: { name: room.name + " sensors" }, native: {} }));
+		promises.push(this.setObjectNotExistsAsync(room.id + ".offsets", { type: "channel", common: { name: room.name + " offsets" }, native: {} }));
+		promises.push(this.setObjectNotExistsAsync(room.id + ".outputs", { type: "channel", common: { name: room.name + " outputs" }, native: {} }));
+
+	*/
+
 	_updateRoom(room) {
 		const promises = [];
-		this.log.silly(`Updating room ${room.id} (${room.name}): Actual temperature ${parseFloat(room.temperatur).round(2)} °C, setpoint temperature ${parseFloat(room.solltemperatur).round(2)} °C, temperature offset ${parseFloat(room.total_offset).round(2)} °C`);
-		promises.push(this.setStateChangedAsync(room.id + ".actualTemperature", parseFloat(room.temperatur).round(2), true));
-		promises.push(this.setStateChangedAsync(room.id + ".setpointTemperature", parseFloat(room.solltemperatur).round(2), true));
-		promises.push(this.setStateChangedAsync(room.id + ".temperatureOffset", parseFloat(room.total_offset).round(2), true));
+		this.log.silly(`Updating room ${room.id} (${room.name}): Actual temperature ${roundTo(parseFloat(room.temperatur), 2)} °C, setpoint temperature ${roundTo(parseFloat(room.solltemperatur), 2)} °C, temperature offset ${roundTo(parseFloat(room.total_offset), 2)} °C`);
+		promises.push(this.setStateChangedAsync(room.id + ".actualTemperature", roundTo(parseFloat(room.temperatur), 2), true));
+		promises.push(this.setStateChangedAsync(room.id + ".setpointTemperature", roundTo(parseFloat(room.solltemperatur), 2), true));
+		promises.push(this.setStateChangedAsync(room.id + ".temperatureOffset", roundTo(parseFloat(room.total_offset), 2), true));
+		promises.push(this.setStateChangedAsync(room.id + ".setpointTemperaturePerm", roundTo(parseFloat(room.perm_solltemperatur), 2), true));
+		promises.push(this.setStateChangedAsync(room.id + ".is_temporary_mode", room.is_temporary_mode == 'true', true));
+		promises.push(this.setStateChangedAsync(room.id + ".temporary_mode_remaining", parseInt(room.remaining_time), true));
+		promises.push(this.setStateChangedAsync(room.id + ".temporary_mode_end", dayjs(room.mode_end_datetime), true));
+		promises.push(this.setStateChangedAsync(room.id + ".humidity", parseInt(room.luftfeuchte), true));
+		promises.push(this.setStateChangedAsync(room.id + ".mode", room.betriebsart, true));
 		return Promise.all(promises);
 	}
 
@@ -546,8 +579,8 @@ class Controme extends utils.adapter {
 						// if offset object is not empty, we update the relevant object structure
 						for (const offset_item in room.offsets[offset]) {
 							if (Object.prototype.hasOwnProperty.call(room.offsets[offset], offset_item)) {
-								this.log.silly(`Updating room ${room.id}: Offset ${offset}.${offset_item} to ${parseFloat(room.offsets[offset][offset_item]).round(2)} °C`);
-								promises.push(this.setStateChangedAsync(room.id + ".offsets." + offset + "." + offset_item, parseFloat(room.offsets[offset][offset_item]).round(2), true));
+								this.log.silly(`Updating room ${room.id}: Offset ${offset}.${offset_item} to ${roundTo(parseFloat(room.offsets[offset][offset_item]), 2)} °C`);
+								promises.push(this.setStateChangedAsync(room.id + ".offsets." + offset + "." + offset_item, roundTo(parseFloat(room.offsets[offset][offset_item]), 2), true));
 							}
 						}
 					}
@@ -575,7 +608,7 @@ class Controme extends utils.adapter {
 								this.log.warn(`Room ${room.id}: Temperature value for sensor ${room.sensoren[sensor].name} is not a number`);
 							} else {
 								this.log.silly(`Updating room ${room.id}: Sensor ${room.sensoren[sensor].name} (${room.sensoren[sensor].beschreibung}) to ${room.sensoren[sensor].wert.Temperatur} °C`);
-								promises.push(this.setStateChangedAsync(room.id + ".sensors." + room.sensoren[sensor].name + ".actualTemperature", parseFloat(room.sensoren[sensor].wert.Temperatur).round(2), true));
+								promises.push(this.setStateChangedAsync(room.id + ".sensors." + room.sensoren[sensor].name + ".actualTemperature", roundTo(parseFloat(room.sensoren[sensor].wert.Temperatur), 2), true));
 							}
 						} else if (this.config.warnOnNull) {
 							this.log.warn(`Room ${room.id}: Temperature value for sensor ${room.sensoren[sensor].name} is null or empty`);
@@ -587,8 +620,8 @@ class Controme extends utils.adapter {
 							if (isNaN(parseFloat(room.sensoren[sensor].wert))) {
 								this.log.warn(`Room ${room.id}: Value for sensor ${room.sensoren[sensor].name} is not a number`);
 							} else {
-								this.log.silly(`Updating room ${room.id}: Sensor ${room.sensoren[sensor].name} (${room.sensoren[sensor].beschreibung}) to ${parseFloat(room.sensoren[sensor].wert).round(2)} °C`);
-								promises.push(this.setStateChangedAsync(room.id + ".sensors." + room.sensoren[sensor].name + ".actualTemperature", parseFloat(room.sensoren[sensor].wert).round(2), true));
+								this.log.silly(`Updating room ${room.id}: Sensor ${room.sensoren[sensor].name} (${room.sensoren[sensor].beschreibung}) to ${roundTo(parseFloat(room.sensoren[sensor].wert), 2)} °C`);
+								promises.push(this.setStateChangedAsync(room.id + ".sensors." + room.sensoren[sensor].name + ".actualTemperature", roundTo(parseFloat(room.sensoren[sensor].wert), 2), true));
 							}
 						} else if (this.config.warnOnNull) {
 							this.log.warn(`Room ${room.id}: Temperature value for sensor ${room.sensoren[sensor].name} is null or empty`);
@@ -744,7 +777,7 @@ class Controme extends utils.adapter {
 			if (typeof targetTemp === 'number' && isFinite(targetTemp)) {
 				// duration can either be set directly (as a value in minutes) or to default duration (if value is 0)
 
-				form.append("duration", duration > 0 ? Math.round(targetDuration) : "default");
+				form.append("duration", targetDuration > 0 ? Math.round(targetDuration) : "default");
 
 				this.log.debug(`_setTargetTemp: form = "${JSON.stringify(form)}"`);
 
