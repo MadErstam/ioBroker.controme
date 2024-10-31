@@ -472,8 +472,6 @@ class Controme extends utils.adapter {
 
 	async _pollGateways() {
 		// Poll gateway data from outputs API
-		this.log.debug("Polling gateways API from mini server");
-
 
 		const gateways = Array.isArray(this.config.gateways) ? this.config.gateways : [this.config.gateways];
 		for (const gateway of gateways) {
@@ -482,6 +480,7 @@ class Controme extends utils.adapter {
 			// for universal gateways we need to query each output individually
 			let body;
 			if (gateway.gatewayType == "gwUniPro") {
+				this.log.debug(`Polling individual outputs for gateway ${gateway.gatewayName} from mini server `);
 				const outputs = await this.getStatesOfAsync(`${this.namespace}.${gateway.gatewayMAC}`, "outputs");
 				for (const output in outputs) {
 					let outputID = outputs[output]._id.substring(outputs[output]._id.lastIndexOf('.') + 1);
@@ -490,16 +489,22 @@ class Controme extends utils.adapter {
 						const response = await got(url);
 						body = response.body;
 						// gateway API returns string in the format <0;0;0;0;0;0;0;0;0;0;0;0;0;0;0>
+
 					} catch (error) {
 						// when an error is received, the connection indicator is updated accordingly
 						this.setState("info.connection", false, true);
-						this.log.error(`Polling gateway data on ${gateway.gatewayMAC} from Controme mini server finished with error "${error}"`);
+						this.log.error(`Polling data for output ${gateway.gatewayMAC}:${outputID} finished with error "${error}"`);
 					}
-					const gatewayOutState = body.substring(1, body.length - 1);
-					this.log.silly(`Setting gateway output ${gateway.gatewayMAC}:${outputID} to ${parseInt(gatewayOutState)}`);
-					this.setStateAsync(outputs[output]._id, parseInt(gatewayOutState), true);
+
+					if (typeof (body) === "string") {
+
+						const gatewayOutState = body.substring(1, body.length - 1);
+						this.log.silly(`Setting gateway output ${gateway.gatewayMAC}:${outputID} to ${parseInt(gatewayOutState)}`);
+						this.setStateAsync(outputs[output]._id, parseInt(gatewayOutState), true);
+					}
 				}
 			} else {
+				this.log.debug(`Polling all outputs for gateway ${gateway.gatewayName} from mini server `);
 				try {
 					const url = `http://${this.config.url}/get/${gateway.gatewayMAC}/all/`;
 					const response = await got(url);
