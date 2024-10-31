@@ -7,9 +7,9 @@
 // The adapter-core module gives you access to the core ioBroker functions
 // you need to create an adapter
 
-const { Adapter } = require("@iobroker/adapter-core");
+// const { Adapter } = require("@iobroker/adapter-core");
 
-// const utils = require("@iobroker/adapter-core");
+const utils = require("@iobroker/adapter-core");
 
 // Load your modules here, e.g.:
 const got = require('got').default;
@@ -23,7 +23,7 @@ function roundTo(number, decimals = 0) {
     return Math.round(number * Math.pow(10, decimals)) / Math.pow(10, decimals);	
 }
 
-class Controme extends Adapter {
+class Controme extends utils.Adapter {
 
 	/**
 	 * @param {Partial<utils.AdapterOptions>} [options={}]
