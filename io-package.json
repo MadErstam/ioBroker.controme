@@ -189,8 +189,7 @@
 		"type": "climate-control",
 		"dependencies": [
 			{
-				"js-controller": ">=3.0.0",
-				"admin": ">=4.0.10"
+                "js-controller": ">=6.0.11"
 			}
 		],
 		"main": "main.js",
@@ -199,9 +198,7 @@
 		"installedFrom": "MadErstam/ioBroker.controme#35b1cc5e4fd69fca20b22e0b40c543526f3ca550",
 		"adminUI": {
 			"config": "json"
-		},
-		"jsonCustom": false,
-		"jsonConfig": true
+		}
 	},
 	"encryptedNative": [
 		"password"

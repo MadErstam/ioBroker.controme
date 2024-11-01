@@ -1,5 +1,4 @@
 {
-    "type": "tabs",
     "i18n": {
         "Controme adapter settings": {
             "en": "Adapter settings for Controme",
@@ -180,8 +179,9 @@
             "es": "Nombre de salida",
             "pl": "Nazwa wyjścia",
             "zh-cn": "输出名称"
-        }        
+        }
     },
+    "type": "tabs",
     "items": {
         "mainTab": {
             "type": "panel",
@@ -303,9 +303,7 @@
                     "lg": 12,
                     "items": [
                         {
-                            "type": "selectSendTo",
-                            "command": "getMAC",
-                            "alsoDependsOn": "data.gateways",
+                            "type": "text",
                             "attr": "gatewayOutsMAC",
                             "width": "30%",
                             "title": "gatewayOutsMAC",
