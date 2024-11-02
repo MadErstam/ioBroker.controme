@@ -1,8 +1,33 @@
 {
 	"common": {
 		"name": "controme",
-		"version": "0.3.0",
+		"version": "0.4.0",
 		"news": {
+			"0.4.0": {
+				"en": "Extended API polling (temporary mode, humidity); Bugfixing",
+				"de": "Erweiterte API-Bestimmung (Zeitalter, Feuchtigkeit); Bugfixing",
+				"ru": "Расширенное голосование по API (временный режим, влажность)",
+				"pt": "Pesquisa de API estendida (modo temporário, umidade); Bugfixing",
+				"nl": "Uitgebreide API polling (tijdelijke modus, vochtigheid); Bugfixing",
+				"fr": "Sondage API étendu (mode temporaire, humidité); Correction de bug",
+				"it": "Extended API polling (modalità contemporanea, umidità); Bugfix",
+				"es": "Extensión de la API (modo temporal, humedad); Bugfixing",
+				"pl": "Rozszerzone sondaże API (tryb tymczasowy, wilgotność); ustalanie błędów",
+				"uk": "Розширене опитування API (тимчасовий режим, вологість); Виправлення помилок",
+				"zh-cn": "延长API 投票( 临时模式、 湿度); 错误修正"
+			},
+			"0.3.4": {
+				"en": "Data validation and bugfixing",
+				"de": "Datenvalidierung und Fehlerbehebung",
+				"ru": "Проверка данных и исправление ошибок",
+				"pt": "Validação de dados e correção de bugs",
+				"nl": "Gegevensvalidatie en bugfixing",
+				"fr": "Validation des données et correction de bogues",
+				"it": "Convalida dei dati e correzione di bug",
+				"es": "Validación de datos y corrección de errores.",
+				"pl": "Walidacja danych i naprawianie błędów",
+				"zh-cn": "数据验证和错误修复"
+			},
 			"0.3.0": {
 				"en": "Extended API polling (outputs, gateways)",
 				"de": "Erweitertes API-Polling (Ausgänge, Gateways)",
@@ -164,8 +189,7 @@
 		"type": "climate-control",
 		"dependencies": [
 			{
-				"js-controller": ">=3.0.0",
-				"admin": ">=4.0.10"
+                "js-controller": ">=6.0.11"
 			}
 		],
 		"main": "main.js",
@@ -174,10 +198,11 @@
 		"installedFrom": "MadErstam/ioBroker.controme#35b1cc5e4fd69fca20b22e0b40c543526f3ca550",
 		"adminUI": {
 			"config": "json"
-		},
-		"jsonCustom": false,
-		"jsonConfig": true
+		}
 	},
+	"encryptedNative": [
+		"password"
+	],
 	"native": {
 		"url": "192.168.178.",
 		"houseID": "1",
@@ -185,11 +210,18 @@
 		"forceReInit": false,
 		"user": "UserName",
 		"warnOnNull": true,
-		"password": "Password"
+		"password": "Password",
+		"gateways": {
+			"gatewayMAC": "A0-A0-A0-A0-A0-A0",
+			"gatewayType": "gwFloor",
+			"gatewayName": "Gateway Name"
+		},
+		"gatewayOuts": {
+			"gatewayOutsMAC": "A0-A0-A0-A0-A0-A0",
+			"gatewayOutsID": 1,
+			"gatewayOutsName": "Gateway Outout Name"
+		}
 	},
-	"encryptedNative": [
-		"password"
-	],
 	"objects": [],
 	"instanceObjects": [
 		{

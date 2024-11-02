@@ -1,25 +1,6 @@
 {
-  "_from": "github:MadErstam/ioBroker.controme#35b1cc5e4fd69fca20b22e0b40c543526f3ca550",
-  "_id": "iobroker.controme@0.3.0",
-  "_inBundle": false,
-  "_integrity": "",
-  "_location": "/iobroker.controme",
-  "_phantomChildren": {},
-  "_requested": {
-    "type": "git",
-    "raw": "MadErstam/ioBroker.controme#35b1cc5e4fd69fca20b22e0b40c543526f3ca550",
-    "rawSpec": "MadErstam/ioBroker.controme#35b1cc5e4fd69fca20b22e0b40c543526f3ca550",
-    "saveSpec": "github:MadErstam/ioBroker.controme#35b1cc5e4fd69fca20b22e0b40c543526f3ca550",
-    "fetchSpec": null,
-    "gitCommittish": "35b1cc5e4fd69fca20b22e0b40c543526f3ca550"
-  },
-  "_requiredBy": [
-    "#USER",
-    "/"
-  ],
-  "_resolved": "github:MadErstam/ioBroker.controme#35b1cc5e4fd69fca20b22e0b40c543526f3ca550",
-  "_spec": "MadErstam/ioBroker.controme#35b1cc5e4fd69fca20b22e0b40c543526f3ca550",
-  "_where": "/opt/iobroker",
+  "name": "iobroker.controme",
+  "version": "0.4.0",
   "author": {
     "name": "MadErstam",
     "email": "erstam@gmx.de"
@@ -27,10 +8,11 @@
   "bugs": {
     "url": "https://github.com/MadErstam/ioBroker.controme/issues"
   },
-  "bundleDependencies": false,
+  "bundleDependencies": [],
   "dependencies": {
-    "@iobroker/adapter-core": "^2.4.0",
-    "got": "^12.0.4"
+    "@iobroker/adapter-core": "^3.2.2",
+    "dayjs": "^1.11.13",
+    "got": "^11.8.5"
   },
   "deprecated": false,
   "description": "Connect to local Controme mini server that controls you home heating system",
@@ -65,7 +47,6 @@
   ],
   "license": "MIT",
   "main": "main.js",
-  "name": "iobroker.controme",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/MadErstam/ioBroker.controme.git"
@@ -79,6 +60,5 @@
     "test:package": "mocha test/package --exit",
     "test:unit": "mocha test/unit --exit",
     "release": "release-script"
-  },
-  "version": "0.3.4-alpha.1"
+  }
 }

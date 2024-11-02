@@ -1,40 +1,48 @@
 {
 	"cli": true,
+	"target": "directory",
 	"adapterName": "controme",
-	"title": "Controme",
 	"description": "Connect to local Controme mini server that controls you home heating system",
+	"authorName": "MadErstam",
+	"authorGithub": "MadErstam",
+	"authorEmail": "erstam@gmx.de",
+	"gitRemoteProtocol": "HTTPS",
+	"dependabot": "yes",
+	"license": "MIT License",
+	"gitCommit": "no",
+    "defaultBranch": "main",	
 	"keywords": [
 		"heating",
 		"Controme",
 		"floor heating",
 		"radiator"
 	],
-	"expert": "yes",
+	"expert": "yes",	
+	"startMode": "daemon",
 	"features": [
 		"adapter"
 	],
-	"adminFeatures": [],
-	"type": "climate-control",
-	"startMode": "daemon",
-	"connectionType": "local",
-	"dataSource": "poll",
 	"connectionIndicator": "yes",
-	"language": "JavaScript",
+	"type": "climate-control",
+	"adminFeatures": [
+		"custom",
+		"tab"
+	],
+    "adminUi": "json",
+    "tabReact": "no",
 	"adminReact": "no",
+	"language": "JavaScript",
+	"title": "Controme",
 	"tools": [
 		"ESLint",
 		"type checking"
 	],
 	"indentation": "Tab",
+	"creatorVersion": "1.31.0",
 	"quotes": "double",
+
+	"connectionType": "local",
+	"dataSource": "poll",
 	"es6class": "yes",
-	"authorName": "MadErstam",
-	"authorGithub": "MadErstam",
-	"authorEmail": "erstam@gmx.de",
-	"gitRemoteProtocol": "HTTPS",
-	"gitCommit": "no",
-	"license": "MIT License",
-	"ci": "gh-actions",
-	"dependabot": "yes",
-	"creatorVersion": "1.31.0"
+	"ci": "gh-actions"
 }
