@@ -32,6 +32,8 @@ class Controme extends utils.Adapter {
 			...options,
 			name: "controme",
 		});
+		this.delayPolling = false; // is set when a connection error is detected and prevents polling
+		this.delayPollingCounter = 0; // controls the duration, for which polling is delayed
 		this.on("ready", this.onReady.bind(this));
 		this.on("stateChange", this.onStateChange.bind(this));
 		// this.on("objectChange", this.onObjectChange.bind(this));
@@ -92,6 +94,7 @@ class Controme extends utils.Adapter {
 
 		}
 
+		// Poll temperature data from the server immediately, followed by period polling
 		this._updateIntervalFunction();
 
 		// Poll temperature data from the server in the defined update interval
@@ -122,27 +125,33 @@ class Controme extends utils.Adapter {
 	}
 
 	_updateIntervalFunction() {
-		this._pollRoomTemps();
-		this._pollOuts();
-		if (this.config.gateways != null && typeof this.config.gateways[Symbol.iterator] === 'function') {
-			this._pollGateways();
+		// Poll API, unless server is in error mode
+		if (!this.delayPolling) {
+			this._pollRoomTemps();
+			this._pollOuts();
+			if (this.config.gateways != null && typeof this.config.gateways[Symbol.iterator] === 'function') {
+				this._pollGateways();
+			}
 		}
 	}
 
-	async _createObjects() {
-		this.log.debug(`Creating object structure`);
+	_delayPollingFunction () {
+		this.delayPolling = true;
+		this.delayPollingTimeout = setTimeout(() => {
+			this.delayPolling = false;
+		}, this.delayPollingCounter * 60 * 1000);
+		this.delayPollingCounter < 10 ? this.delayPollingCounter++ : this.delayPollingCounter = 10;		
+		this.setState("info.connection", false, true);
+		this.log.error(`Error in polling data from Controme mini server; will retry in ${this.delayPollingCounter} minutes.`);
+	}
 
-		// Read temp API and create all required objects (rooms and sensors)
-		let body;
-		try {
-			const url = "http://" + this.config.url + "/get/json/v1/" + this.config.houseID + "/temps/";
-			const response = await got.get(url);
-			body = JSON.parse(response.body);
-		} catch (error) {
-			this.setState("info.connection", false, true);
-			this.log.error(`Polling temps API from mini server to create data objects for rooms, offsets and sensor failed failed with error "${error}"`);
-		}
+	_resetPollingDelay () {
+		this.delayPolling = false;
+		this.delayPollingCounter = 0;
+		this.setState("info.connection", true, true);
+	}
 
+	_processTempsAPIforCreation (body) {
 		// response JSON contains hierarchical information starting with floors and rooms on these floors
 		// followed by offsets and sensors for each room
 		// we need to iterate through the floors and rooms and create the required structures
@@ -170,17 +179,9 @@ class Controme extends utils.Adapter {
 				}
 			}
 		}
+	}
 
-		this.log.debug(`~  Creating output objects for rooms`);
-		try {
-			const url = "http://" + this.config.url + "/get/json/v1/" + this.config.houseID + "/outs/";
-			const response = await got.get(url);
-			body = JSON.parse(response.body);
-		} catch (error) {
-			this.setState("info.connection", false, true);
-			this.log.error(`Polling outs API from mini server to create data objects for outputs failed failed with error "${error}"`);
-		}
-
+	_processOutsAPIforCreation (body) {
 		// response JSON contains hierarchical information starting with floors and rooms on these floors
 		// followed by outputs for each room
 		// we need to iterate through the floors and rooms and add the required output structures to the already created rooms
@@ -223,8 +224,35 @@ class Controme extends utils.Adapter {
 				}
 			}
 
+		}		
+	}
+	
+	async _createObjects() {
+		this.log.debug(`Creating object structure`);
+
+		// Read temp API and create all required objects (rooms and sensors)
+		let body;
+		try {
+			const url = "http://" + this.config.url + "/get/json/v1/" + this.config.houseID + "/temps/";
+			const response = await got.get(url);
+			body = JSON.parse(response.body);
+			this._processTempsAPIforCreation(body);
+		} catch (error) {
+			this._delayPollingFunction();
+			this.log.error(`Polling temps API from mini server to create data objects for rooms, offsets and sensor failed failed with error "${error}"`);
 		}
 
+
+		this.log.debug(`~  Creating output objects for rooms`);
+		try {
+			const url = "http://" + this.config.url + "/get/json/v1/" + this.config.houseID + "/outs/";
+			const response = await got.get(url);
+			body = JSON.parse(response.body);
+			this._processOutsAPIforCreation(body);
+		} catch (error) {
+			this._delayPollingFunction();
+			this.log.error(`Polling outs API from mini server to create data objects for outputs failed failed with error "${error}"`);
+		}
 
 		// the connection indicator is updated when the connection was successful
 	}
@@ -400,29 +428,14 @@ class Controme extends utils.Adapter {
 		});
 	}
 
-	async _pollRoomTemps() {
-		// Poll data from temps API
-		this.log.debug("Polling temps API from mini server");
-		let body;
-
-
-
-		try {
-			const url = "http://" + this.config.url + "/get/json/v1/" + this.config.houseID + "/temps/";
-			const response = await got.get(url);
-			body = JSON.parse(response.body);
-		} catch (error) {
-			this.setState("info.connection", false, true);
-			this.log.error(`Polling temperature data from Controme mini server finished with error "${error}"`);
-		}
-
+	_processTempsAPIforUpdate(body) {
 		this.log.silly(`Temps response from Controme mini server: "${JSON.stringify(body)}"`);
 
 		for (const floor in body) {
 			if (Object.prototype.hasOwnProperty.call(body, floor)) {
 				for (const room in body[floor].raeume) {
 					if (Object.prototype.hasOwnProperty.call(body[floor].raeume, room)) {
-						this.log.silly(`Processing room ${body[floor].raeume[room].id}`);
+						this.log.silly(`Processing temps API for room ${body[floor].raeume[room].id}`);
 						this._updateRoom(body[floor].raeume[room]);
 
 						// Controme deletes offsets that have been set via the api; we need to check which offsets still exist and delete those that do no longer exist
@@ -431,12 +444,47 @@ class Controme extends utils.Adapter {
 						// update offset and sensor values
 						this._updateOffsetsForRoom(body[floor].raeume[room]);
 						this._updateSensorsForRoom(body[floor].raeume[room]);
-						this.log.silly(`Finished processing room ${body[floor].raeume[room].id}`);
+						this.log.silly(`Finished processing temps API for room ${body[floor].raeume[room].id}`);
 					}
 				}
 			}
 		}
-		this.setState("info.connection", true, true);
+	}
+
+	async _pollRoomTemps() {
+		// Poll data from temps API
+		this.log.debug("Polling temps API from mini server");
+		let body;
+
+		try {
+			const url = "http://" + this.config.url + "/get/json/v1/" + this.config.houseID + "/temps/";
+			const response = await got.get(url);
+			body = JSON.parse(response.body);
+			this._processTempsAPIforUpdate(body);
+			this._resetPollingDelay();
+		} catch (error) {
+			this._delayPollingFunction();
+			this.log.error(`Polling temperature data from Controme mini server finished with error "${error}"`);
+		}
+
+	}
+
+	_processOutsAPIforUpdate (body) {
+		this.log.silly(`Outs response from Controme mini server: "${JSON.stringify(body)}"`);
+
+		for (const floor in body) {
+			if (Object.prototype.hasOwnProperty.call(body, floor)) {
+				for (const room in body[floor].raeume) {
+					if (Object.prototype.hasOwnProperty.call(body[floor].raeume, room)) {
+						this.log.silly(`Processing outs API for room ${body[floor].raeume[room].id}`);
+
+						this._updateOutputsForRoom(body[floor].raeume[room]);
+
+						this.log.silly(`Finished processing outs API for room ${body[floor].raeume[room].id}`);
+					}
+				}
+			}
+		}
 	}
 
 	async _pollOuts() {
@@ -447,29 +495,14 @@ class Controme extends utils.Adapter {
 			const url = "http://" + this.config.url + "/get/json/v1/" + this.config.houseID + "/outs/";
 			const response = await got.get(url);
 			body = JSON.parse(response.body);
+			this._processOutsAPIforUpdate(body);
+			this._resetPollingDelay();
 		} catch (error) {
 			// when an error is received, the connection indicator is updated accordingly
-			this.setState("info.connection", false, true);
+			this._delayPollingFunction();
 			this.log.error(`Polling outputs data from Controme mini server finished with error "${error}"`);
 		}
 
-		this.log.silly(`Outs response from Controme mini server: "${JSON.stringify(body)}"`);
-
-		for (const floor in body) {
-			if (Object.prototype.hasOwnProperty.call(body, floor)) {
-				for (const room in body[floor].raeume) {
-					if (Object.prototype.hasOwnProperty.call(body[floor].raeume, room)) {
-						this.log.silly(`Processing outputs for room ${body[floor].raeume[room].id}`);
-
-						this._updateOutputsForRoom(body[floor].raeume[room]);
-
-						this.log.silly(`Finished processing room ${body[floor].raeume[room].id}`);
-					}
-				}
-			}
-		}
-		// the connection indicator is updated when the connection was successful
-		this.setState("info.connection", true, true);
 	}
 
 	async _pollGateways() {
@@ -491,19 +524,19 @@ class Controme extends utils.Adapter {
 						const response = await got.get(url);
 						body = response.body;
 						// gateway API returns string in the format <0;0;0;0;0;0;0;0;0;0;0;0;0;0;0>
+						if (typeof (body) === "string") {
 
+							const gatewayOutState = body.substring(1, body.length - 1);
+							this.log.silly(`Setting gateway output ${gateway.gatewayMAC}:${outputID} to ${parseInt(gatewayOutState)}`);
+							this.setStateAsync(outputs[output]._id, parseInt(gatewayOutState), true);
+						}
+						this._resetPollingDelay();	
 					} catch (error) {
 						// when an error is received, the connection indicator is updated accordingly
-						this.setState("info.connection", false, true);
+						this._delayPollingFunction();
 						this.log.error(`Polling data for output ${gateway.gatewayMAC}:${outputID} finished with error "${error}"`);
 					}
 
-					if (typeof (body) === "string") {
-
-						const gatewayOutState = body.substring(1, body.length - 1);
-						this.log.silly(`Setting gateway output ${gateway.gatewayMAC}:${outputID} to ${parseInt(gatewayOutState)}`);
-						this.setStateAsync(outputs[output]._id, parseInt(gatewayOutState), true);
-					}
 				}
 			} else {
 				this.log.debug(`Polling all outputs for gateway ${gateway.gatewayName} from mini server `);
@@ -512,19 +545,20 @@ class Controme extends utils.Adapter {
 					const response = await got.get(url);
 					body = response.body;
 					// gateway API returns string in the format <0;0;0;0;0;0;0;0;0;0;0;0;0;0;0>
+					if (typeof (body) === "string") {
+						const gatewayOuts = body.substring(1, body.length - 1).split(';');
+						const outputs = await this.getStatesOfAsync(`${this.namespace}.${gateway.gatewayMAC}`, "outputs");
+						for (const output in outputs) {
+							let outputID = outputs[output]._id.substring(outputs[output]._id.lastIndexOf('.') + 1);
+							this.setStateAsync(outputs[output]._id, parseFloat(gatewayOuts[parseInt(outputID) - 1]), true);
+							this.log.silly(`Setting gateway output ${gateway.gatewayMAC}:${outputID} to ${parseFloat(gatewayOuts[parseInt(outputID) - 1])}`);
+						}
+					}
+					this._resetPollingDelay();	
 				} catch (error) {
 					// when an error is received, the connection indicator is updated accordingly
-					this.setState("info.connection", false, true);
+					this._delayPollingFunction();
 					this.log.error(`Polling gateway data on ${gateway.gatewayMAC} from Controme mini server finished with error "${error}"`);
-				}
-				if (typeof (body) === "string") {
-					const gatewayOuts = body.substring(1, body.length - 1).split(';');
-					const outputs = await this.getStatesOfAsync(`${this.namespace}.${gateway.gatewayMAC}`, "outputs");
-					for (const output in outputs) {
-						let outputID = outputs[output]._id.substring(outputs[output]._id.lastIndexOf('.') + 1);
-						this.setStateAsync(outputs[output]._id, parseFloat(gatewayOuts[parseInt(outputID) - 1]), true);
-						this.log.silly(`Setting gateway output ${gateway.gatewayMAC}:${outputID} to ${parseFloat(gatewayOuts[parseInt(outputID) - 1])}`);
-					}
 				}
 			}
 		}
@@ -667,6 +701,7 @@ class Controme extends utils.Adapter {
 			this.log.debug("Stopping update interval.");
 			// Here you must clear all timeouts or intervals that may still be active
 			if (this.updateInterval != null) { clearInterval(this.updateInterval); }
+			if (typeof this.delayPollingTimeout === "number") { clearTimeout(this.delayPollingTimeout); }
 			callback();
 		} catch (e) {
 			callback();
@@ -748,7 +783,6 @@ class Controme extends utils.Adapter {
 
 		form.append("user", this.config.user);
 		form.append("password", this.config.password);
-		// [FIXME] SetpointTemp should be checked for validity
 		if (typeof setpointTemp === 'number' && isFinite(setpointTemp)) {
 
 			setpointTemp = Math.trunc((Math.round(setpointTemp * 8) / 8) * 100) / 100;
