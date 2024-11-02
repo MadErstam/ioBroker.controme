@@ -26,6 +26,7 @@
 				"it": "Convalida dei dati e correzione di bug",
 				"es": "Validación de datos y corrección de errores.",
 				"pl": "Walidacja danych i naprawianie błędów",
+				"uk": "Перевірка даних та виправлення помилок",				
 				"zh-cn": "数据验证和错误修复"
 			},
 			"0.3.0": {
@@ -38,6 +39,7 @@
 				"it": "Polling API esteso (output, gateway)",
 				"es": "Sondeo API extendido (salidas, puertas de enlace)",
 				"pl": "Rozszerzone odpytywanie API (wyjścia, bramy)",
+				"uk": "Розширене опитування API (виходи, шлюзи)",				
 				"zh-cn": "扩展 API 轮询（输出、网关）"
 			},
 			"0.2.4": {
@@ -50,6 +52,7 @@
 				"it": "Bugfixing",
 				"es": "Corrección de errores",
 				"pl": "Naprawa błędów",
+				"uk": "Помилки",				
 				"zh-cn": "错误修正"
 			},
 			"0.2.3": {
@@ -62,6 +65,7 @@
 				"it": "Bugfixing",
 				"es": "Corrección de errores",
 				"pl": "Naprawa błędów",
+				"uk": "Помилки",				
 				"zh-cn": "错误修正"
 			},
 			"0.2.2": {
@@ -74,6 +78,7 @@
 				"it": "Correzione di bug nella gestione dell'offset",
 				"es": "Corrección de errores en el manejo de compensación",
 				"pl": "Naprawiono błędy w obsłudze offsetu",
+				"uk": "Виправлення помилок в офсетному режимі",		
 				"zh-cn": "偏移处理中的错误修复"
 			},
 			"0.2.1": {
@@ -86,6 +91,7 @@
 				"it": "Gestione dell'offset migliorata",
 				"es": "Manejo de offset mejorado",
 				"pl": "Ulepszona obsługa offsetów",
+				"uk": "Поліпшена обробка офсету",				
 				"zh-cn": "改进的胶印处理"
 			},
 			"0.2.0": {
@@ -98,6 +104,7 @@
 				"it": "Aggiunti sensori e offset",
 				"es": "Sensores y compensaciones agregados",
 				"pl": "Dodano czujniki i przesunięcia",
+				"uk": "Додані датчики та офсети",				
 				"zh-cn": "增加了传感器和偏移量"
 			},
 			"0.1.2": {
@@ -110,6 +117,7 @@
 				"it": "Preparativi per il rilascio del pacchetto dell'adattatore",
 				"es": "Preparativos para la liberación del paquete del adaptador",
 				"pl": "Przygotowania do wydania pakietu adapterów",
+				"uk": "Підготовка до виходу пакета адаптера",				
 				"zh-cn": "适配器包装发布的准备工作"
 			},
 			"0.1.1": {
@@ -122,10 +130,11 @@
 				"it": "Piccole correzioni di bug",
 				"es": "Pequeñas correcciones de errores",
 				"pl": "Drobne poprawki błędów",
+				"uk": "Виправлення помилок Minor",				
 				"zh-cn": "小错误修复"
 			},
 			"0.1.0": {
-				"en": "initial release",
+				"en": "Initial release",
 				"de": "Erstveröffentlichung",
 				"ru": "Начальная версия",
 				"pt": "lançamento inicial",
@@ -134,10 +143,10 @@
 				"it": "Versione iniziale",
 				"es": "Versión inicial",
 				"pl": "Pierwsze wydanie",
+				"uk": "Початкова версія",		
 				"zh-cn": "首次出版"
 			}
 		},
-		"title": "Controme",
 		"titleLang": {
 			"en": "Controme",
 			"de": "Controme",
@@ -148,6 +157,7 @@
 			"it": "Controme",
 			"es": "Controme",
 			"pl": "Controme",
+			"uk": "Controme",
 			"zh-cn": "Controme"
 		},
 		"desc": {
@@ -160,6 +170,7 @@
 			"it": "Collegati al mini server Controme locale che controlla il sistema di riscaldamento domestico",
 			"es": "Conéctese al mini servidor Controme local que controla el sistema de calefacción de su hogar",
 			"pl": "Połącz się z lokalnym mini serwerem Controme, który steruje systemem ogrzewania domu",
+			"uk": "Підключення до локальної мережі Міні-сервер Controme, який контролює систему домашнього опалення",			
 			"zh-cn": "连接到控制您的家庭供暖系统的本地Controme mini服务器"
 		},
 		"authors": [
@@ -172,17 +183,20 @@
 			"Heating",
 			"Controme",
 			"Floor heating",
-			"Radiator",
-			"ioBroker"
+			"Radiator"
 		],
 		"preserveSettings": "custom",
-		"supportCustoms": true,
+		"supportCustoms": false,
 		"getHistory": true,
 		"enabled": true,
 		"stopBeforeUpdate": true,
 		"materialize": true,
 		"compact": true,
-		"license": "MIT",
+        "tier": 3,		
+        "licenseInformation": {
+            "type": "free",
+            "license": "MIT"
+        },		
 		"readme": "https://github.com/MadErstam/ioBroker.controme/blob/master/README.md",
 		"icon": "controme.png",
 		"extIcon": "https://raw.githubusercontent.com/MadErstam/ioBroker.controme/main/admin/controme.png",
@@ -195,7 +209,6 @@
 		"main": "main.js",
 		"connectionType": "local",
 		"dataSource": "poll",
-		"installedFrom": "MadErstam/ioBroker.controme#35b1cc5e4fd69fca20b22e0b40c543526f3ca550",
 		"adminUI": {
 			"config": "json"
 		}
