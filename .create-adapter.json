@@ -38,9 +38,8 @@
 		"type checking"
 	],
 	"indentation": "Tab",
-	"creatorVersion": "1.31.0",
+    "creatorVersion": "2.6.5",
 	"quotes": "double",
-
 	"connectionType": "local",
 	"dataSource": "poll",
 	"es6class": "yes",

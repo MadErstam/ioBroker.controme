@@ -1,9 +1,11 @@
 .git
 .idea
-.vscode
+!.vscode/
+!.github/
 *.code-workspace
 node_modules
 nbproject
+package-lock.json
 
 # npm package files
 iobroker.*.tgz

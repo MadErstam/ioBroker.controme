@@ -1,14 +1,7 @@
 "use strict";
 
-/*
- * Created with @iobroker/create-adapter v1.31.0
- */
-
 // The adapter-core module gives you access to the core ioBroker functions
 // you need to create an adapter
-
-// const { Adapter } = require("@iobroker/adapter-core");
-
 const utils = require("@iobroker/adapter-core");
 
 // Load your modules here, e.g.:
