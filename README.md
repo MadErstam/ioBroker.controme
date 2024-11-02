@@ -86,6 +86,10 @@ To start the adapter, the following data need to be provided in the admin settin
   Placeholder for the next version (at the beginning of the line):
   ### **WORK IN PROGRESS**
 -->
+### 0.4.0 (2024-10-31)
+* (MadErstam) Extended api calls to include humidity and temporary mode states
+* (MadErstam) Changed dependencies
+
 ### 0.3.4-alpha.2 (2022-06-01)
 * (MadErstam) Added validation of setTargetTemp, setSetpointTemp, setActualTemp, setOffsetTemp values
 * (MadErstam) Changed dependencies

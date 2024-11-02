@@ -1,8 +1,21 @@
 {
 	"common": {
 		"name": "controme",
-		"version": "0.3.4",
+		"version": "0.4.0",
 		"news": {
+			"0.4.0": {
+				"en": "Extended API polling (temporary mode, humidity); Bugfixing",
+				"de": "Erweiterte API-Bestimmung (Zeitalter, Feuchtigkeit); Bugfixing",
+				"ru": "Расширенное голосование по API (временный режим, влажность)",
+				"pt": "Pesquisa de API estendida (modo temporário, umidade); Bugfixing",
+				"nl": "Uitgebreide API polling (tijdelijke modus, vochtigheid); Bugfixing",
+				"fr": "Sondage API étendu (mode temporaire, humidité); Correction de bug",
+				"it": "Extended API polling (modalità contemporanea, umidità); Bugfix",
+				"es": "Extensión de la API (modo temporal, humedad); Bugfixing",
+				"pl": "Rozszerzone sondaże API (tryb tymczasowy, wilgotność); ustalanie błędów",
+				"uk": "Розширене опитування API (тимчасовий режим, вологість); Виправлення помилок",
+				"zh-cn": "延长API 投票( 临时模式、 湿度); 错误修正"
+			},
 			"0.3.4": {
 				"en": "Data validation and bugfixing",
 				"de": "Datenvalidierung und Fehlerbehebung",
@@ -176,8 +189,7 @@
 		"type": "climate-control",
 		"dependencies": [
 			{
-				"js-controller": ">=3.0.0",
-				"admin": ">=4.0.10"
+                "js-controller": ">=6.0.11"
 			}
 		],
 		"main": "main.js",
@@ -186,9 +198,7 @@
 		"installedFrom": "MadErstam/ioBroker.controme#35b1cc5e4fd69fca20b22e0b40c543526f3ca550",
 		"adminUI": {
 			"config": "json"
-		},
-		"jsonCustom": false,
-		"jsonConfig": true
+		}
 	},
 	"encryptedNative": [
 		"password"

@@ -1,5 +1,4 @@
 {
-    "type": "tabs",
     "i18n": {
         "Controme adapter settings": {
             "en": "Adapter settings for Controme",
@@ -180,8 +179,9 @@
             "es": "Nombre de salida",
             "pl": "Nazwa wyjścia",
             "zh-cn": "输出名称"
-        }        
+        }
     },
+    "type": "tabs",
     "items": {
         "mainTab": {
             "type": "panel",
@@ -257,7 +257,6 @@
                 "gateways": {
                     "type": "table",
                     "label": "Gateways",
-                    "nodelete": false,
                     "sm": 12,
                     "md": 12,
                     "lg": 12,
@@ -299,15 +298,12 @@
                 "gatewayOuts": {
                     "type": "table",
                     "label": "Gateway outputs",
-                    "nodelete": false,
                     "sm": 12,
                     "md": 12,
                     "lg": 12,
                     "items": [
                         {
-                            "type": "selectSendTo",
-                            "command": "getMAC",
-                            "alsoDependsOn": "data.gateways",
+                            "type": "text",
                             "attr": "gatewayOutsMAC",
                             "width": "30%",
                             "title": "gatewayOutsMAC",
