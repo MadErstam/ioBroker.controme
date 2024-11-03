@@ -1,9 +1,9 @@
 {
 	"common": {
 		"name": "controme",
-		"version": "0.4.4",
+		"version": "0.4.5",
 		"news": {
-			"0.4.4": {
+			"0.4.5": {
 				"en": "Cleaned up warnings of automated adapter checker",
 				"de": "Bereinigung von Warnungen des automatischen Adapter-Checkers",
 				"ru": "Очищенные предупреждения автоматизированного адаптера",
@@ -15,45 +15,6 @@
 				"pl": "Oczyszczone ostrzeżenia zautomatyzowanego sprawdzania adaptera",
 				"uk": "Очищені попередження автоматичної перевірки адаптера",
 				"zh-cn": "清理自动适配器检查器的警告"
-			},
-			"0.4.3": {
-				"en": "Cleaned up errors of automated adapter checker",
-				"de": "Aufgereinigte Fehler des automatisierten Adapter-Checkers",
-				"ru": "Очистка ошибок автоматизированного адаптера",
-				"pt": "Limpe erros do verificador de adaptador automatizado",
-				"nl": "Opruimen fouten van automatische adaptercontrole",
-				"fr": "Nettoyer les erreurs de contrôle automatique de l'adaptateur",
-				"it": "Errori di pulizia dell'adattatore automatizzato",
-				"es": "Errores limpiados del control automatizado del adaptador",
-				"pl": "Oczyszczone błędy automatycznego sprawdzania adaptera",
-				"uk": "Очищені помилки автоматичної перевірки адаптера",
-				"zh-cn": "清除自动适配器检查器的错误"
-			},
-			"0.4.2": {
-				"en": "Preparations for adapter package release",
-				"de": "Vorbereitungen für Release des Adapter-Pakets",
-				"ru": "Подготовка к выпуску пакета адаптера",
-				"pt": "Preparações para o lançamento do pacote do adaptador",
-				"nl": "Voorbereidingen voor het vrijgeven van het adapterpakket",
-				"fr": "Préparatifs pour la sortie du package d'adaptateur",
-				"it": "Preparativi per il rilascio del pacchetto dell'adattatore",
-				"es": "Preparativos para la liberación del paquete del adaptador",
-				"pl": "Przygotowania do wydania pakietu adapterów",
-				"uk": "Підготовка до виходу пакета адаптера",				
-				"zh-cn": "适配器包装发布的准备工作"
-			},
-			"0.4.1": {
-				"en": "Preparations for adapter package release",
-				"de": "Vorbereitungen für Release des Adapter-Pakets",
-				"ru": "Подготовка к выпуску пакета адаптера",
-				"pt": "Preparações para o lançamento do pacote do adaptador",
-				"nl": "Voorbereidingen voor het vrijgeven van het adapterpakket",
-				"fr": "Préparatifs pour la sortie du package d'adaptateur",
-				"it": "Preparativi per il rilascio del pacchetto dell'adattatore",
-				"es": "Preparativos para la liberación del paquete del adaptador",
-				"pl": "Przygotowania do wydania pakietu adapterów",
-				"uk": "Підготовка до виходу пакета адаптера",				
-				"zh-cn": "适配器包装发布的准备工作"
 			},
 			"0.4.0": {
 				"en": "Extended API polling (temporary mode, humidity); Bugfixing",
