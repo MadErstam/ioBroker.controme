@@ -14,7 +14,6 @@
     "dayjs": "^1.11.13",
     "got": "^11.8.5"
   },
-  "type": "module",
   "deprecated": false,
   "description": "Connect to local Controme mini server that controls you home heating system",
   "devDependencies": {
