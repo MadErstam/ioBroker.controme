@@ -45,7 +45,8 @@
     "heating",
     "Controme",
     "floor heating",
-    "radiator"
+    "radiator",
+    "ioBroker"
   ],
   "license": "MIT",
   "main": "main.js",
