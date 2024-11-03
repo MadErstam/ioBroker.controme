@@ -23,4 +23,4 @@ jobs:
           # Enter this token in your repository settings under "Secrets" and name it AUTO_MERGE_TOKEN
           github-token: ${{ secrets.AUTO_MERGE_TOKEN }}
           # By default, squash and merge, so Github chooses nice commit messages
-          command: "squash and merge
+          command: "squash and merge"
