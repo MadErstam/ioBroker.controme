@@ -193,6 +193,8 @@
                     "sm": 12,
                     "md": 6,
                     "lg": 6,
+                    "xs": 12,
+                    "xl": 6,
                     "newLine": true
                 },
                 "user": {
@@ -200,7 +202,9 @@
                     "label": "user",
                     "sm": 6,
                     "md": 3,
-                    "lg": 3
+                    "lg": 3,
+                    "xs": 12,
+                    "xl": 3
                 },
                 "password": {
                     "type": "password",
@@ -208,7 +212,9 @@
                     "repeat": false,
                     "sm": 6,
                     "md": 3,
-                    "lg": 3
+                    "lg": 3,
+                    "xs": 12,
+                    "xl": 3
                 },                
                 "houseID": {
                     "newLine": true,
@@ -222,7 +228,9 @@
                     },
                     "sm": 6,
                     "md": 3,
-                    "lg": 3
+                    "lg": 3,
+                    "xs": 12,
+                    "xl": 3
                 },
                 "interval": {
                     "type": "number",
@@ -232,21 +240,27 @@
                     "help": "s",
                     "sm": 6,
                     "md": 3,
-                    "lg": 3
+                    "lg": 3,
+                    "xs": 12,
+                    "xl": 3
                 },
                 "forceReInit": {
                     "type": "checkbox",
                     "label": "forceReInit",
                     "sm": 6,
                     "md": 3,
-                    "lg": 3
+                    "lg": 3,
+                    "xs": 12,
+                    "xl": 3
                 },
                 "warnOnNull": {
                     "type": "checkbox",
                     "label": "warnOnNull",
                     "sm": 6,
                     "md": 3,
-                    "lg": 3
+                    "lg": 3,
+                    "xs": 12,
+                    "xl": 3
                 }
             }
         },
@@ -260,6 +274,8 @@
                     "sm": 12,
                     "md": 12,
                     "lg": 12,
+                    "xs": 12,
+                    "xl": 12,
                     "items": [
                         {
                             "type": "text",
@@ -301,6 +317,8 @@
                     "sm": 12,
                     "md": 12,
                     "lg": 12,
+                    "xs": 12,
+                    "xl": 12,
                     "items": [
                         {
                             "type": "text",
