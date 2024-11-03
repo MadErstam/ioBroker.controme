@@ -92,6 +92,9 @@ To start the adapter, the following data need to be provided in the admin settin
   Placeholder for the next version (at the beginning of the line):
   ### **WORK IN PROGRESS**
 -->
+### 0.4.3 (2024-11-02)
+* (MadErstam) Cleaned up errors of automated adapter checker
+
 ### 0.4.2 (2024-11-02)
 * (MadErstam) Preparations for adapter package release
 
