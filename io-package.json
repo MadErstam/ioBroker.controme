@@ -99,7 +99,6 @@
 		"getHistory": true,
 		"enabled": true,
 		"stopBeforeUpdate": true,
-		"materialize": true,
 		"compact": true,
         "tier": 3,		
         "licenseInformation": {
@@ -115,7 +114,6 @@
                 "js-controller": ">=6.0.11"
 			}
 		],
-		"main": "main.js",
 		"connectionType": "local",
 		"dataSource": "poll",
 		"adminUI": {
@@ -125,6 +123,9 @@
 	"encryptedNative": [
 		"password"
 	],
+	"protectedNative": [
+		"password"
+	],	
 	"native": {
 		"url": "192.168.178.",
 		"houseID": "1",
