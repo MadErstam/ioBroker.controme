@@ -1,8 +1,21 @@
 {
 	"common": {
 		"name": "controme",
-		"version": "0.4.3",
+		"version": "0.4.4",
 		"news": {
+			"0.4.4": {
+				"en": "Cleaned up warnings of automated adapter checker",
+				"de": "Bereinigung von Warnungen des automatischen Adapter-Checkers",
+				"ru": "Очищенные предупреждения автоматизированного адаптера",
+				"pt": "Avisos limpos do verificador de adaptador automatizado",
+				"nl": "Waarschuwingen van automatische adaptercontrole opruimen",
+				"fr": "Désinfecter les avertissements du contrôleur d'adaptateur automatisé",
+				"it": "Avvertenze pulite dell'adattatore automatizzato checker",
+				"es": "Avisos de limpieza de la máquina de control de adaptador automatizada",
+				"pl": "Oczyszczone ostrzeżenia zautomatyzowanego sprawdzania adaptera",
+				"uk": "Очищені попередження автоматичної перевірки адаптера",
+				"zh-cn": "清理自动适配器检查器的警告"
+			},
 			"0.4.3": {
 				"en": "Cleaned up errors of automated adapter checker",
 				"de": "Aufgereinigte Fehler des automatisierten Adapter-Checkers",
