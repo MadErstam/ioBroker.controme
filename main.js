@@ -5,18 +5,14 @@
 const utils = require("@iobroker/adapter-core");
 
 // Load your modules here, e.g.:
-const got = require('got').default;
-// const got = (await import('got')).default;
-// import got from 'got';
-const { HTTPError } = require('got');
-// const { HTTPError } = await import('got');  // Import HTTPError for specific error checking
-// import { HTTPError } from 'got';
-const dayjs = require('dayjs');
-const formData = require('form-data');
+const got = require("got").default;
+const { HTTPError } = require("got");
+const dayjs = require("dayjs");
+const formData = require("form-data");
 const { isObject } = require("iobroker.controme/lib/tools");
 
 function roundTo(number, decimals = 0) {
-    return Math.round(number * Math.pow(10, decimals)) / Math.pow(10, decimals);	
+	return Math.round(number * Math.pow(10, decimals)) / Math.pow(10, decimals);
 }
 
 class Controme extends utils.Adapter {
@@ -35,9 +31,9 @@ class Controme extends utils.Adapter {
 		this.on("stateChange", this.onStateChange.bind(this));
 		// this.on("objectChange", this.onObjectChange.bind(this));
 		this.on("message", this.onMessage.bind(this));
-		// this.on('message', obj => {
+		// this.on("message", obj => {
 		// 	this.log.debug(`Message received: ${JSON.stringify(obj)}`)
-		// });		
+		// });
 		this.on("unload", this.onUnload.bind(this));
 	}
 
@@ -112,7 +108,7 @@ class Controme extends utils.Adapter {
 		}
 		// if (obj) {
 		// 	switch (obj.command) {
-		// 		case 'command':
+		// 		case "command":
 		// 			if (obj.callback) {
 		// 				this.log.debug(`onMessage called with obj: ${JSON.stringify(obj)}`);
 		// 			}
@@ -126,29 +122,29 @@ class Controme extends utils.Adapter {
 		if (!this.delayPolling) {
 			this._pollRoomTemps();
 			this._pollOuts();
-			if (this.config.gateways != null && typeof this.config.gateways[Symbol.iterator] === 'function') {
+			if (this.config.gateways != null && typeof this.config.gateways[Symbol.iterator] === "function") {
 				this._pollGateways();
 			}
 		}
 	}
 
-	_delayPollingFunction () {
+	_delayPollingFunction() {
 		this.delayPolling = true;
 		this.delayPollingTimeout = setTimeout(() => {
 			this.delayPolling = false;
 		}, this.delayPollingCounter * 60 * 1000);
-		this.delayPollingCounter < 10 ? this.delayPollingCounter++ : this.delayPollingCounter = 10;		
+		this.delayPollingCounter < 10 ? this.delayPollingCounter++ : this.delayPollingCounter = 10;
 		this.setState("info.connection", false, true);
 		this.log.error(`Error in polling data from Controme mini server; will retry in ${this.delayPollingCounter} minutes.`);
 	}
 
-	_resetPollingDelay () {
+	_resetPollingDelay() {
 		this.delayPolling = false;
 		this.delayPollingCounter = 0;
 		this.setState("info.connection", true, true);
 	}
 
-	_processTempsAPIforCreation (body) {
+	_processTempsAPIforCreation(body) {
 		// response JSON contains hierarchical information starting with floors and rooms on these floors
 		// followed by offsets and sensors for each room
 		// we need to iterate through the floors and rooms and create the required structures
@@ -158,14 +154,14 @@ class Controme extends utils.Adapter {
 
 		this.log.debug(`~  Creating room objects (incl. offsets and sensors)`);
 		for (const floor in body) {
-			if (Object.prototype.hasOwnProperty.call(body[floor], 'raeume')) {
+			if (Object.prototype.hasOwnProperty.call(body[floor], "raeume")) {
 				const rooms = body[floor].raeume;
 				for (const room in rooms) {
 					if (Object.prototype.hasOwnProperty.call(rooms, room)) {
 						this._createObjectsForRoom(rooms[room]);
 						this._createOffsetsForRoom(rooms[room]);
 
-						if (Object.prototype.hasOwnProperty.call(rooms[room], 'sensoren')) {
+						if (Object.prototype.hasOwnProperty.call(rooms[room], "sensoren")) {
 							for (const sensor in body[floor].raeume[room].sensoren) {
 								if (Object.prototype.hasOwnProperty.call(body[floor].raeume[room].sensoren, sensor)) {
 									this._createSensorsForRoom(body[floor].raeume[room].id, body[floor].raeume[room].sensoren[sensor]);
@@ -178,7 +174,7 @@ class Controme extends utils.Adapter {
 		}
 	}
 
-	_processOutsAPIforCreation (body) {
+	_processOutsAPIforCreation(body) {
 		// response JSON contains hierarchical information starting with floors and rooms on these floors
 		// followed by outputs for each room
 		// we need to iterate through the floors and rooms and add the required output structures to the already created rooms
@@ -186,7 +182,7 @@ class Controme extends utils.Adapter {
 		this.log.silly(`Outs response from Controme mini server for creation of objects: "${JSON.stringify(body)}"`);
 
 		for (const floor in body) {
-			if (Object.prototype.hasOwnProperty.call(body[floor], 'raeume')) {
+			if (Object.prototype.hasOwnProperty.call(body[floor], "raeume")) {
 				const rooms = body[floor].raeume;
 				for (const room in rooms) {
 					if (Object.prototype.hasOwnProperty.call(rooms, room)) {
@@ -197,11 +193,11 @@ class Controme extends utils.Adapter {
 		}
 
 		this.log.debug(`~  Creating gateway objects`);
-		if (this.config.gateways != null && typeof this.config.gateways[Symbol.iterator] === 'function') {
+		if (this.config.gateways != null && typeof this.config.gateways[Symbol.iterator] === "function") {
 			const gateways = Array.isArray(this.config.gateways) ? this.config.gateways : [this.config.gateways];
 			for (const gateway of gateways) {
-					// gateways is an array of objects, one for each output of the gateway
-					const promises = this._createGatewayObjects(gateway);
+				// gateways is an array of objects, one for each output of the gateway
+				const promises = this._createGatewayObjects(gateway);
 				Promise.all(promises)
 					.then(() => {
 						this._setGatewayObjects(gateway);
@@ -211,7 +207,7 @@ class Controme extends utils.Adapter {
 					})
 			}
 
-			if (this.config.gatewayOuts != null && typeof this.config.gatewayOuts[Symbol.iterator] === 'function') {
+			if (this.config.gatewayOuts != null && typeof this.config.gatewayOuts[Symbol.iterator] === "function") {
 				const gatewayOuts = Array.isArray(this.config.gatewayOuts) ? this.config.gatewayOuts : [this.config.gatewayOuts];
 				this.log.debug(`~  Creating output objects for gateways`);
 
@@ -221,9 +217,9 @@ class Controme extends utils.Adapter {
 				}
 			}
 
-		}		
+		}
 	}
-	
+
 	async _createObjects() {
 		this.log.debug(`Creating object structure`);
 
@@ -376,7 +372,7 @@ class Controme extends utils.Adapter {
 
 	_createOutputsForRoom(room) {
 		const promises = [];
-		if (Object.prototype.hasOwnProperty.call(room, 'ausgang')) {
+		if (Object.prototype.hasOwnProperty.call(room, "ausgang")) {
 			const outputs = room.ausgang;
 			for (const [key, value] of Object.entries(outputs)) {
 				this.log.silly(`Creating output objects for room ${room.id}: Output ${key}`);
@@ -466,7 +462,7 @@ class Controme extends utils.Adapter {
 
 	}
 
-	_processOutsAPIforUpdate (body) {
+	_processOutsAPIforUpdate(body) {
 		this.log.silly(`Outs response from Controme mini server: "${JSON.stringify(body)}"`);
 
 		for (const floor in body) {
@@ -508,14 +504,14 @@ class Controme extends utils.Adapter {
 		const gateways = Array.isArray(this.config.gateways) ? this.config.gateways : [this.config.gateways];
 		for (const gateway of gateways) {
 			// gateways is an array of objects, one for each gateway
-			// for gateways other than universal gateways (where state isUniversal is true), we can query the outputs API with /all/			
+			// for gateways other than universal gateways (where state isUniversal is true), we can query the outputs API with /all/
 			// for universal gateways we need to query each output individually
 			let body;
 			if (gateway.gatewayType == "gwUniPro") {
 				this.log.debug(`Polling individual outputs for gateway ${gateway.gatewayName} from mini server `);
 				const outputs = await this.getStatesOfAsync(`${this.namespace}.${gateway.gatewayMAC}`, "outputs");
 				for (const output in outputs) {
-					let outputID = outputs[output]._id.substring(outputs[output]._id.lastIndexOf('.') + 1);
+					let outputID = outputs[output]._id.substring(outputs[output]._id.lastIndexOf(".") + 1);
 					try {
 						const url = `http://${this.config.url}/get/${gateway.gatewayMAC}/${outputID}/`;
 						const response = await got.get(url);
@@ -527,7 +523,7 @@ class Controme extends utils.Adapter {
 							this.log.silly(`Setting gateway output ${gateway.gatewayMAC}:${outputID} to ${parseInt(gatewayOutState)}`);
 							this.setStateAsync(outputs[output]._id, parseInt(gatewayOutState), true);
 						}
-						this._resetPollingDelay();	
+						this._resetPollingDelay();
 					} catch (error) {
 						// when an error is received, the connection indicator is updated accordingly
 						this._delayPollingFunction();
@@ -543,15 +539,15 @@ class Controme extends utils.Adapter {
 					body = response.body;
 					// gateway API returns string in the format <0;0;0;0;0;0;0;0;0;0;0;0;0;0;0>
 					if (typeof (body) === "string") {
-						const gatewayOuts = body.substring(1, body.length - 1).split(';');
+						const gatewayOuts = body.substring(1, body.length - 1).split(";");
 						const outputs = await this.getStatesOfAsync(`${this.namespace}.${gateway.gatewayMAC}`, "outputs");
 						for (const output in outputs) {
-							let outputID = outputs[output]._id.substring(outputs[output]._id.lastIndexOf('.') + 1);
+							let outputID = outputs[output]._id.substring(outputs[output]._id.lastIndexOf(".") + 1);
 							this.setStateAsync(outputs[output]._id, parseFloat(gatewayOuts[parseInt(outputID) - 1]), true);
 							this.log.silly(`Setting gateway output ${gateway.gatewayMAC}:${outputID} to ${parseFloat(gatewayOuts[parseInt(outputID) - 1])}`);
 						}
 					}
-					this._resetPollingDelay();	
+					this._resetPollingDelay();
 				} catch (error) {
 					// when an error is received, the connection indicator is updated accordingly
 					this._delayPollingFunction();
@@ -588,7 +584,7 @@ class Controme extends utils.Adapter {
 		promises.push(this.setStateChangedAsync(room.id + ".setpointTemperature", roundTo(parseFloat(room.solltemperatur), 2), true));
 		promises.push(this.setStateChangedAsync(room.id + ".temperatureOffset", roundTo(parseFloat(room.total_offset), 2), true));
 		promises.push(this.setStateChangedAsync(room.id + ".setpointTemperaturePerm", roundTo(parseFloat(room.perm_solltemperatur), 2), true));
-		promises.push(this.setStateChangedAsync(room.id + ".is_temporary_mode", room.is_temporary_mode == 'true', true));
+		promises.push(this.setStateChangedAsync(room.id + ".is_temporary_mode", room.is_temporary_mode == "true", true));
 		promises.push(this.setStateChangedAsync(room.id + ".temporary_mode_remaining", parseInt(room.remaining_time), true));
 		if (room.mode_end_datetime == null) {
 			promises.push(this.setStateChangedAsync(room.id + ".temporary_mode_end", room.mode_end_datetime, true));
@@ -601,12 +597,12 @@ class Controme extends utils.Adapter {
 	}
 
 	hasJsonStructure(str) {
-		if (typeof str !== 'string') return false;
+		if (typeof str !== "string") return false;
 		try {
 			const result = JSON.parse(str);
 			const type = Object.prototype.toString.call(result);
-			return type === '[object Object]'
-				|| type === '[object Array]';
+			return type === "[object Object]"
+				|| type === "[object Array]";
 		} catch (err) {
 			return false;
 		}
@@ -679,7 +675,7 @@ class Controme extends utils.Adapter {
 
 	_updateOutputsForRoom(room) {
 		const promises = [];
-		if (Object.prototype.hasOwnProperty.call(room, 'ausgang')) {
+		if (Object.prototype.hasOwnProperty.call(room, "ausgang")) {
 			const outputs = room.ausgang;
 			for (const [key, value] of Object.entries(outputs)) {
 				this.log.silly(`Updating room ${room.id}: Output: ${key} to ${value}`);
@@ -780,7 +776,7 @@ class Controme extends utils.Adapter {
 
 		form.append("user", this.config.user);
 		form.append("password", this.config.password);
-		if (typeof setpointTemp === 'number' && isFinite(setpointTemp)) {
+		if (typeof setpointTemp === "number" && isFinite(setpointTemp)) {
 
 			setpointTemp = Math.trunc((Math.round(setpointTemp * 8) / 8) * 100) / 100;
 			form.append("soll", setpointTemp);
@@ -799,7 +795,7 @@ class Controme extends utils.Adapter {
 			})();
 		} else {
 			this.log.error(`Room ${roomID}: New setpoint temperature is not a number.`);
-		}			
+		}
 	}
 
 	_setTargetTemp(roomID, targetTemp, targetDuration) {
@@ -807,16 +803,16 @@ class Controme extends utils.Adapter {
 		const form = new formData();
 
 		form.append("user", this.config.user);
-		form.append("password", this.config.password);		
+		form.append("password", this.config.password);
 
-		if (typeof targetTemp === 'number' && isFinite(targetTemp)) {
+		if (typeof targetTemp === "number" && isFinite(targetTemp)) {
 			// According to the API documentation, Controme accepts only values that are a multiple of 0.125 and that are send with max two decimals (0.125 -> 0.12)
 			// We therefore need to round the targetTemp to that value (22.1 => 22.12)
 			targetTemp = Math.trunc((Math.round(targetTemp * 8) / 8) * 100) / 100;
 
 			form.append("ziel", targetTemp);
 
-			if (typeof targetTemp === 'number' && isFinite(targetTemp)) {
+			if (typeof targetTemp === "number" && isFinite(targetTemp)) {
 				// duration can either be set directly (as a value in minutes) or to default duration (if value is 0)
 
 				form.append("duration", targetDuration > 0 ? Math.round(targetDuration) : "default");
@@ -837,7 +833,7 @@ class Controme extends utils.Adapter {
 							this.log.error(`Room ${roomID}: Setting target temperature returned an error: ${error.message}`);
 						} else {
 							// Fallback for unknown errors
-							this.log.error(`Room ${roomID}: Setting target temperature returned an unknown error: ${String(error)}`);							
+							this.log.error(`Room ${roomID}: Setting target temperature returned an unknown error: ${String(error)}`);
 						}
 					}
 				})();
@@ -858,7 +854,7 @@ class Controme extends utils.Adapter {
 		// [FIXME] SensorID should be checked for validity
 		form.append("sensorid", sensorID);
 
-		if (typeof actualTemp === 'number' && isFinite(actualTemp)) {
+		if (typeof actualTemp === "number" && isFinite(actualTemp)) {
 			// According to the API documentation, Controme accepts only values that are a multiple of 0.125 and that are send with max two decimals (0.125 -> 0.12)
 			// We therefore need to round the actualTemp to that value (22.1 => 22.12)
 			actualTemp = Math.trunc((Math.round(actualTemp * 8) / 8) * 100) / 100;
@@ -894,11 +890,11 @@ class Controme extends utils.Adapter {
 		const form = new formData();
 
 		form.append("user", this.config.user);
-		form.append("password", this.config.password);		
+		form.append("password", this.config.password);
 
 		form.append("offset_name", apiID);
-		
-		if (typeof offsetTemp === 'number' && isFinite(offsetTemp)) {
+
+		if (typeof offsetTemp === "number" && isFinite(offsetTemp)) {
 			// According to the API documentation, Controme accepts only values that are a multiple of 0.125 and that are send with max two decimals (0.125 -> 0.12)
 			// We therefore need to round the offsetTemp to that value (22.1 => 22.12)
 			offsetTemp = Math.trunc((Math.round(offsetTemp * 8) / 8) * 100) / 100;
