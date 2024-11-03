@@ -295,7 +295,7 @@ class Controme extends utils.Adapter {
 	}
 
 	isEmpty(object) {
-		for (let i in object) {
+		for (const i in object) {
 			return false;
 		}
 		return true;
