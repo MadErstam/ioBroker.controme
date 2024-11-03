@@ -1,8 +1,21 @@
 {
 	"common": {
 		"name": "controme",
-		"version": "0.4.1",
+		"version": "0.4.2",
 		"news": {
+			"0.4.2": {
+				"en": "Preparations for adapter package release",
+				"de": "Vorbereitungen für Release des Adapter-Pakets",
+				"ru": "Подготовка к выпуску пакета адаптера",
+				"pt": "Preparações para o lançamento do pacote do adaptador",
+				"nl": "Voorbereidingen voor het vrijgeven van het adapterpakket",
+				"fr": "Préparatifs pour la sortie du package d'adaptateur",
+				"it": "Preparativi per il rilascio del pacchetto dell'adattatore",
+				"es": "Preparativos para la liberación del paquete del adaptador",
+				"pl": "Przygotowania do wydania pakietu adapterów",
+				"uk": "Підготовка до виходу пакета адаптера",				
+				"zh-cn": "适配器包装发布的准备工作"
+			},
 			"0.4.1": {
 				"en": "Preparations for adapter package release",
 				"de": "Vorbereitungen für Release des Adapter-Pakets",

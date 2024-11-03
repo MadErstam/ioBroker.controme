@@ -5,8 +5,8 @@
 const utils = require("@iobroker/adapter-core");
 
 // Load your modules here, e.g.:
-const got = require('got').default;
-const { HTTPError } = require('got');  // Import HTTPError for specific error checking
+const got = (await import('got')).default;
+const { HTTPError } = await import('got');  // Import HTTPError for specific error checking
 const dayjs = require('dayjs');
 const formData = require('form-data');
 const { isObject } = require("iobroker.controme/lib/tools");
@@ -930,3 +930,5 @@ if (module.parent) {
 	// otherwise start the instance directly
 	new Controme();
 }
+
+export {};
