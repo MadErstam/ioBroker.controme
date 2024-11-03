@@ -204,7 +204,7 @@ class Controme extends utils.Adapter {
 					})
 					.catch((error) => {
 						this.log.error(`Setting newly created gateway states failed with error ${error}`);
-					})
+					});
 			}
 
 			if (this.config.gatewayOuts != null && typeof this.config.gatewayOuts[Symbol.iterator] === "function") {
@@ -295,7 +295,7 @@ class Controme extends utils.Adapter {
 	}
 
 	isEmpty(object) {
-		for (var i in object) {
+		for (let i in object) {
 			return false;
 		}
 		return true;
@@ -345,7 +345,7 @@ class Controme extends utils.Adapter {
 		// sensor.wert can be either single value or object
 		if (isObject(sensor.wert)) {
 			for (const [key, value] of Object.entries(sensor.wert)) {
-				this.log.silly(`Creating individual sensor value objects for room ${roomID}: Sensor value ${key}`);
+				this.log.silly(`Creating individual sensor value objects for room ${roomID}: Output ${key}:${value}`);
 				// currently known object values are Helligkeit (brightness), Relative Luftfeuchtigkeit (humidity), Bewegung (motion), Temperatur (temperatur)
 				switch (key) {
 					case "Helligkeit":
@@ -375,7 +375,7 @@ class Controme extends utils.Adapter {
 		if (Object.prototype.hasOwnProperty.call(room, "ausgang")) {
 			const outputs = room.ausgang;
 			for (const [key, value] of Object.entries(outputs)) {
-				this.log.silly(`Creating output objects for room ${room.id}: Output ${key}`);
+				this.log.silly(`Creating output objects for room ${room.id}: Output ${key}:${value}`);
 				promises.push(this.setObjectNotExistsAsync(room.id + ".outputs." + key, { type: "state", common: { name: room.name + " outputs " + key, type: "number", role: "value", read: true, write: false }, native: {} }));
 			}
 		}
@@ -511,7 +511,7 @@ class Controme extends utils.Adapter {
 				this.log.debug(`Polling individual outputs for gateway ${gateway.gatewayName} from mini server `);
 				const outputs = await this.getStatesOfAsync(`${this.namespace}.${gateway.gatewayMAC}`, "outputs");
 				for (const output in outputs) {
-					let outputID = outputs[output]._id.substring(outputs[output]._id.lastIndexOf(".") + 1);
+					const outputID = outputs[output]._id.substring(outputs[output]._id.lastIndexOf(".") + 1);
 					try {
 						const url = `http://${this.config.url}/get/${gateway.gatewayMAC}/${outputID}/`;
 						const response = await got.get(url);
@@ -542,7 +542,7 @@ class Controme extends utils.Adapter {
 						const gatewayOuts = body.substring(1, body.length - 1).split(";");
 						const outputs = await this.getStatesOfAsync(`${this.namespace}.${gateway.gatewayMAC}`, "outputs");
 						for (const output in outputs) {
-							let outputID = outputs[output]._id.substring(outputs[output]._id.lastIndexOf(".") + 1);
+							const outputID = outputs[output]._id.substring(outputs[output]._id.lastIndexOf(".") + 1);
 							this.setStateAsync(outputs[output]._id, parseFloat(gatewayOuts[parseInt(outputID) - 1]), true);
 							this.log.silly(`Setting gateway output ${gateway.gatewayMAC}:${outputID} to ${parseFloat(gatewayOuts[parseInt(outputID) - 1])}`);
 						}
@@ -904,8 +904,14 @@ class Controme extends utils.Adapter {
 
 			(async () => {
 				try {
-					const { body, statusCode } = await got.post(url, { body: form });
-					this.log.debug(`Room ${roomID}: Setting offset temperature for offset ${apiID} to ${offsetTemp} °C`);
+					const { statusCode } = await got.post(url, { body: form });
+					if (statusCode === 200) {
+						// Log success only if status code is 200 (OK)
+						this.log.debug(`Room ${roomID}: Setting offset temperature for offset ${apiID} to ${offsetTemp} °C`);
+					} else {
+						// Log an error if any other status code is returned
+						this.log.error(`Room ${roomID}: Failed to set offset temperature for offset ${apiID}. Received unexpected status code ${statusCode}`);
+					}
 				} catch (error) {
 					this.setState("info.connection", false, true);
 					this.log.error(`Room ${roomID}: Setting offset temperature for offset "${apiID}" returned an error "${error}"`);
