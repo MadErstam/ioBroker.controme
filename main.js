@@ -934,5 +934,3 @@ if (module.parent) {
 	// otherwise start the instance directly
 	new Controme();
 }
-
-export {};
