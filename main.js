@@ -5,8 +5,10 @@
 const utils = require("@iobroker/adapter-core");
 
 // Load your modules here, e.g.:
-const got = (await import('got')).default;
-const { HTTPError } = await import('got');  // Import HTTPError for specific error checking
+// const got = (await import('got')).default;
+import got from 'got';
+// const { HTTPError } = await import('got');  // Import HTTPError for specific error checking
+import { HTTPError } from 'got';
 const dayjs = require('dayjs');
 const formData = require('form-data');
 const { isObject } = require("iobroker.controme/lib/tools");
