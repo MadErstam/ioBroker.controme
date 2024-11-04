@@ -1,0 +1,17 @@
+{
+    "Controme adapter settings": "Controme 的适应器设置",
+    "url": "Controme 迷你服务器 URL",
+    "houseID": "户口号码",
+    "interval": "更新间隔",
+    "forceReInit": "下次开始时重新启用房间",
+    "user": "用户名",
+    "password": "密码",
+    "warnOnNull": "显示 Null 值的日志警告",
+    "gatewaySettings": "网关设置", 
+    "gatewayMAC": "网关 MAC 地址",
+    "gatewayType": "网关类型",
+    "gatewayName": "网关名称",
+    "gatewayIsUniversal": "通用通道吗?",
+    "gatewayOutsID": "输出标识",
+    "gatewayOutsName": "输出名称"
+}

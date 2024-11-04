@@ -92,6 +92,8 @@ To start the adapter, the following data need to be provided in the admin settin
   Placeholder for the next version (at the beginning of the line):
   ### **WORK IN PROGRESS**
 -->
+### 0.4.7 (2024-11-04)
+* (MadErstam) Moved admin translations to separate files
 
 ### 0.4.6 (2024-11-04)
 * (MadErstam) Added translations of admin form to Ukrainian

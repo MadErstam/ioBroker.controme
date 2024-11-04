@@ -1,0 +1,17 @@
+{
+    "Controme adapter settings": "Adapterinstellingen voor Controme",
+    "url": "Controme mini-server-URL",
+    "houseID": "Huis ID",
+    "interval": "Bijwerken interval [s]",
+    "forceReInit": "Kamers opnieuw initialiseren bij de volgende start",
+    "user": "Gebruikersnaam",
+    "password": "Wachtwoord",
+    "warnOnNull": "Logwaarschuwingen voor Null-waarden tonen",
+    "gatewaySettings": "Poortinstellingen",
+    "gatewayMAC": "Gateway MAC-adres",
+    "gatewayType": "Type poort",
+    "gatewayName": "Naam poort",
+    "gatewayIsUniversal": "Is universele Gateway?",
+    "gatewayOutsID": "Uitvoer-ID",
+    "gatewayOutsName": "Uitvoernaam"
+}

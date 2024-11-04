@@ -1,0 +1,17 @@
+{
+    "Controme adapter settings": "Параметри адаптера для Controme",
+    "url": "Статус на сервери",
+    "houseID": "Будинок ID",
+    "interval": "Період оновлення [и]",
+    "forceReInit": "Перевстановити номери на наступний старт",
+    "user": "Ім'я користувача",
+    "password": "Логін",
+    "warnOnNull": "Показати попередження журналу для значень Null",
+    "gatewaySettings": "Налаштування шлюзу",
+    "gatewayMAC": "Шлюз MAC адреса",
+    "gatewayType":"Тип шлюзу",
+    "gatewayName": "Назва шлюзу",
+    "gatewayIsUniversal": "Чи є універсальний шлюз?",
+    "gatewayOutsID": "Вихідний ID",
+    "gatewayOutsName": "Ім'я користувача"
+}

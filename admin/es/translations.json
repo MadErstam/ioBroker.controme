@@ -1,0 +1,17 @@
+{
+    "Controme adapter settings": "Ajustes del adaptador para Controme",
+    "url": "URL del mini servidor",
+    "houseID": "ID de casa",
+    "interval": "Intervalo de actualización [s]",
+    "forceReInit": "Reinicializar las habitaciones en el próximo comienzo",
+    "user": "Nombre de usuario",
+    "password": "Contraseña",
+    "warnOnNull": "Mostrar advertencias de registro para valores de Null",
+    "gatewaySettings": "Ajustes de puerta",  
+    "gatewayMAC": "Dirección de gateway MAC",      
+    "gatewayType": "Tipo de puerta", 
+    "gatewayName": "Nombre de puerta",       
+    "gatewayIsUniversal": "¿Es universal Gateway?",
+    "gatewayOutsID": "ID de salida",
+    "gatewayOutsName": "Nombre del producto"
+}

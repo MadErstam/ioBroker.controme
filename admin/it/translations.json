@@ -1,0 +1,17 @@
+{
+    "Controme adapter settings": "Impostazioni dell'adattatore per Controme",
+    "url":  "URL del mini server",
+    "houseID": "ID casa",
+    "interval": "Intervallo di aggiornamento [s]",
+    "forceReInit": "Riavviare le camere al prossimo inizio",
+    "user": "Nome utente",
+    "password": "Password",
+    "warnOnNull": "Mostra avvisi di registro per i valori Null",
+    "gatewaySettings": "Impostazioni del gateway",
+    "gatewayMAC": "Indirizzo MAC Gateway",
+    "gatewayType": "Tipo di gateway",
+    "gatewayName": "Nome del gateway",
+    "gatewayIsUniversal": "È universale Gateway?",
+    "gatewayOutsID": "ID di uscita",
+    "gatewayOutsName": "Nome di uscita"
+}

@@ -1,0 +1,16 @@
+{
+    "Controme adapter settings": "Paramètres de l'adaptateur pour Controme",
+    "url": "Controme mini URL du serveur",
+    "houseID": "Numéro de la maison",
+    "forceReInit": "Réinitialisez les salles au prochain départ",
+    "user": "Nom d'utilisateur",
+    "password": "Mot de passe",
+    "warnOnNull": "Afficher les avertissements de journal pour les valeurs Null",
+    "gatewaySettings": "Paramètres de la passerelle",
+    "gatewayMAC": "Adresse MAC de la passerelle",
+    "gatewayType": "Type de passerelle",
+    "gatewayName": "Nom de la passerelle",
+    "gatewayIsUniversal": "La passerelle universelle ?",
+    "gatewayOutsID": "ID de sortie",
+    "gatewayOutsName": "Nom de la sortie"
+}

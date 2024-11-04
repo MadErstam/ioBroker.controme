@@ -1,0 +1,17 @@
+{
+    "Controme adapter settings": "Настройка адаптера для Controme",
+    "url": "Адрес мини-сервера",
+    "houseID": "Домой ID",
+    "interval": "Интервал обновления [s]",
+    "forceReInit": "Восстановить номера на следующем старте",
+    "user": "Имя пользователя",
+    "password": "Пароль",
+    "warnOnNull": "Показать предупреждения журнала для значений Null",
+    "gatewaySettings": "Параметры входа",
+    "gatewayMAC": "Адрес MAC",
+    "gatewayType": "Тип прохода",
+    "gatewayName": "Имя шлюза",
+    "gatewayIsUniversal": "Универсальные ворота?",
+    "gatewayOutsID": "Идентификатор вывода",
+    "gatewayOutsName": "Имя вывода"
+}

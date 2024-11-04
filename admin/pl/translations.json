@@ -1,0 +1,17 @@
+{
+    "Controme adapter settings": "Ustawienia adaptera dla Controme",
+    "url": "Controme mini serwer URL",
+    "houseID": "Identyfikator domu",
+    "interval": "Przedział aktualizacji [s]",
+    "forceReInit": "Ponowne inicjowanie pokoi na następnym starcie",
+    "user": "Nazwa użytkownika",
+    "password": "Hasło",
+    "warnOnNull": "Pokaż ostrzeżenia dziennika dla wartości Null",
+    "gatewaySettings": "Ustawienia bramy",
+    "gatewayMAC": "Adres bramy MAC",
+    "gatewayType":"Typ bramy",
+    "gatewayName": "Nazwa bramy",
+    "gatewayIsUniversal": "Czy uniwersalna Brama?",
+    "gatewayOutsID": "Identyfikator wyjścia",
+    "gatewayOutsName": "Nazwa wyjścia"
+}

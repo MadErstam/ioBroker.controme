@@ -1,0 +1,17 @@
+{
+    "Controme adapter settings": "Adapter settings for Controme",
+    "url": "Controme mini server URL",
+    "houseID": "House ID",
+    "interval": "Update interval [s]",
+    "forceReInit": "Re-initialize rooms on next start",
+    "user": "Username",
+    "password": "Password",
+    "warnOnNull": "Show log warnings for Null values",
+    "gatewaySettings": "Gateway settings",       
+    "gatewayMAC": "Gateway MAC address",          
+    "gatewayType": "Gateway type",           
+    "gatewayName":"Gateway name",          
+    "gatewayIsUniversal": "Is universal gateway?",
+    "gatewayOutsID": "Output ID",
+    "gatewayOutsName": "Output Name"
+}

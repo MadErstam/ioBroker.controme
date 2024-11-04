@@ -1,8 +1,21 @@
 {
 	"common": {
 		"name": "controme",
-		"version": "0.4.6",
+		"version": "0.4.7",
 		"news": {
+			"0.4.7": {
+				"en": "Moved admin translations to separate files",
+				"de": "Verschieben von Admin-Übersetzungen in separate Dateien",
+				"ru": "Перемещение переводов администратора на отдельные файлы",
+				"pt": "Traduções de administração movidas para arquivos separados",
+				"nl": "Verplaatste administratieve vertalingen naar aparte bestanden",
+				"fr": "Translations admin déplacées vers des fichiers séparés",
+				"it": "Traduzioni di amministratore mobili per file separati",
+				"es": "Traducciones de administración móviles para archivos separados",
+				"pl": "Przesunięto tłumaczenia administratora do oddzielnych plików",
+				"uk": "Переміщені переклади адміністратора на окремі файли",
+				"zh-cn": "将管理员翻译移至单独的文件"
+			},
 			"0.4.6": {
 				"en": "Added translations of admin form to Ukrainian",
 				"de": "Übersetzungen von Admin-Formular ins Ukrainische hinzugefügt",
