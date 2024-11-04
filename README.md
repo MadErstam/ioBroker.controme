@@ -92,6 +92,10 @@ To start the adapter, the following data need to be provided in the admin settin
   Placeholder for the next version (at the beginning of the line):
   ### **WORK IN PROGRESS**
 -->
+
+### 0.4.6 (2024-11-04)
+* (MadErstam) Added translations of admin form to Ukrainian
+
 ### 0.4.5 (2024-11-03)
 * (MadErstam) Fixed remaining warnings of automated adapter checker
 
