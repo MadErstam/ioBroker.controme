@@ -1,8 +1,21 @@
 {
 	"common": {
 		"name": "controme",
-		"version": "0.4.5",
+		"version": "0.4.6",
 		"news": {
+			"0.4.6": {
+				"en": "Added translations of admin form to Ukrainian",
+				"de": "Übersetzungen von Admin-Formular ins Ukrainische hinzugefügt",
+				"ru": "Добавлены переводы административной формы на украинский",
+				"pt": "Adicionados traduções de formulário de admin para ucraniano",
+				"nl": "Toegevoegd vertalingen van admin formulier aan Oekraïens",
+				"fr": "Ajout de traductions du formulaire d'administration en ukrainien",
+				"it": "Aggiunte le traduzioni di forma di amministratore a ucraino",
+				"es": "Traducciones adicionales del formulario de administración a Ucrania",
+				"pl": "Dodano tłumaczenia formularza admin do ukraińskiego",
+				"uk": "Додано переклади форми адміністратора на українську",
+				"zh-cn": "添加管理表对乌克兰语的翻译"
+			},
 			"0.4.5": {
 				"en": "Cleaned up warnings of automated adapter checker",
 				"de": "Bereinigung von Warnungen des automatischen Adapter-Checkers",
