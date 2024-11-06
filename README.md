@@ -92,6 +92,9 @@ To start the adapter, the following data need to be provided in the admin settin
   Placeholder for the next version (at the beginning of the line):
   ### **WORK IN PROGRESS**
 -->
+### 0.5.1 (2024-11-06)
+* (MadErstam) Minor bugfixing
+
 ### 0.5.0 (2024-11-05)
 * (MadErstam) Added handling of temporary mode
 * (MadErstam) Conducted code refactoring to improve readability and maintainability

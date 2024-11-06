@@ -1,8 +1,21 @@
 {
     "common": {
         "name": "controme",
-        "version": "0.5.0",
+        "version": "0.5.1",
         "news": {
+            "0.5.1": {
+                "en": "Minor Bugfixing",
+                "de": "Minor Bugfixing",
+                "ru": "Незначительный значок",
+                "pt": "Bugfixing menor",
+                "nl": "Kleine bugfixing",
+                "fr": "Correction mineure des bugs",
+                "it": "Minor Bugfixing",
+                "es": "Bugfixing menor",
+                "pl": "Niewielkie ustawianie błędów",
+                "uk": "Виправлення помилок",
+                "zh-cn": "小错误修正"
+            },
             "0.5.0": {
 				"en": "Added handling of temporary mode",
 				"de": "Zusätzlicher Umgang mit temporärem Modus",
