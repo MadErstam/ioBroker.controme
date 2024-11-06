@@ -22,28 +22,28 @@ The adapter periodically reads the room temperatures from the mini server as wel
 
 
 The adapter provides the following data for each room defined in the Controme UI:
-| Object | Type | Description |
+| Object | Type | Description | read/write |
 | --- | --- | --- |
-| roomID | device | Each room is represented with its Controme room ID and the room name as device name. |
-| roomID.actualTemperature | state | The actual temperature of the room, with a role of level.temperature. This state is read-only. If no room temperature sensor for a particular room is defined, the actual temperature returned from the Controme mini server is null. This state is read-only. |
-| roomID.humidity | state | The humidity of the room, with a role of level.humidity. This state is read-only. If the sensor for the room does not detect humidity, this state is null. This state is read-only. |
-| roomID.setPointTemperature | state | The target / setpoint temperature of the room, with a role of value.temperature. This state is read/write. | 
-| roomID.setPointTemperaturePerm | state | The permanent target / setpoint temperature of the room, with a role of value.temperature. This state is read for now, since the temporary mode settings have not yet been implemented. | 
-| roomID.temperatureOffset | state | The offset temperature of the room, by which the sensor measurements are different from the actual temperature of the room. The temperature offset value can be set manually in the Controme UI, and in addition is calculated by various Controme modules. This state if read-only. | 
-| roomID.mode | state | Describes the operating mode of the room, e.g. "heating". This state is read-only. | 
-| roomID.is_temporary_mode | state | Indicates of temporary changes to the setPointTemperature are in effect. This state is read-only. | 
-| roomID.temporary_mode_end | state | When a temporary mode is active for the room, this state indicates when the temporary state ends. If no temporary state is active, this state is null. This state is read-only. | 
-| roomID.temporary_mode_remaining | state | When a temporary mode is active for the room, this state indicates the remaining seconds that  the temporary state is active. If no temporary state is active, this state is null. This state is read-only. | 
-| roomID.offsets | channel | Offsets are added or subtracted from the setpoint room temperature. This channel groups all offsets that belong to the respective room. |
-| roomID.offsets.[OFFSET-GROUP] | channel | Each offset source is repesented by a dedicated channel within the offsets channel of the room the offset belongs to. |
-| roomID.offsets.[OFFSET-GROUP].[OFFSET] | state | The individual offset state represent the different adjustments made by the Controme mini server. These states are read-only. |
-| roomID.offsets.api | channel | This offset group is special, since its states can be written to and can be used to manipulate the actual room offset. |
-| roomID.offsets.api.api | state | This offset state is created by default by the adapter. You can use it to manipulate the actual room offsets. The offset values are reset by the server each 10 minutes. This state is read/write. |
-| roomID.sensors | channel | Sensors provide the actual measurements associated with the room. This channel groups all sensors assigned to the respective room. |
-| roomID.sensors.[SENSOR-ID] | device | Each sensor is represented by a device within the sensors channel of the room it is assigned to. |
-| roomID.sensors.[SENSOR-ID].isRoomTemperatureSensor | state | This boolean state indicates if a sensor is used as room temperature sensor. For each room, only a single sensor can be used as room temperature sensor. This state is read-only. |
-| roomID.sensors.[SENSOR-ID].actualTemperature | state | This state represents the actual temperature measured by the sensor. The state is read/write, but only 1Wire sensors or virtual sensors will accept the provided values. In case you write a value to a real sensor, the value will be overwritten when the next reading is done. |
-| roomID.outputs | channel | Outputs typically control valves that control the room's heating. This channel groups all outputs assigned to the respective room. |
+| roomID | device | Each room is represented with its Controme room ID and the room name as device name. | |
+| roomID.actualTemperature | state | The actual temperature of the room, with a role of level.temperature. This state is read-only. If no room temperature sensor for a particular room is defined, the actual temperature returned from the Controme mini server is null. | read |
+| roomID.humidity | state | The humidity of the room, with a role of level.humidity. This state is read-only. If the sensor for the room does not detect humidity, this state is null. | read |
+| roomID.setpointTemperature | state | The target / setpoint temperature of the room, with a role of value.temperature. | read/write | 
+| roomID.setpointTemperaturePerm | state | The permanent target / setpoint temperature of the room, with a role of value.temperature. | read/write | 
+| roomID.temperatureOffset | state | The offset temperature of the room, by which the sensor measurements are different from the actual temperature of the room. The temperature offset value can be set manually in the Controme UI, and in addition is calculated by various Controme modules. | read | 
+| roomID.mode | state | Describes the operating mode of the room, e.g. "heating". | read | 
+| roomID.is_temporary_mode | state | Indicates of temporary changes to the setPointTemperature are in effect. | read | 
+| roomID.temporary_mode_end | state | When a temporary mode is active for the room, this state indicates when the temporary state ends. If no temporary state is active, this state is null. | read | 
+| roomID.temporary_mode_remaining | state | When a temporary mode is active for the room, this state indicates the remaining seconds that the temporary state is active. If no temporary state is active, this state is null. Changes to this state will reflect back to Controme and will change the remaining time for the temporary mode with the setpoint temperature defined in state setpointTemperate. | read/write | 
+| roomID.offsets | channel | Offsets are added or subtracted from the setpoint room temperature. This channel groups all offsets that belong to the respective room. | |
+| roomID.offsets.[OFFSET-GROUP] | channel | Each offset source is repesented by a dedicated channel within the offsets channel of the room the offset belongs to. | |
+| roomID.offsets.[OFFSET-GROUP].[OFFSET] | state | The individual offset state represent the different adjustments made by the Controme mini server. | read |
+| roomID.offsets.api | channel | This offset group is special, since its states can be written to and can be used to manipulate the actual room offset. | |
+| roomID.offsets.api.api | state | This offset state is created by default by the adapter. You can use it to manipulate the actual room offsets. The offset values are reset by the server each 10 minutes. | read/write |
+| roomID.sensors | channel | Sensors provide the actual measurements associated with the room. This channel groups all sensors assigned to the respective room. | |
+| roomID.sensors.[SENSOR-ID] | device | Each sensor is represented by a device within the sensors channel of the room it is assigned to. | |
+| roomID.sensors.[SENSOR-ID].isRoomTemperatureSensor | state | This boolean state indicates if a sensor is used as room temperature sensor. For each room, only a single sensor can be used as room temperature sensor. | read |
+| roomID.sensors.[SENSOR-ID].actualTemperature | state | This state represents the actual temperature measured by the sensor. The state is read/write, but only 1Wire sensors or virtual sensors will accept the provided values. In case you write a value to a real sensor, the value will be overwritten when the next reading is done. | read/write |
+| roomID.outputs | channel | Outputs typically control valves that control the room's heating. This channel groups all outputs assigned to the respective room. | |
 | roomID.outputs.[OUTPUT-ID] | state | Each output is represented by a state within the output channel of the room it belongs to. The output ID number represents the number of the output on the gateway. |
 | gatewayMAC | device | Each gateway is represented with its MAC address and the gateway name as device name. |
 | gatewayMAC.gatewayType | state | The type of the gateway. Currently, there are four controme gateways: floor gateway smart, floor gateway pro, universal gateway mini, universal gateway pro. |
@@ -80,7 +80,7 @@ To start the adapter, the following data need to be provided in the admin settin
 2. Add data validation to config fields
 3. (done) Extend data fields received from Controme mini server (e.g. humidity)
 4. (done) Add sensor data for each sensor and room
-5. Implement temporary mode (temporary changes to desired temperature for room) next to setpoint temperature
+5. (done, testing pending) Implement temporary mode (temporary changes to desired temperature for room) next to setpoint temperature
 6. (done) Add option to set value for virtual sensors
 
 ## Know Bugs
@@ -92,6 +92,11 @@ To start the adapter, the following data need to be provided in the admin settin
   Placeholder for the next version (at the beginning of the line):
   ### **WORK IN PROGRESS**
 -->
+### 0.5.0 (2024-11-05)
+* (MadErstam) Added handling of temporary mode
+* (MadErstam) Conducted code refactoring to improve readability and maintainability
+* (MadErstam) Again moved admin translations to make it compatible with automatic translations
+
 ### 0.4.7 (2024-11-04)
 * (MadErstam) Moved admin translations to separate files
 

@@ -9,9 +9,10 @@
     "warnOnNull": "Pokaż ostrzeżenia dziennika dla wartości Null",
     "gatewaySettings": "Ustawienia bramy",
     "gatewayMAC": "Adres bramy MAC",
-    "gatewayType":"Typ bramy",
+    "gatewayType": "Typ bramy",
     "gatewayName": "Nazwa bramy",
     "gatewayIsUniversal": "Czy uniwersalna Brama?",
     "gatewayOutsID": "Identyfikator wyjścia",
-    "gatewayOutsName": "Nazwa wyjścia"
+    "gatewayOutsName": "Nazwa wyjścia",
+    "temp_duration": "Czas trwania tymczasowych ustawień temperatury"
 }

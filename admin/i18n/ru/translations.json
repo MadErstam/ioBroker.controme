@@ -13,5 +13,6 @@
     "gatewayName": "Имя шлюза",
     "gatewayIsUniversal": "Универсальные ворота?",
     "gatewayOutsID": "Идентификатор вывода",
-    "gatewayOutsName": "Имя вывода"
+    "gatewayOutsName": "Имя вывода",
+    "temp_duration": "Продолжительность временных настроек температуры"
 }

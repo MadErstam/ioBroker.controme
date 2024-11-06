@@ -7,11 +7,12 @@
     "user": "Nombre de usuario",
     "password": "Contraseña",
     "warnOnNull": "Mostrar advertencias de registro para valores de Null",
-    "gatewaySettings": "Ajustes de puerta",  
-    "gatewayMAC": "Dirección de gateway MAC",      
-    "gatewayType": "Tipo de puerta", 
-    "gatewayName": "Nombre de puerta",       
+    "gatewaySettings": "Ajustes de puerta",
+    "gatewayMAC": "Dirección de gateway MAC",
+    "gatewayType": "Tipo de puerta",
+    "gatewayName": "Nombre de puerta",
     "gatewayIsUniversal": "¿Es universal Gateway?",
     "gatewayOutsID": "ID de salida",
-    "gatewayOutsName": "Nombre del producto"
+    "gatewayOutsName": "Nombre del producto",
+    "temp_duration": "Duración de los ajustes de temperatura temporales"
 }

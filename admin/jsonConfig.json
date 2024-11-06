@@ -80,6 +80,18 @@
                     "lg": 3,
                     "xs": 12,
                     "xl": 3
+                },
+                "temp_duration": {
+                    "type": "number",
+                    "min": 5,
+                    "max": 600,
+                    "label": "temp_duration",
+                    "help": "min",
+                    "sm": 6,
+                    "md": 3,
+                    "lg": 3,
+                    "xs": 12,
+                    "xl": 3
                 }
             }
         },

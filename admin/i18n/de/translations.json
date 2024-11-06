@@ -13,5 +13,6 @@
     "gatewayName": "Gateway Name",
     "gatewayIsUniversal": "Ist Universal-Gateway?",
     "gatewayOutsID": "Ausgangs-ID",
-    "gatewayOutsName": "Ausgangsname"
+    "gatewayOutsName": "Ausgangsname",
+    "temp_duration": "Gültigkeit temporärer Temperaturänderungen"
 }

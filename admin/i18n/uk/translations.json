@@ -9,9 +9,10 @@
     "warnOnNull": "Показати попередження журналу для значень Null",
     "gatewaySettings": "Налаштування шлюзу",
     "gatewayMAC": "Шлюз MAC адреса",
-    "gatewayType":"Тип шлюзу",
+    "gatewayType": "Тип шлюзу",
     "gatewayName": "Назва шлюзу",
     "gatewayIsUniversal": "Чи є універсальний шлюз?",
     "gatewayOutsID": "Вихідний ID",
-    "gatewayOutsName": "Ім'я користувача"
+    "gatewayOutsName": "Ім'я користувача",
+    "temp_duration": "Тривалість тимчасових налаштувань температури"
 }

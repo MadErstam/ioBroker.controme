@@ -13,5 +13,6 @@
     "gatewayName":"Gateway name",          
     "gatewayIsUniversal": "Is universal gateway?",
     "gatewayOutsID": "Output ID",
-    "gatewayOutsName": "Output Name"
+    "gatewayOutsName": "Output Name",
+    "temp_duration": "Duration for temporary temperature settings"
 }
