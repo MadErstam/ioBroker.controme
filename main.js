@@ -560,12 +560,12 @@ class Controme extends utils.Adapter {
 		const response = await got.get(url);
 		const outputValues = this._parseGatewayOutputValues(response.body);
 
-		for (const [index, output] of outputs.entries()) {
+		for (const [, output] of outputs.entries()) {
 			const outputID = this._extractOutputID(output._id);
 			const value = parseFloat(outputValues[parseInt(outputID) - 1]);
 			await this.setState(output._id, value, true);
 			this.log.silly(`Setting gateway output ${gateway.gatewayMAC}:${outputID} to ${value}`);
-		};
+		}
 	}
 
 	// Parses the gateway output values from the API response string
@@ -804,19 +804,19 @@ class Controme extends utils.Adapter {
 
 			// Switch based on the specific state type
 			switch (true) {
-				case id.endsWith(".setpointTemperaturePerm"):
+				case id.endsWith(".setpointTemperaturePerm"): {
 					this.handleSetpointTemperaturePerm(roomID, state.val);
 					break;
-
-				case id.endsWith(".setpointTemperature"):
+				}
+				case id.endsWith(".setpointTemperature"): {
 					this.handleSetpointTemperature(roomID, state.val);
 					break;
-
-				case id.endsWith(".temporary_mode_remaining"):
+				}
+				case id.endsWith(".temporary_mode_remaining"): {
 					await this.handleTemporaryModeRemaining(roomID, state.val);
 					break;
-
-				case id.endsWith(".actualTemperature"):
+				}
+				case id.endsWith(".actualTemperature"): {
 					const sensorID = this.extractSensorID(id);
 					if (sensorID) {
 						this.handleActualTemperature(roomID, sensorID, state.val);
@@ -824,8 +824,8 @@ class Controme extends utils.Adapter {
 						this.log.error(`Failed to extract sensor ID from ${id}`);
 					}
 					break;
-
-				case id.includes(".offsets."):
+				}
+				case id.includes(".offsets."): {
 					const apiID = this.extractApiID(id);
 					if (apiID) {
 						this.handleOffsetTemperature(roomID, apiID, state.val);
@@ -833,9 +833,10 @@ class Controme extends utils.Adapter {
 						this.log.error(`Failed to extract API ID from ${id}`);
 					}
 					break;
-
-				default:
+				}
+				default: {
 					this.log.error(`Unhandled change of subscribed state: ${id} changed to ${state.val} (ack = ${state.ack})`);
+				}
 			}
 		}
 	}
