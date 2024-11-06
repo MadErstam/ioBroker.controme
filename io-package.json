@@ -1,8 +1,21 @@
 {
     "common": {
         "name": "controme",
-        "version": "0.4.7",
+        "version": "0.5.0",
         "news": {
+            "0.5.0": {
+				"en": "Added handling of temporary mode",
+				"de": "Zusätzlicher Umgang mit temporärem Modus",
+				"ru": "Добавлена обработка временного режима",
+				"pt": "Adicionado manuseio de modo temporário",
+				"nl": "Toegevoegde behandeling van tijdelijke modus",
+				"fr": "Ajout de la gestion du mode temporaire",
+				"it": "Gestione aggiuntiva della modalità temporanea",
+				"es": "Manejo adicional del modo temporal",
+				"pl": "Dodano obsługę trybu tymczasowego",
+				"uk": "Додана обробка тимчасового режиму",
+				"zh-cn": "添加临时模式的处理"
+			},
             "0.4.7": {
                 "en": "Moved admin translations to separate files",
                 "de": "Verschieben von Admin-Übersetzungen in separate Dateien",
