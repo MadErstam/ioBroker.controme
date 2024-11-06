@@ -7,11 +7,12 @@
     "user": "Nome de utilizador",
     "password": "Senha",
     "warnOnNull": "Mostrar avisos de log para valores de Null",
-    "gatewaySettings": "Definições de gateway", 
-    "gatewayMAC": "Endereço do Gateway MAC",   
-    "gatewayType": "Tipo de gateway",     
+    "gatewaySettings": "Definições de gateway",
+    "gatewayMAC": "Endereço do Gateway MAC",
+    "gatewayType": "Tipo de gateway",
     "gatewayName": "Nome do gateway",
     "gatewayIsUniversal": "O Gateway universal é?",
     "gatewayOutsID": "ID de saída",
-    "gatewayOutsName": "Nome de saída"
+    "gatewayOutsName": "Nome de saída",
+    "temp_duration": "Duração para configurações temporárias de temperatura"
 }

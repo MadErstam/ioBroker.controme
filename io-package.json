@@ -1,172 +1,186 @@
 {
-	"common": {
-		"name": "controme",
-		"version": "0.4.7",
-		"news": {
-			"0.4.7": {
-				"en": "Moved admin translations to separate files",
-				"de": "Verschieben von Admin-Übersetzungen in separate Dateien",
-				"ru": "Перемещение переводов администратора на отдельные файлы",
-				"pt": "Traduções de administração movidas para arquivos separados",
-				"nl": "Verplaatste administratieve vertalingen naar aparte bestanden",
-				"fr": "Translations admin déplacées vers des fichiers séparés",
-				"it": "Traduzioni di amministratore mobili per file separati",
-				"es": "Traducciones de administración móviles para archivos separados",
-				"pl": "Przesunięto tłumaczenia administratora do oddzielnych plików",
-				"uk": "Переміщені переклади адміністратора на окремі файли",
-				"zh-cn": "将管理员翻译移至单独的文件"
+    "common": {
+        "name": "controme",
+        "version": "0.5.0",
+        "news": {
+            "0.5.0": {
+				"en": "Added handling of temporary mode",
+				"de": "Zusätzlicher Umgang mit temporärem Modus",
+				"ru": "Добавлена обработка временного режима",
+				"pt": "Adicionado manuseio de modo temporário",
+				"nl": "Toegevoegde behandeling van tijdelijke modus",
+				"fr": "Ajout de la gestion du mode temporaire",
+				"it": "Gestione aggiuntiva della modalità temporanea",
+				"es": "Manejo adicional del modo temporal",
+				"pl": "Dodano obsługę trybu tymczasowego",
+				"uk": "Додана обробка тимчасового режиму",
+				"zh-cn": "添加临时模式的处理"
 			},
-			"0.4.6": {
-				"en": "Added translations of admin form to Ukrainian",
-				"de": "Übersetzungen von Admin-Formular ins Ukrainische hinzugefügt",
-				"ru": "Добавлены переводы административной формы на украинский",
-				"pt": "Adicionados traduções de formulário de admin para ucraniano",
-				"nl": "Toegevoegd vertalingen van admin formulier aan Oekraïens",
-				"fr": "Ajout de traductions du formulaire d'administration en ukrainien",
-				"it": "Aggiunte le traduzioni di forma di amministratore a ucraino",
-				"es": "Traducciones adicionales del formulario de administración a Ucrania",
-				"pl": "Dodano tłumaczenia formularza admin do ukraińskiego",
-				"uk": "Додано переклади форми адміністратора на українську",
-				"zh-cn": "添加管理表对乌克兰语的翻译"
-			},
-			"0.4.5": {
-				"en": "Cleaned up warnings of automated adapter checker",
-				"de": "Bereinigung von Warnungen des automatischen Adapter-Checkers",
-				"ru": "Очищенные предупреждения автоматизированного адаптера",
-				"pt": "Avisos limpos do verificador de adaptador automatizado",
-				"nl": "Waarschuwingen van automatische adaptercontrole opruimen",
-				"fr": "Désinfecter les avertissements du contrôleur d'adaptateur automatisé",
-				"it": "Avvertenze pulite dell'adattatore automatizzato checker",
-				"es": "Avisos de limpieza de la máquina de control de adaptador automatizada",
-				"pl": "Oczyszczone ostrzeżenia zautomatyzowanego sprawdzania adaptera",
-				"uk": "Очищені попередження автоматичної перевірки адаптера",
-				"zh-cn": "清理自动适配器检查器的警告"
-			},
-			"0.4.0": {
-				"en": "Extended API polling (temporary mode, humidity); Bugfixing",
-				"de": "Erweiterte API-Bestimmung (Zeitalter, Feuchtigkeit); Bugfixing",
-				"ru": "Расширенное голосование по API (временный режим, влажность)",
-				"pt": "Pesquisa de API estendida (modo temporário, umidade); Bugfixing",
-				"nl": "Uitgebreide API polling (tijdelijke modus, vochtigheid); Bugfixing",
-				"fr": "Sondage API étendu (mode temporaire, humidité); Correction de bug",
-				"it": "Extended API polling (modalità contemporanea, umidità); Bugfix",
-				"es": "Extensión de la API (modo temporal, humedad); Bugfixing",
-				"pl": "Rozszerzone sondaże API (tryb tymczasowy, wilgotność); ustalanie błędów",
-				"uk": "Розширене опитування API (тимчасовий режим, вологість); Виправлення помилок",
-				"zh-cn": "延长API 投票( 临时模式、 湿度); 错误修正"
-			}
-		},
-		"titleLang": {
-			"en": "Controme",
-			"de": "Controme",
-			"ru": "Controme",
-			"pt": "Controme",
-			"nl": "Controme",
-			"fr": "Controme",
-			"it": "Controme",
-			"es": "Controme",
-			"pl": "Controme",
-			"uk": "Controme",
-			"zh-cn": "Controme"
-		},
-		"desc": {
-			"en": "Connect to local Controme mini server that controls you home heating system",
-			"de": "Verbindet sich mit lokalem Controme Miniserver, der dein Heizungssystem steuert",
-			"ru": "Подключитесь к локальному мини-серверу Controme, который управляет вашей системой отопления дома",
-			"pt": "Conecte-se ao minisservidor local da Controme que controla o sistema de aquecimento doméstico",
-			"nl": "Maak verbinding met de lokale Controme-miniserver die uw verwarmingssysteem in huis regelt",
-			"fr": "Connectez-vous au mini-serveur Controme local qui contrôle votre système de chauffage domestique",
-			"it": "Collegati al mini server Controme locale che controlla il sistema di riscaldamento domestico",
-			"es": "Conéctese al mini servidor Controme local que controla el sistema de calefacción de su hogar",
-			"pl": "Połącz się z lokalnym mini serwerem Controme, który steruje systemem ogrzewania domu",
-			"uk": "Підключення до локальної мережі Міні-сервер Controme, який контролює систему домашнього опалення",			
-			"zh-cn": "连接到控制您的家庭供暖系统的本地Controme mini服务器"
-		},
-		"authors": [
-			"MadErstam <erstam@gmx.de>"
-		],
-		"mode": "daemon",
-		"platform": "Javascript/Node.js",
-		"loglevel": "info",
-		"keywords": [
-			"Heating",
-			"Controme",
-			"Floor heating",
-			"Radiator"
-		],
-		"preserveSettings": "custom",
-		"supportCustoms": false,
-		"getHistory": true,
-		"enabled": true,
-		"stopBeforeUpdate": true,
-		"compact": true,
-        "tier": 3,		
+            "0.4.7": {
+                "en": "Moved admin translations to separate files",
+                "de": "Verschieben von Admin-Übersetzungen in separate Dateien",
+                "ru": "Перемещение переводов администратора на отдельные файлы",
+                "pt": "Traduções de administração movidas para arquivos separados",
+                "nl": "Verplaatste administratieve vertalingen naar aparte bestanden",
+                "fr": "Translations admin déplacées vers des fichiers séparés",
+                "it": "Traduzioni di amministratore mobili per file separati",
+                "es": "Traducciones de administración móviles para archivos separados",
+                "pl": "Przesunięto tłumaczenia administratora do oddzielnych plików",
+                "uk": "Переміщені переклади адміністратора на окремі файли",
+                "zh-cn": "将管理员翻译移至单独的文件"
+            },
+            "0.4.6": {
+                "en": "Added translations of admin form to Ukrainian",
+                "de": "Übersetzungen von Admin-Formular ins Ukrainische hinzugefügt",
+                "ru": "Добавлены переводы административной формы на украинский",
+                "pt": "Adicionados traduções de formulário de admin para ucraniano",
+                "nl": "Toegevoegd vertalingen van admin formulier aan Oekraïens",
+                "fr": "Ajout de traductions du formulaire d'administration en ukrainien",
+                "it": "Aggiunte le traduzioni di forma di amministratore a ucraino",
+                "es": "Traducciones adicionales del formulario de administración a Ucrania",
+                "pl": "Dodano tłumaczenia formularza admin do ukraińskiego",
+                "uk": "Додано переклади форми адміністратора на українську",
+                "zh-cn": "添加管理表对乌克兰语的翻译"
+            },
+            "0.4.5": {
+                "en": "Cleaned up warnings of automated adapter checker",
+                "de": "Bereinigung von Warnungen des automatischen Adapter-Checkers",
+                "ru": "Очищенные предупреждения автоматизированного адаптера",
+                "pt": "Avisos limpos do verificador de adaptador automatizado",
+                "nl": "Waarschuwingen van automatische adaptercontrole opruimen",
+                "fr": "Désinfecter les avertissements du contrôleur d'adaptateur automatisé",
+                "it": "Avvertenze pulite dell'adattatore automatizzato checker",
+                "es": "Avisos de limpieza de la máquina de control de adaptador automatizada",
+                "pl": "Oczyszczone ostrzeżenia zautomatyzowanego sprawdzania adaptera",
+                "uk": "Очищені попередження автоматичної перевірки адаптера",
+                "zh-cn": "清理自动适配器检查器的警告"
+            },
+            "0.4.0": {
+                "en": "Extended API polling (temporary mode, humidity); Bugfixing",
+                "de": "Erweiterte API-Bestimmung (Zeitalter, Feuchtigkeit); Bugfixing",
+                "ru": "Расширенное голосование по API (временный режим, влажность)",
+                "pt": "Pesquisa de API estendida (modo temporário, umidade); Bugfixing",
+                "nl": "Uitgebreide API polling (tijdelijke modus, vochtigheid); Bugfixing",
+                "fr": "Sondage API étendu (mode temporaire, humidité); Correction de bug",
+                "it": "Extended API polling (modalità contemporanea, umidità); Bugfix",
+                "es": "Extensión de la API (modo temporal, humedad); Bugfixing",
+                "pl": "Rozszerzone sondaże API (tryb tymczasowy, wilgotność); ustalanie błędów",
+                "uk": "Розширене опитування API (тимчасовий режим, вологість); Виправлення помилок",
+                "zh-cn": "延长API 投票( 临时模式、 湿度); 错误修正"
+            }
+        },
+        "titleLang": {
+            "en": "Controme",
+            "de": "Controme",
+            "ru": "Controme",
+            "pt": "Controme",
+            "nl": "Controme",
+            "fr": "Controme",
+            "it": "Controme",
+            "es": "Controme",
+            "pl": "Controme",
+            "uk": "Controme",
+            "zh-cn": "Controme"
+        },
+        "desc": {
+            "en": "Connect to local Controme mini server that controls you home heating system",
+            "de": "Verbindet sich mit lokalem Controme Miniserver, der dein Heizungssystem steuert",
+            "ru": "Подключитесь к локальному мини-серверу Controme, который управляет вашей системой отопления дома",
+            "pt": "Conecte-se ao minisservidor local da Controme que controla o sistema de aquecimento doméstico",
+            "nl": "Maak verbinding met de lokale Controme-miniserver die uw verwarmingssysteem in huis regelt",
+            "fr": "Connectez-vous au mini-serveur Controme local qui contrôle votre système de chauffage domestique",
+            "it": "Collegati al mini server Controme locale che controlla il sistema di riscaldamento domestico",
+            "es": "Conéctese al mini servidor Controme local que controla el sistema de calefacción de su hogar",
+            "pl": "Połącz się z lokalnym mini serwerem Controme, który steruje systemem ogrzewania domu",
+            "uk": "Підключення до локальної мережі Міні-сервер Controme, який контролює систему домашнього опалення",
+            "zh-cn": "连接到控制您的家庭供暖系统的本地Controme mini服务器"
+        },
+        "authors": [
+            "MadErstam <erstam@gmx.de>"
+        ],
+        "mode": "daemon",
+        "platform": "Javascript/Node.js",
+        "loglevel": "info",
+        "keywords": [
+            "Heating",
+            "Controme",
+            "Floor heating",
+            "Radiator"
+        ],
+        "preserveSettings": "custom",
+        "supportCustoms": false,
+        "getHistory": true,
+        "enabled": true,
+        "stopBeforeUpdate": true,
+        "compact": true,
+        "tier": 3,
         "licenseInformation": {
             "type": "free",
             "license": "MIT"
-        },		
-		"readme": "https://github.com/MadErstam/ioBroker.controme/blob/master/README.md",
-		"icon": "controme.png",
-		"extIcon": "https://raw.githubusercontent.com/MadErstam/ioBroker.controme/main/admin/controme.png",
-		"type": "climate-control",
-		"dependencies": [
-			{
+        },
+        "readme": "https://github.com/MadErstam/ioBroker.controme/blob/master/README.md",
+        "icon": "controme.png",
+        "extIcon": "https://raw.githubusercontent.com/MadErstam/ioBroker.controme/main/admin/controme.png",
+        "type": "climate-control",
+        "dependencies": [
+            {
                 "js-controller": ">=6.0.11"
-			}
-		],
-		"connectionType": "local",
-		"dataSource": "poll",
-		"adminUI": {
-			"config": "json"
-		}
-	},
-	"encryptedNative": [
-		"password"
-	],
-	"protectedNative": [
-		"password"
-	],	
-	"native": {
-		"url": "192.168.178.",
-		"houseID": "1",
-		"interval": 60,
-		"forceReInit": false,
-		"user": "UserName",
-		"warnOnNull": true,
-		"password": "Password",
-		"gateways": {
-			"gatewayMAC": "A0-A0-A0-A0-A0-A0",
-			"gatewayType": "gwFloor",
-			"gatewayName": "Gateway Name"
-		},
-		"gatewayOuts": {
-			"gatewayOutsMAC": "A0-A0-A0-A0-A0-A0",
-			"gatewayOutsID": 1,
-			"gatewayOutsName": "Gateway Outout Name"
-		}
-	},
-	"objects": [],
-	"instanceObjects": [
-		{
-			"_id": "info",
-			"type": "channel",
-			"common": {
-				"name": "Information"
-			},
-			"native": {}
-		},
-		{
-			"_id": "info.connection",
-			"type": "state",
-			"common": {
-				"role": "indicator.connected",
-				"name": "Device or service connected",
-				"type": "boolean",
-				"read": true,
-				"write": false,
-				"def": false
-			},
-			"native": {}
-		}
-	]
+            }
+        ],
+        "connectionType": "local",
+        "dataSource": "poll",
+        "adminUI": {
+            "config": "json"
+        }
+    },
+    "encryptedNative": [
+        "password"
+    ],
+    "protectedNative": [
+        "password"
+    ],
+    "native": {
+        "url": "192.168.178.",
+        "houseID": "1",
+        "interval": 60,
+        "forceReInit": false,
+        "user": "UserName",
+        "warnOnNull": true,
+        "password": "Password",
+        "temp_duration": 60,
+        "gateways": {
+            "gatewayMAC": "A0-A0-A0-A0-A0-A0",
+            "gatewayType": "gwFloor",
+            "gatewayName": "Gateway Name"
+        },
+        "gatewayOuts": {
+            "gatewayOutsMAC": "A0-A0-A0-A0-A0-A0",
+            "gatewayOutsID": 1,
+            "gatewayOutsName": "Gateway Outout Name"
+        }
+    },
+    "objects": [],
+    "instanceObjects": [
+        {
+            "_id": "info",
+            "type": "channel",
+            "common": {
+                "name": "Information"
+            },
+            "native": {}
+        },
+        {
+            "_id": "info.connection",
+            "type": "state",
+            "common": {
+                "role": "indicator.connected",
+                "name": "Device or service connected",
+                "type": "boolean",
+                "read": true,
+                "write": false,
+                "def": false
+            },
+            "native": {}
+        }
+    ]
 }

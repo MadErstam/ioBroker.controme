@@ -13,5 +13,6 @@
     "gatewayName": "Naam poort",
     "gatewayIsUniversal": "Is universele Gateway?",
     "gatewayOutsID": "Uitvoer-ID",
-    "gatewayOutsName": "Uitvoernaam"
+    "gatewayOutsName": "Uitvoernaam",
+    "temp_duration": "Duur voor tijdelijke temperatuurinstellingen"
 }

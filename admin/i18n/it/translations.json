@@ -1,6 +1,6 @@
 {
     "Controme adapter settings": "Impostazioni dell'adattatore per Controme",
-    "url":  "URL del mini server",
+    "url": "URL del mini server",
     "houseID": "ID casa",
     "interval": "Intervallo di aggiornamento [s]",
     "forceReInit": "Riavviare le camere al prossimo inizio",
@@ -13,5 +13,6 @@
     "gatewayName": "Nome del gateway",
     "gatewayIsUniversal": "È universale Gateway?",
     "gatewayOutsID": "ID di uscita",
-    "gatewayOutsName": "Nome di uscita"
+    "gatewayOutsName": "Nome di uscita",
+    "temp_duration": "Durata per le impostazioni temporanee della temperatura"
 }

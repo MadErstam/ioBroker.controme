@@ -12,5 +12,7 @@
     "gatewayName": "Nom de la passerelle",
     "gatewayIsUniversal": "La passerelle universelle ?",
     "gatewayOutsID": "ID de sortie",
-    "gatewayOutsName": "Nom de la sortie"
+    "gatewayOutsName": "Nom de la sortie",
+    "interval": "Intervalle de mise à jour [s]",
+    "temp_duration": "Durée des réglages de température temporaires"
 }
