@@ -321,7 +321,7 @@ class Controme extends utils.Adapter {
 
 	objSafeName(name) {
 		// Some characters are not allowed to be used as part of an object id. Replace chars from constant adapter.FORBIDDEN_CHARS.
-		return (name || '').replace(this.FORBIDDEN_CHARS, '_');
+		return (name || "").replace(this.FORBIDDEN_CHARS, "_");
 	}
 
 	_createOffsetsForRoom(room) {
