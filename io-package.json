@@ -1,8 +1,21 @@
 {
     "common": {
         "name": "controme",
-        "version": "0.5.1",
+        "version": "0.5.2",
         "news": {
+            "0.5.2": {
+                "en": "Make object IDs for offsets safe",
+                "de": "Objekt-IDs für Offsets sicher machen",
+                "ru": "Сделать идентификаторы объектов для офсетов",
+                "pt": "Faça IDs de objetos para deslocamentos seguros",
+                "nl": "Object-ID's voor offsets veilig maken",
+                "fr": "Sécuriser les identifiants des objets pour les offsets",
+                "it": "Rendere gli ID degli oggetti per gli offset sicuri",
+                "es": "Haga ID de objeto para offsets seguro",
+                "pl": "Zrobić identyfikatory obiektów dla bezpiecznych offsetów",
+                "uk": "Зробіть ідентифікатори об'єкта для сейфів",
+                "zh-cn": "使对象ID安全"
+            },
             "0.5.1": {
                 "en": "Minor Bugfixing",
                 "de": "Minor Bugfixing",
