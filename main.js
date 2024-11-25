@@ -319,6 +319,11 @@ class Controme extends utils.Adapter {
 		return true;
 	}
 
+	objSafeName(name) {
+		// Some characters are not allowed to be used as part of an object id. Replace chars from constant adapter.FORBIDDEN_CHARS.
+		return (name || '').replace(this.FORBIDDEN_CHARS, '_');
+	}
+
 	_createOffsetsForRoom(room) {
 		const promises = [];
 		for (const offset in room.offsets) {
@@ -328,10 +333,11 @@ class Controme extends utils.Adapter {
 						// if offset object is not empty, we create the relevant object structure
 						promises.push(this.setObjectNotExistsAsync(room.id + ".offsets." + offset, { type: "channel", common: { name: room.name + " offset " + offset }, native: {} }));
 						for (const offset_item in room.offsets[offset]) {
+							// offset_item might contain unsafe characters
 							if (Object.prototype.hasOwnProperty.call(room.offsets[offset], offset_item)) {
-								this.log.silly(`Creating offset objects for room ${room.id}: Offset ${offset}.${offset_item}`);
-								// all states for offset channel api should be read-write, else read-only
-								promises.push(this.setObjectNotExistsAsync(room.id + ".offsets." + offset + "." + offset_item, { type: "state", common: { name: room.name + " offset " + offset + " " + offset_item, type: "number", unit: "°C", role: "value", read: true, write: (offset == "api") }, native: {} }));
+								this.log.silly(`Creating offset objects for room ${room.id}: Offset ${offset}.${this.objSafeName(offset_item)}`);
+								// all states for offset channel "api" should be read-write, else read-only
+								promises.push(this.setObjectNotExistsAsync(room.id + ".offsets." + this.objSafeName(offset) + "." + this.objSafeName(offset_item), { type: "state", common: { name: room.name + " offset " + offset + " " + offset_item, type: "number", unit: "°C", role: "value", read: true, write: (offset == "api") }, native: {} }));
 							}
 						}
 					} else if (offset == "api") {
@@ -666,7 +672,7 @@ class Controme extends utils.Adapter {
 			if (Object.prototype.hasOwnProperty.call(offsetObject, offsetItemKey)) {
 				const value = roundTo(parseFloat(offsetObject[offsetItemKey]), 2);
 				this.log.silly(`Updating room ${room.id}: Offset ${offsetKey}.${offsetItemKey} to ${value} °C`);
-				promises.push(this.setStateChangedAsync(`${room.id}.offsets.${offsetKey}.${offsetItemKey}`, value, true));
+				promises.push(this.setStateChangedAsync(`${room.id}.offsets.${this.objSafeName(offsetKey)}.${this.objSafeName(offsetItemKey)}`, value, true));
 			}
 		}
 
