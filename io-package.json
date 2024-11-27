@@ -150,9 +150,14 @@
         "type": "climate-control",
         "dependencies": [
             {
-                "js-controller": ">=6.0.11"
+                "js-controller": ">=5.0.19"
             }
         ],
+        "globalDependencies": [
+            {
+              "admin": ">=6.17.14"
+            }
+        ],        
         "connectionType": "local",
         "dataSource": "poll",
         "adminUI": {
