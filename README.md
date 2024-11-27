@@ -23,7 +23,7 @@ The adapter periodically reads the room temperatures from the mini server as wel
 
 The adapter provides the following data for each room defined in the Controme UI:
 | Object | Type | Description | read/write |
-| --- | --- | --- |
+| --- | --- | --- | --- |
 | roomID | device | Each room is represented with its Controme room ID and the room name as device name. | |
 | roomID.actualTemperature | state | The actual temperature of the room, with a role of level.temperature. This state is read-only. If no room temperature sensor for a particular room is defined, the actual temperature returned from the Controme mini server is null. | read |
 | roomID.humidity | state | The humidity of the room, with a role of level.humidity. This state is read-only. If the sensor for the room does not detect humidity, this state is null. | read |

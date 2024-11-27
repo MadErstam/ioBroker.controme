@@ -135,7 +135,7 @@
         ],
         "preserveSettings": "custom",
         "supportCustoms": false,
-        "getHistory": true,
+        "getHistory": false,
         "enabled": true,
         "stopBeforeUpdate": true,
         "compact": true,

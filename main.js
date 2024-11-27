@@ -30,9 +30,9 @@ class Controme extends utils.Adapter {
 		this.on("ready", this.onReady.bind(this));
 		this.on("stateChange", this.onStateChange.bind(this));
 		// this.on("objectChange", this.onObjectChange.bind(this));
-		this.on("message", this.onMessage.bind(this));
+		// this.on("message", this.onMessage.bind(this));
 		// this.on("message", obj => {
-		// 	this.log.debug(`Message received: ${JSON.stringify(obj)}`)
+		// this.log.debug(`Message received: ${JSON.stringify(obj)}`)
 		// });
 		this.on("unload", this.onUnload.bind(this));
 	}
@@ -45,7 +45,7 @@ class Controme extends utils.Adapter {
 		await this.setState("info.connection", { val: false, ack: true });
 
 		// Set up poll interval and logging
-		const pollInterval = (Number.isInteger(this.config.interval) && this.config.interval > 15) ? this.config.interval : 15;
+		const pollInterval = Math.min((Number.isInteger(this.config.interval) && this.config.interval > 15) ? this.config.interval : 15, 3600000); // pollInterval determines how often the server is polled; we set it to at least once per hour to also keep in line with technical limitations.
 		this.temporary_mode_default_duration = Number.isInteger(this.config.temp_duration) ? this.config.temp_duration : 60;
 		this.log.debug(`Controme URL: ${this.config.url}; houseID: ${this.config.houseID}; user: ${this.config.user}; update interval: ${pollInterval}; warnOnNull: ${this.config.warnOnNull}`);
 
@@ -103,7 +103,7 @@ class Controme extends utils.Adapter {
 		this._updateIntervalFunction();
 
 		// Set up periodic polling
-		this.updateInterval = setInterval(this._updateIntervalFunction.bind(this), pollInterval * 1000);
+		this.updateInterval = this.setInterval(this._updateIntervalFunction.bind(this), pollInterval * 1000);
 	}
 
 	// Function to subscribe to all relevant states for updates
@@ -115,6 +115,7 @@ class Controme extends utils.Adapter {
 		this.subscribeStates("*.offsets.*");
 	}
 
+	/*
 	async onMessage(obj) {
 		if (isObject(obj)) {
 			this.log.debug(`onMessage called with obj: ${JSON.stringify(obj)}`);
@@ -129,6 +130,7 @@ class Controme extends utils.Adapter {
 		// 	}
 		// }
 	}
+	*/
 
 	_updateIntervalFunction() {
 		// Poll API, unless server is in error mode
@@ -143,9 +145,9 @@ class Controme extends utils.Adapter {
 
 	async _delayPollingFunction() {
 		this.delayPolling = true;
-		this.delayPollingTimeout = setTimeout(() => {
+		this.delayPollingTimeout = this.setTimeout(() => {
 			this.delayPolling = false;
-		}, this.delayPollingCounter * 60 * 1000);
+		}, this.delayPollingCounter * 60 * 1000); // delayPollingCounter is max 10, so timeout is max 600,000 ms = 10 minutes
 		this.delayPollingCounter < 10 ? this.delayPollingCounter++ : this.delayPollingCounter = 10;
 		await this.setState("info.connection", { val: false, ack: true });
 		this.log.error(`Error in polling data from Controme mini server; will retry in ${this.delayPollingCounter} minutes.`);
@@ -280,7 +282,7 @@ class Controme extends utils.Adapter {
 		promises.push(this.setObjectNotExistsAsync(room.id + ".temporary_mode_remaining", { type: "state", common: { name: room.name + "  temporary mode remaining time ", type: "number", unit: "s", role: "level.timer", read: true, write: true }, native: {} }));
 		promises.push(this.setObjectNotExistsAsync(room.id + ".temporary_mode_end", { type: "state", common: { name: room.name + "  temporary mode end time ", type: "number", unit: "", role: "value.datetime", read: true, write: false }, native: {} }));
 		promises.push(this.setObjectNotExistsAsync(room.id + ".humidity", { type: "state", common: { name: room.name + " humidity", type: "number", unit: "%", role: "value.humidity", read: true, write: false }, native: {} }));
-		promises.push(this.setObjectNotExistsAsync(room.id + ".mode", { type: "state", common: { name: room.name + " operating mode", type: "string", unit: "", role: "level.mode", read: true, write: false }, native: {} }));
+		promises.push(this.setObjectNotExistsAsync(room.id + ".mode", { type: "state", common: { name: room.name + " operating mode", type: "string", unit: "", role: "state", read: true, write: false }, native: {} }));
 		promises.push(this.setObjectNotExistsAsync(room.id + ".sensors", { type: "channel", common: { name: room.name + " sensors" }, native: {} }));
 		promises.push(this.setObjectNotExistsAsync(room.id + ".offsets", { type: "channel", common: { name: room.name + " offsets" }, native: {} }));
 		promises.push(this.setObjectNotExistsAsync(room.id + ".outputs", { type: "channel", common: { name: room.name + " outputs" }, native: {} }));
@@ -337,7 +339,7 @@ class Controme extends utils.Adapter {
 							if (Object.prototype.hasOwnProperty.call(room.offsets[offset], offset_item)) {
 								this.log.silly(`Creating offset objects for room ${room.id}: Offset ${offset}.${this.objSafeName(offset_item)}`);
 								// all states for offset channel "api" should be read-write, else read-only
-								promises.push(this.setObjectNotExistsAsync(room.id + ".offsets." + this.objSafeName(offset) + "." + this.objSafeName(offset_item), { type: "state", common: { name: room.name + " offset " + offset + " " + offset_item, type: "number", unit: "°C", role: "value", read: true, write: (offset == "api") }, native: {} }));
+								promises.push(this.setObjectNotExistsAsync(room.id + ".offsets." + this.objSafeName(offset) + "." + this.objSafeName(offset_item), { type: "state", common: { name: room.name + " offset " + offset + " " + offset_item, type: "number", unit: "°C", role: (offset == "api" ? "level" : "value"), read: true, write: (offset == "api") }, native: {} }));
 							}
 						}
 					} else if (offset == "api") {
@@ -345,7 +347,7 @@ class Controme extends utils.Adapter {
 						// this.log.silly(`Creating object structure for offset object ${offset}`);
 						this.log.silly(`Creating offset objects for room ${room.id}: Offset ${offset}.api`);
 						promises.push(this.setObjectNotExistsAsync(room.id + ".offsets.api", { type: "channel", common: { name: room.name + " offset api" }, native: {} }));
-						promises.push(this.setObjectNotExistsAsync(room.id + ".offsets.api.raum", { type: "state", common: { name: room.name + " offset api raum", type: "number", unit: "°C", role: "value", read: true, write: true }, native: {} }));
+						promises.push(this.setObjectNotExistsAsync(room.id + ".offsets.api.raum", { type: "state", common: { name: room.name + " offset api raum", type: "number", unit: "°C", role: "level", read: true, write: true }, native: {} }));
 					}
 				}
 			}
@@ -356,7 +358,7 @@ class Controme extends utils.Adapter {
 			// this.log.silly(`Creating object structure for offset object ${offset}`);
 			this.log.info(`Creating objects for room ${room.id}: Offset api.api`);
 			promises.push(this.setObjectNotExistsAsync(room.id + ".offsets.api", { type: "channel", common: { name: room.name + " offset api" }, native: {} }));
-			promises.push(this.setObjectNotExistsAsync(room.id + ".offsets.api.raum", { type: "state", common: { name: room.name + " offset api raum", type: "number", unit: "°C", role: "value", read: true, write: true }, native: {} }));
+			promises.push(this.setObjectNotExistsAsync(room.id + ".offsets.api.raum", { type: "state", common: { name: room.name + " offset api raum", type: "number", unit: "°C", role: "level", read: true, write: true }, native: {} }));
 		}
 		return Promise.all(promises);
 	}
@@ -382,14 +384,14 @@ class Controme extends utils.Adapter {
 						promises.push(this.setObjectNotExistsAsync(`${roomID}.sensors.${sensor.name}.motion`, { type: "state", common: { name: sensor.beschreibung + " motion", type: "boolean", role: "sensor.motion", read: true, write: false }, native: {} }));
 						break;
 					case "Temperatur":
-						promises.push(this.setObjectNotExistsAsync(`${roomID}.sensors.${sensor.name}.actualTemperature`, { type: "state", common: { name: sensor.beschreibung + " actual temperature", type: "number", unit: "°C", role: "value.temperature", read: true, write: true }, native: {} }));
+						promises.push(this.setObjectNotExistsAsync(`${roomID}.sensors.${sensor.name}.actualTemperature`, { type: "state", common: { name: sensor.beschreibung + " actual temperature", type: "number", unit: "°C", role: "level.temperature", read: true, write: true }, native: {} }));
 						break;
 					default:
-						promises.push(this.setObjectNotExistsAsync(`${roomID}.sensors.${sensor.name}.${key}`, { type: "state", common: { name: `${sensor.beschreibung} ${key}`, type: "number", unit: "", role: "value", read: true, write: true }, native: {} }));
+						promises.push(this.setObjectNotExistsAsync(`${roomID}.sensors.${sensor.name}.${key}`, { type: "state", common: { name: `${sensor.beschreibung} ${key}`, type: "number", unit: "", role: "level", read: true, write: true }, native: {} }));
 				}
 			}
 		} else {
-			promises.push(this.setObjectNotExistsAsync(roomID + ".sensors." + sensor.name + ".actualTemperature", { type: "state", common: { name: sensor.beschreibung + " actual temperature", type: "number", unit: "°C", role: "value.temperature", read: true, write: true }, native: {} }));
+			promises.push(this.setObjectNotExistsAsync(roomID + ".sensors." + sensor.name + ".actualTemperature", { type: "state", common: { name: sensor.beschreibung + " actual temperature", type: "number", unit: "°C", role: "level.temperature", read: true, write: true }, native: {} }));
 		}
 		return Promise.all(promises);
 	}
@@ -595,25 +597,6 @@ class Controme extends utils.Adapter {
 		return fullId.substring(fullId.lastIndexOf(".") + 1);
 	}
 
-
-	/*
-
-		promises.push(this.setObjectNotExistsAsync(room.id.toString(), { type: "device", common: { name: room.name }, native: {} }));
-		promises.push(this.setObjectNotExistsAsync(room.id + ".actualTemperature", { type: "state", common: { name: room.name + " actual temperature", type: "number", unit: "°C", role: "value.temperature", read: true, write: false }, native: {} }));
-		promises.push(this.setObjectNotExistsAsync(room.id + ".setpointTemperature", { type: "state", common: { name: room.name + " setpoint temperature", type: "number", unit: "°C", role: "level.temperature", read: true, write: true }, native: {} }));
-		promises.push(this.setObjectNotExistsAsync(room.id + ".temperatureOffset", { type: "state", common: { name: room.name + " temperature offset", type: "number", unit: "°C", role: "value", read: true, write: false }, native: {} }));
-		promises.push(this.setObjectNotExistsAsync(room.id + ".setpointTemperaturePerm", { type: "state", common: { name: room.name + " permanent setpoint temperature", type: "number", unit: "°C", role: "level.temperature", read: true, write: true }, native: {} }));
-		promises.push(this.setObjectNotExistsAsync(room.id + ".is_temporary_mode", { type: "state", common: { name: room.name + " is in temporary mode", type: "boolean", unit: "", role: "indicator", read: true, write: false }, native: {} }));
-		promises.push(this.setObjectNotExistsAsync(room.id + ".temporary_mode_remaining", { type: "state", common: { name: room.name + "  temporary mode remaining time ", type: "number", unit: "s", role: "value.interval", read: true, write: false }, native: {} }));
-		promises.push(this.setObjectNotExistsAsync(room.id + ".temporary_mode_end", { type: "state", common: { name: room.name + "  temporary mode end time ", type: "string", unit: "", role: "value.datetime", read: true, write: false }, native: {} }));
-		promises.push(this.setObjectNotExistsAsync(room.id + ".humidity", { type: "state", common: { name: room.name + " humidity", type: "number", unit: "%", role: "value.humidity", read: true, write: false }, native: {} }));
-		promises.push(this.setObjectNotExistsAsync(room.id + ".mode", { type: "state", common: { name: room.name + " operating mode", type: "string", unit: "", role: "level.mode", read: true, write: false }, native: {} }));
-		promises.push(this.setObjectNotExistsAsync(room.id + ".sensors", { type: "channel", common: { name: room.name + " sensors" }, native: {} }));
-		promises.push(this.setObjectNotExistsAsync(room.id + ".offsets", { type: "channel", common: { name: room.name + " offsets" }, native: {} }));
-		promises.push(this.setObjectNotExistsAsync(room.id + ".outputs", { type: "channel", common: { name: room.name + " outputs" }, native: {} }));
-
-	*/
-
 	_updateRoom(room) {
 		const promises = [];
 		this.log.silly(`Updating room ${room.id} (${room.name}): Actual temperature ${roundTo(parseFloat(room.temperatur), 2)} °C, setpoint temperature ${roundTo(parseFloat(room.solltemperatur), 2)} °C, temperature offset ${roundTo(parseFloat(room.total_offset), 2)} °C`);
@@ -761,8 +744,8 @@ class Controme extends utils.Adapter {
 		try {
 			this.log.debug("Stopping update interval.");
 			// Here you must clear all timeouts or intervals that may still be active
-			if (this.updateInterval != null) { clearInterval(this.updateInterval); }
-			if (typeof this.delayPollingTimeout === "number") { clearTimeout(this.delayPollingTimeout); }
+			if (this.updateInterval != null) { this.clearInterval(this.updateInterval); }
+			if (typeof this.delayPollingTimeout === "number") { this.clearTimeout(this.delayPollingTimeout); }
 			callback();
 		} catch (e) {
 			callback();
