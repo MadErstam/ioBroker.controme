@@ -44,12 +44,12 @@ The adapter provides the following data for each room defined in the Controme UI
 | roomID.sensors.[SENSOR-ID].isRoomTemperatureSensor | state | This boolean state indicates if a sensor is used as room temperature sensor. For each room, only a single sensor can be used as room temperature sensor. | read |
 | roomID.sensors.[SENSOR-ID].actualTemperature | state | This state represents the actual temperature measured by the sensor. The state is read/write, but only 1Wire sensors or virtual sensors will accept the provided values. In case you write a value to a real sensor, the value will be overwritten when the next reading is done. | read/write |
 | roomID.outputs | channel | Outputs typically control valves that control the room's heating. This channel groups all outputs assigned to the respective room. | |
-| roomID.outputs.[OUTPUT-ID] | state | Each output is represented by a state within the output channel of the room it belongs to. The output ID number represents the number of the output on the gateway. |
-| gatewayMAC | device | Each gateway is represented with its MAC address and the gateway name as device name. |
-| gatewayMAC.gatewayType | state | The type of the gateway. Currently, there are four controme gateways: floor gateway smart, floor gateway pro, universal gateway mini, universal gateway pro. |
+| roomID.outputs.[OUTPUT-ID] | state | Each output is represented by a state within the output channel of the room it belongs to. The output ID number represents the number of the output on the gateway. | read |
+| gatewayMAC | device | Each gateway is represented with its MAC address and the gateway name as device name. | |
+| gatewayMAC.gatewayType | state | The type of the gateway. Currently, there are four controme gateways: floor gateway smart, floor gateway pro, universal gateway mini, universal gateway pro. | read |
 | gatewayMAC.isUniversal | state | Indicates if gateway is one of the universal gateways. Data from universal gateways need to be polled in a different way. |
-| gatewayMAC.outputs | channel | Outputs typically control valves that control the room's heating for floor gateways or devices in the heating room (pumps, valves). This channel groups all outputs of the respective gateway. |
-| gatewayMAC.outputs.[OUTPUT-ID] | state | Each output is represented by a state within the output channel of the gateway it is assigned to. The output ID number represents the number of the output on the gateway as setup in the configuration. |
+| gatewayMAC.outputs | channel | Outputs typically control valves that control the room's heating for floor gateways or devices in the heating room (pumps, valves). This channel groups all outputs of the respective gateway. | read |
+| gatewayMAC.outputs.[OUTPUT-ID] | state | Each output is represented by a state within the output channel of the gateway it is assigned to. The output ID number represents the number of the output on the gateway as setup in the configuration. | read |
 
 
 The [API documentation](https://support.controme.com/api/) can be found on the Controme website.
@@ -92,6 +92,9 @@ To start the adapter, the following data need to be provided in the admin settin
   Placeholder for the next version (at the beginning of the line):
   ### **WORK IN PROGRESS**
 -->
+### 0.5.3 (2024-11-27)
+* (MadErstam) Various smaller bugfixes and improvements
+
 ### 0.5.2 (2024-11-25)
 * (MadErstam) Make object IDs for offsets safe
 

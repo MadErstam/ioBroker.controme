@@ -1,8 +1,21 @@
 {
     "common": {
         "name": "controme",
-        "version": "0.5.2",
+        "version": "0.5.3",
         "news": {
+            "0.5.3": {
+                "en": "Various smaller bugfixes and improvements",
+                "de": "Diverse kleinere Bugfixes und Verbesserungen",
+                "ru": "Различные мелкие исправления и улучшения.",
+                "pt": "Várias pequenas correções de bugs e melhorias",
+                "nl": "Diverse kleinere bugfixes en verbeteringen",
+                "fr": "Diverses corrections de bugs et améliorations plus petites",
+                "it": "Varie correzioni di bug e miglioramenti minori",
+                "es": "Varias correcciones de errores y mejoras más pequeñas",
+                "pl": "Różne mniejsze poprawki i ulepszenia",
+                "uk": "Різні менші виправлення помилок і покращення",
+                "zh-cn": "各种较小的错误修复和改进"
+            },
             "0.5.2": {
                 "en": "Make object IDs for offsets safe",
                 "de": "Objekt-IDs für Offsets sicher machen",
@@ -30,18 +43,18 @@
                 "zh-cn": "小错误修正"
             },
             "0.5.0": {
-				"en": "Added handling of temporary mode",
-				"de": "Zusätzlicher Umgang mit temporärem Modus",
-				"ru": "Добавлена обработка временного режима",
-				"pt": "Adicionado manuseio de modo temporário",
-				"nl": "Toegevoegde behandeling van tijdelijke modus",
-				"fr": "Ajout de la gestion du mode temporaire",
-				"it": "Gestione aggiuntiva della modalità temporanea",
-				"es": "Manejo adicional del modo temporal",
-				"pl": "Dodano obsługę trybu tymczasowego",
-				"uk": "Додана обробка тимчасового режиму",
-				"zh-cn": "添加临时模式的处理"
-			},
+                "en": "Added handling of temporary mode",
+                "de": "Zusätzlicher Umgang mit temporärem Modus",
+                "ru": "Добавлена обработка временного режима",
+                "pt": "Adicionado manuseio de modo temporário",
+                "nl": "Toegevoegde behandeling van tijdelijke modus",
+                "fr": "Ajout de la gestion du mode temporaire",
+                "it": "Gestione aggiuntiva della modalità temporanea",
+                "es": "Manejo adicional del modo temporal",
+                "pl": "Dodano obsługę trybu tymczasowego",
+                "uk": "Додана обробка тимчасового режиму",
+                "zh-cn": "添加临时模式的处理"
+            },
             "0.4.7": {
                 "en": "Moved admin translations to separate files",
                 "de": "Verschieben von Admin-Übersetzungen in separate Dateien",
@@ -155,9 +168,9 @@
         ],
         "globalDependencies": [
             {
-              "admin": ">=6.17.14"
+                "admin": ">=6.17.14"
             }
-        ],        
+        ],
         "connectionType": "local",
         "dataSource": "poll",
         "adminUI": {
