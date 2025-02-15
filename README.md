@@ -92,6 +92,10 @@ To start the adapter, the following data need to be provided in the admin settin
   Placeholder for the next version (at the beginning of the line):
   ### **WORK IN PROGRESS**
 -->
+### 0.5.3 (2025-02-15)
+* (MadErstam) Made sensor names safe
+* (MadErstam) Bugfixing in getOutputs
+
 ### 0.5.3 (2024-11-27)
 * (MadErstam) Various smaller bugfixes and improvements
 
