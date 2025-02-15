@@ -958,14 +958,18 @@ class Controme extends utils.Adapter {
         const url = `http://${this.config.url}/get/${gateway.gatewayMAC}/all/`;
         const outputs = await this.getStatesOfAsync(`${this.namespace}.${gateway.gatewayMAC}`, 'outputs');
 
-        const response = await got.get(url);
-        const outputValues = this._parseGatewayOutputValues(response.body);
+        try {
+            const response = await got.get(url);
+            const outputValues = this._parseGatewayOutputValues(response.body);
 
-        for (const [, output] of outputs.entries()) {
-            const outputID = this._extractOutputID(output._id);
-            const value = parseFloat(outputValues[parseInt(outputID) - 1]);
-            await this.setState(output._id, value, true);
-            this.log.silly(`Setting gateway output ${gateway.gatewayMAC}:${outputID} to ${value}`);
+            for (const [, output] of outputs.entries()) {
+                const outputID = this._extractOutputID(output._id);
+                const value = parseFloat(outputValues[parseInt(outputID) - 1]);
+                await this.setState(output._id, value, true);
+                this.log.silly(`Setting gateway output ${gateway.gatewayMAC}:${outputID} to ${value}`);
+            }
+        } catch (error) {
+            this.log.error(`Error polling outputs for gateway ${gateway.gatewayMAC}: ${error}`);
         }
     }
 

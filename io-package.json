@@ -3,6 +3,19 @@
         "name": "controme",
         "version": "0.5.3",
         "news": {
+            "0.5.4": {
+                "en": "Bugfixing and dependency updates",
+                "de": "Fehler- und Abhängigkeits -Updates",
+                "ru": "ОБНОВЛЕНИЯ ОБЩЕСТВЕННОГ",
+                "pt": "Atualizações de correção e dependência",
+                "nl": "Bugfixing- en afhankelijkheidsupdates",
+                "fr": "Mises à jour de fixe de bug et de dépendance",
+                "it": "Bugfix e aggiornamenti di dipendenza",
+                "es": "Actualizaciones de corrección de errores y dependencia",
+                "pl": "Aktualizacje konfiguracji i aktualizacji zależności",
+                "uk": "Оновлення помилок та залежності",
+                "zh-cn": "错误修正和依赖项更新"
+            },
             "0.5.3": {
                 "en": "Various smaller bugfixes and improvements",
                 "de": "Diverse kleinere Bugfixes und Verbesserungen",
@@ -29,19 +42,6 @@
                 "uk": "Зробіть ідентифікатори об'єкта для сейфів",
                 "zh-cn": "使对象ID安全"
             },
-            "0.5.1": {
-                "en": "Minor Bugfixing",
-                "de": "Minor Bugfixing",
-                "ru": "Незначительный значок",
-                "pt": "Bugfixing menor",
-                "nl": "Kleine bugfixing",
-                "fr": "Correction mineure des bugs",
-                "it": "Minor Bugfixing",
-                "es": "Bugfixing menor",
-                "pl": "Niewielkie ustawianie błędów",
-                "uk": "Виправлення помилок",
-                "zh-cn": "小错误修正"
-            },
             "0.5.0": {
                 "en": "Added handling of temporary mode",
                 "de": "Zusätzlicher Umgang mit temporärem Modus",
@@ -54,45 +54,6 @@
                 "pl": "Dodano obsługę trybu tymczasowego",
                 "uk": "Додана обробка тимчасового режиму",
                 "zh-cn": "添加临时模式的处理"
-            },
-            "0.4.7": {
-                "en": "Moved admin translations to separate files",
-                "de": "Verschieben von Admin-Übersetzungen in separate Dateien",
-                "ru": "Перемещение переводов администратора на отдельные файлы",
-                "pt": "Traduções de administração movidas para arquivos separados",
-                "nl": "Verplaatste administratieve vertalingen naar aparte bestanden",
-                "fr": "Translations admin déplacées vers des fichiers séparés",
-                "it": "Traduzioni di amministratore mobili per file separati",
-                "es": "Traducciones de administración móviles para archivos separados",
-                "pl": "Przesunięto tłumaczenia administratora do oddzielnych plików",
-                "uk": "Переміщені переклади адміністратора на окремі файли",
-                "zh-cn": "将管理员翻译移至单独的文件"
-            },
-            "0.4.6": {
-                "en": "Added translations of admin form to Ukrainian",
-                "de": "Übersetzungen von Admin-Formular ins Ukrainische hinzugefügt",
-                "ru": "Добавлены переводы административной формы на украинский",
-                "pt": "Adicionados traduções de formulário de admin para ucraniano",
-                "nl": "Toegevoegd vertalingen van admin formulier aan Oekraïens",
-                "fr": "Ajout de traductions du formulaire d'administration en ukrainien",
-                "it": "Aggiunte le traduzioni di forma di amministratore a ucraino",
-                "es": "Traducciones adicionales del formulario de administración a Ucrania",
-                "pl": "Dodano tłumaczenia formularza admin do ukraińskiego",
-                "uk": "Додано переклади форми адміністратора на українську",
-                "zh-cn": "添加管理表对乌克兰语的翻译"
-            },
-            "0.4.5": {
-                "en": "Cleaned up warnings of automated adapter checker",
-                "de": "Bereinigung von Warnungen des automatischen Adapter-Checkers",
-                "ru": "Очищенные предупреждения автоматизированного адаптера",
-                "pt": "Avisos limpos do verificador de adaptador automatizado",
-                "nl": "Waarschuwingen van automatische adaptercontrole opruimen",
-                "fr": "Désinfecter les avertissements du contrôleur d'adaptateur automatisé",
-                "it": "Avvertenze pulite dell'adattatore automatizzato checker",
-                "es": "Avisos de limpieza de la máquina de control de adaptador automatizada",
-                "pl": "Oczyszczone ostrzeżenia zautomatyzowanego sprawdzania adaptera",
-                "uk": "Очищені попередження автоматичної перевірки адаптера",
-                "zh-cn": "清理自动适配器检查器的警告"
             },
             "0.4.0": {
                 "en": "Extended API polling (temporary mode, humidity); Bugfixing",
