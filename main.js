@@ -645,16 +645,18 @@ class Controme extends utils.Adapter {
 
     _createSensorsForRoom(roomID, sensor) {
         const promises = [];
-        this.log.silly(`Creating sensor objects for room ${roomID}: Sensor ${sensor.name} (${sensor.beschreibung})`);
+        this.log.silly(`Creating sensor objects for room ${roomID}: Sensor ${this.objSafeName(sensor.name)} (${sensor.beschreibung})`);
         promises.push(
-            this.setObjectNotExistsAsync(`${roomID}.sensors.${sensor.name}`, {
+            this.setObjectNotExistsAsync(`${roomID}.sensors.${this.objSafeName(sensor.name)}`, {
                 type: 'device',
-                common: { name: sensor.beschreibung },
+                common: { 
+                    name: `${sensor.beschreibung}`
+                },
                 native: {},
             }),
         );
         promises.push(
-            this.setObjectNotExistsAsync(`${roomID}.sensors.${sensor.name}.isRoomTemperatureSensor`, {
+            this.setObjectNotExistsAsync(`${roomID}.sensors.${this.objSafeName(sensor.name)}.isRoomTemperatureSensor`, {
                 type: 'state',
                 common: {
                     name: `${sensor.beschreibung} is room temperature sensor`,
@@ -674,7 +676,7 @@ class Controme extends utils.Adapter {
                 switch (key) {
                     case 'Helligkeit':
                         promises.push(
-                            this.setObjectNotExistsAsync(`${roomID}.sensors.${sensor.name}.brightness`, {
+                            this.setObjectNotExistsAsync(`${roomID}.sensors.${this.objSafeName(sensor.name)}.brightness`, {
                                 type: 'state',
                                 common: {
                                     name: `${sensor.beschreibung} brightness`,
@@ -690,7 +692,7 @@ class Controme extends utils.Adapter {
                         break;
                     case 'Relative Luftfeuchte':
                         promises.push(
-                            this.setObjectNotExistsAsync(`${roomID}.sensors.${sensor.name}.humidity`, {
+                            this.setObjectNotExistsAsync(`${roomID}.sensors.${this.objSafeName(sensor.name)}.humidity`, {
                                 type: 'state',
                                 common: {
                                     name: `${sensor.beschreibung} humidity`,
@@ -706,7 +708,7 @@ class Controme extends utils.Adapter {
                         break;
                     case 'Bewegung':
                         promises.push(
-                            this.setObjectNotExistsAsync(`${roomID}.sensors.${sensor.name}.motion`, {
+                            this.setObjectNotExistsAsync(`${roomID}.sensors.${this.objSafeName(sensor.name)}.motion`, {
                                 type: 'state',
                                 common: {
                                     name: `${sensor.beschreibung} motion`,
@@ -721,7 +723,7 @@ class Controme extends utils.Adapter {
                         break;
                     case 'Temperatur':
                         promises.push(
-                            this.setObjectNotExistsAsync(`${roomID}.sensors.${sensor.name}.actualTemperature`, {
+                            this.setObjectNotExistsAsync(`${roomID}.sensors.${this.objSafeName(sensor.name)}.actualTemperature`, {
                                 type: 'state',
                                 common: {
                                     name: `${sensor.beschreibung} actual temperature`,
@@ -737,7 +739,7 @@ class Controme extends utils.Adapter {
                         break;
                     default:
                         promises.push(
-                            this.setObjectNotExistsAsync(`${roomID}.sensors.${sensor.name}.${key}`, {
+                            this.setObjectNotExistsAsync(`${roomID}.sensors.${this.objSafeName(sensor.name)}.${key}`, {
                                 type: 'state',
                                 common: {
                                     name: `${sensor.beschreibung} ${key}`,
@@ -754,7 +756,7 @@ class Controme extends utils.Adapter {
             }
         } else {
             promises.push(
-                this.setObjectNotExistsAsync(`${roomID}.sensors.${sensor.name}.actualTemperature`, {
+                this.setObjectNotExistsAsync(`${roomID}.sensors.${this.objSafeName(sensor.name)}.actualTemperature`, {
                     type: 'state',
                     common: {
                         name: `${sensor.beschreibung} actual temperature`,
@@ -1099,7 +1101,7 @@ class Controme extends utils.Adapter {
             }
 
             const sensor = room.sensoren[sensorKey];
-            const sensorPath = `${room.id}.sensors.${sensor.name}`;
+            const sensorPath = `${room.id}.sensors.${this.objSafeName(sensor.name)}`;
 
             // Log and update room temperature sensor status
             this.log.silly(`${sensorPath}.isRoomTemperatureSensor: ${sensor.raumtemperatursensor}`);
@@ -1123,7 +1125,7 @@ class Controme extends utils.Adapter {
         } else if (typeof sensorValue === 'number') {
             promises.push(...this._handleNumericSensorValue(room, sensor, sensorPath, sensorValue));
         } else if (this.config.warnOnNull) {
-            this.log.warn(`Room ${room.id}: Temperature value for sensor ${sensor.name} is null or empty`);
+            this.log.warn(`Room ${room.id}: Temperature value for sensor ${this.objSafeName(sensor.name)} is null or empty`);
         }
 
         return promises;
@@ -1134,12 +1136,12 @@ class Controme extends utils.Adapter {
         const temperature = sensorValue.Temperatur;
 
         if (temperature && !isNaN(parseFloat(temperature))) {
-            this.log.silly(`Updating ${sensorPath}: ${sensor.name} (${sensor.beschreibung}) to ${temperature} °C`);
+            this.log.silly(`Updating ${sensorPath}: ${this.objSafeName(sensor.name)} (${sensor.beschreibung}) to ${temperature} °C`);
             promises.push(
                 this.setStateChangedAsync(`${sensorPath}.actualTemperature`, roundTo(parseFloat(temperature), 2), true),
             );
         } else if (this.config.warnOnNull) {
-            this.log.warn(`Room ${room.id}: Temperature value for sensor ${sensor.name} is invalid or null`);
+            this.log.warn(`Room ${room.id}: Temperature value for sensor ${this.objSafeName(sensor.name)} is invalid or null`);
         }
 
         return promises;
@@ -1150,11 +1152,11 @@ class Controme extends utils.Adapter {
 
         if (!isNaN(sensorValue)) {
             this.log.silly(
-                `Updating ${sensorPath}: ${sensor.name} (${sensor.beschreibung}) to ${roundTo(sensorValue, 2)} °C`,
+                `Updating ${sensorPath}: ${this.objSafeName(sensor.name)} (${sensor.beschreibung}) to ${roundTo(sensorValue, 2)} °C`,
             );
             promises.push(this.setStateChangedAsync(`${sensorPath}.actualTemperature`, roundTo(sensorValue, 2), true));
         } else {
-            this.log.warn(`Room ${room.id}: Value for sensor ${sensor.name} is not a number`);
+            this.log.warn(`Room ${room.id}: Value for sensor ${this.objSafeName(sensor.name)} is not a number`);
         }
 
         return promises;
