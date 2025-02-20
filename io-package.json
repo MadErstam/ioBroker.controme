@@ -1,8 +1,21 @@
 {
     "common": {
         "name": "controme",
-        "version": "0.5.4",
+        "version": "0.5.5",
         "news": {
+            "0.5.5": {
+                "en": "Bugfixing regarding async and promises",
+                "de": "Fehler in Bezug auf async und Promises",
+                "ru": "Исполнение ошибок в отношении асинхронности и обещаний",
+                "pt": "Bugfixing sobre assíncrona e promessas",
+                "nl": "Bugfixing met betrekking tot async en beloften",
+                "fr": "Bugfixing concernant l'async et les promesses",
+                "it": "Bugfixing per quanto riguarda l'asincrone e le promesse",
+                "es": "Error de errores sobre async y promesas",
+                "pl": "Fifiks błędów dotyczących asynchronizacji i obietnic",
+                "uk": "Помилка щодо асинхронізації та обіцянок",
+                "zh-cn": "关于异步和承诺的错误将"
+            },
             "0.5.4": {
                 "en": "Bugfixing and dependency updates",
                 "de": "Fehler- und Abhängigkeits -Updates",
@@ -15,32 +28,6 @@
                 "pl": "Aktualizacje konfiguracji i aktualizacji zależności",
                 "uk": "Оновлення помилок та залежності",
                 "zh-cn": "错误修正和依赖项更新"
-            },
-            "0.5.3": {
-                "en": "Various smaller bugfixes and improvements",
-                "de": "Diverse kleinere Bugfixes und Verbesserungen",
-                "ru": "Различные мелкие исправления и улучшения.",
-                "pt": "Várias pequenas correções de bugs e melhorias",
-                "nl": "Diverse kleinere bugfixes en verbeteringen",
-                "fr": "Diverses corrections de bugs et améliorations plus petites",
-                "it": "Varie correzioni di bug e miglioramenti minori",
-                "es": "Varias correcciones de errores y mejoras más pequeñas",
-                "pl": "Różne mniejsze poprawki i ulepszenia",
-                "uk": "Різні менші виправлення помилок і покращення",
-                "zh-cn": "各种较小的错误修复和改进"
-            },
-            "0.5.2": {
-                "en": "Make object IDs for offsets safe",
-                "de": "Objekt-IDs für Offsets sicher machen",
-                "ru": "Сделать идентификаторы объектов для офсетов",
-                "pt": "Faça IDs de objetos para deslocamentos seguros",
-                "nl": "Object-ID's voor offsets veilig maken",
-                "fr": "Sécuriser les identifiants des objets pour les offsets",
-                "it": "Rendere gli ID degli oggetti per gli offset sicuri",
-                "es": "Haga ID de objeto para offsets seguro",
-                "pl": "Zrobić identyfikatory obiektów dla bezpiecznych offsetów",
-                "uk": "Зробіть ідентифікатори об'єкта для сейфів",
-                "zh-cn": "使对象ID安全"
             },
             "0.5.0": {
                 "en": "Added handling of temporary mode",
