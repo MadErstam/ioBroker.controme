@@ -186,6 +186,8 @@ To start the adapter, the following data need to be provided in the admin settin
 * (MadErstam) initial release
 
 ## License
+Copyright (c) 2025 MadErstam <erstam@gmx.de>
+
 MIT License
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -205,5 +207,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-Copyright (c) 2025 MadErstam <erstam@gmx.de>
