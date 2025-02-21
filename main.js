@@ -1099,7 +1099,7 @@ class Controme extends utils.Adapter {
         } else {
             if (room.is_temporary_mode) {
                 this.log.warn(
-                    `Room ${room.id} (${room.name}): Invalid remaining time for temporary mode: ${room.remaining_time}`
+                    `Room ${room.id} (${room.name}): Invalid remaining time for temporary mode: ${room.remaining_time}`,
                 );
             }
             promises.push(this.setStateChangedAsync(`${room.id}.temporary_mode_remaining`, null, true));
@@ -1115,7 +1115,7 @@ class Controme extends utils.Adapter {
             } else {
                 if (room.is_temporary_mode) {
                     this.log.warn(
-                        `Room ${room.id} (${room.name}): Invalid end time for temporary mode: ${room.mode_end_datetime}`
+                        `Room ${room.id} (${room.name}): Invalid end time for temporary mode: ${room.mode_end_datetime}`,
                     );
                 }
                 promises.push(this.setStateChangedAsync(`${room.id}.temporary_mode_end`, null, true));
@@ -1177,34 +1177,30 @@ class Controme extends utils.Adapter {
 
         // Iterate over each key/value pair in the offset object
         for (const [offsetItemKey, rawValue] of Object.entries(offsetObject)) {
-
             // Parse the value into a float
             const parsedValue = parseFloat(rawValue);
 
             // Check if the parsed value is a valid finite number
             if (!isFinite(parsedValue)) {
                 this.log.warn(
-                    `Room ${room.id}: Offset ${offsetKey}.${offsetItemKey} has an invalid numeric value (${rawValue}). Setting value to null.`
+                    `Room ${room.id}: Offset ${offsetKey}.${offsetItemKey} has an invalid numeric value (${rawValue}). Setting value to null.`,
                 );
                 promises.push(
                     this.setStateChangedAsync(
                         `${room.id}.offsets.${this.objSafeName(offsetKey)}.${this.objSafeName(offsetItemKey)}`,
                         null,
-                        true
-                    )
+                        true,
+                    ),
                 );
-
             } else {
                 const value = roundTo(parsedValue, 2);
-                this.log.silly(
-                    `Updating room ${room.id}: Offset ${offsetKey}.${offsetItemKey} to ${value} °C`
-                );
+                this.log.silly(`Updating room ${room.id}: Offset ${offsetKey}.${offsetItemKey} to ${value} °C`);
                 promises.push(
                     this.setStateChangedAsync(
                         `${room.id}.offsets.${this.objSafeName(offsetKey)}.${this.objSafeName(offsetItemKey)}`,
                         value,
-                        true
-                    )
+                        true,
+                    ),
                 );
             }
         }
@@ -1231,18 +1227,14 @@ class Controme extends utils.Adapter {
             this.log.silly(`${sensorPath}.isRoomTemperatureSensor: ${sensor.raumtemperatursensor}`);
             // Update the 'isRoomTemperatureSensor' state
             promises.push(
-                this.setStateChangedAsync(
-                    `${sensorPath}.isRoomTemperatureSensor`,
-                    sensor.raumtemperatursensor,
-                    true
-                )
+                this.setStateChangedAsync(`${sensorPath}.isRoomTemperatureSensor`, sensor.raumtemperatursensor, true),
             );
             // Delegate updating the sensor's value(s) to a helper function that handles different value types
             promises.push(...this._updateSensorValue(room, sensor, sensorPath));
         }
         return Promise.all(promises);
     }
-    
+
     _updateSensorValue(room, sensor, sensorPath) {
         const promises = [];
         const sensorValue = sensor.wert;
@@ -1289,7 +1281,9 @@ class Controme extends utils.Adapter {
             );
             promises.push(this.setStateChangedAsync(`${sensorPath}.actualTemperature`, roundTo(sensorValue, 2), true));
         } else {
-            this.log.warn(`Room ${room.id}: Value for sensor ${this.objSafeName(sensor.name)} is undefined, null or not a number`);
+            this.log.warn(
+                `Room ${room.id}: Value for sensor ${this.objSafeName(sensor.name)} is undefined, null or not a number`,
+            );
         }
 
         return promises;
