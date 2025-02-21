@@ -1,7 +1,7 @@
 {
     "common": {
         "name": "controme",
-        "version": "0.5.5",
+        "version": "0.5.6",
         "news": {
             "0.5.6": {
                 "en": "Bugfixing regarding invalid API responses or invalid sensor values",
