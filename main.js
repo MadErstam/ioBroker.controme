@@ -1127,7 +1127,7 @@ class Controme extends utils.Adapter {
         if (!isNaN(humidity)) {
             promises.push(this.setStateChangedAsync(`${room.id}.humidity`, humidity, true));
         } else {
-            this.log.warn(`Room ${room.id} (${room.name}): Invalid humidity value: ${room.luftfeuchte}`);
+            this.log.debug(`Room ${room.id} (${room.name}): Invalid humidity value: ${room.luftfeuchte}`);
             promises.push(this.setStateChangedAsync(`${room.id}.humidity`, null, true));
         }
 
