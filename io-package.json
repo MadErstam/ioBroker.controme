@@ -3,6 +3,19 @@
         "name": "controme",
         "version": "0.5.5",
         "news": {
+            "0.5.6": {
+                "en": "Bugfixing regarding invalid API responses or invalid sensor values",
+                "de": "Fehler in Bezug auf ungültige API-Antworten oder ungültige Sensorwerte",
+                "ru": "Исполнение ошибок в отношении недействительных ответов API или неверных значений датчиков",
+                "pt": "Bugfixing sobre respostas inválidas da API ou valores de sensor inválido",
+                "nl": "Bugfixing met betrekking tot ongeldige API -reacties of ongeldige sensorwaarden",
+                "fr": "Bugfixing concernant les réponses API non valides ou les valeurs de capteur non valides",
+                "it": "Bugfixing relativo alle risposte API non valide o ai valori del sensore non validi",
+                "es": "Error con las respuestas de API inválidas o los valores de sensor no válido",
+                "pl": "Udoskonalenie błędów dotyczących nieprawidłowych odpowiedzi interfejsu API lub nieprawidłowych wartości czujników",
+                "uk": "Помилка щодо недійсних відповідей API або недійсних значень датчика",
+                "zh-cn": "关于无效的API响应或无效传感器值的错误将"
+            },
             "0.5.5": {
                 "en": "Bugfixing regarding async and promises",
                 "de": "Fehler in Bezug auf async und Promises",

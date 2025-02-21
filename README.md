@@ -92,6 +92,9 @@ To start the adapter, the following data need to be provided in the admin settin
   Placeholder for the next version (at the beginning of the line):
   ### **WORK IN PROGRESS**
 -->
+### 0.5.6 (2025-02-21)
+* (MadErstam) Bugfixing regarding invalid API responses or invalid sensor values
+
 ### 0.5.5 (2025-02-20)
 * (MadErstam) Bugfixing regarding async and promise
 

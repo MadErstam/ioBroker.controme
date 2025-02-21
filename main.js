@@ -1046,39 +1046,88 @@ class Controme extends utils.Adapter {
         this.log.silly(
             `Updating room ${room.id} (${room.name}): Actual temperature ${roundTo(parseFloat(room.temperatur), 2)} °C, setpoint temperature ${roundTo(parseFloat(room.solltemperatur), 2)} °C, temperature offset ${roundTo(parseFloat(room.total_offset), 2)} °C`,
         );
-        promises.push(
-            this.setStateChangedAsync(`${room.id}.actualTemperature`, roundTo(parseFloat(room.temperatur), 2), true),
-        );
-        promises.push(
-            this.setStateChangedAsync(
-                `${room.id}.setpointTemperature`,
-                roundTo(parseFloat(room.solltemperatur), 2),
-                true,
-            ),
-        );
-        promises.push(
-            this.setStateChangedAsync(`${room.id}.temperatureOffset`, roundTo(parseFloat(room.total_offset), 2), true),
-        );
-        promises.push(
-            this.setStateChangedAsync(
-                `${room.id}.setpointTemperaturePerm`,
-                roundTo(parseFloat(room.perm_solltemperatur), 2),
-                true,
-            ),
-        );
+
+        // Update actual temperature
+        const temp = parseFloat(room.temperatur);
+        if (isFinite(temp)) {
+            const actualTemp = roundTo(temp, 2);
+            promises.push(this.setStateChangedAsync(`${room.id}.actualTemperature`, actualTemp, true));
+        } else {
+            this.log.warn(`Room ${room.id} (${room.name}): Invalid actual temperature value: ${room.temperatur}`);
+            promises.push(this.setStateChangedAsync(`${room.id}.actualTemperature`, null, true));
+        }
+
+        // Update setpoint temperature
+        const setpoint = parseFloat(room.solltemperatur);
+        if (isFinite(setpoint)) {
+            const setpointTemp = roundTo(setpoint, 2);
+            promises.push(this.setStateChangedAsync(`${room.id}.setpointTemperature`, setpointTemp, true));
+        } else {
+            this.log.warn(`Room ${room.id} (${room.name}): Invalid setpoint temperature value: ${room.solltemperatur}`);
+            promises.push(this.setStateChangedAsync(`${room.id}.setpointTemperature`, null, true));
+        }
+
+        // Update temperature offset
+        const offset = parseFloat(room.total_offset);
+        if (isFinite(offset)) {
+            const tempOffset = roundTo(offset, 2);
+            promises.push(this.setStateChangedAsync(`${room.id}.temperatureOffset`, tempOffset, true));
+        } else {
+            this.log.warn(`Room ${room.id} (${room.name}): Invalid temperature offset value: ${room.total_offset}`);
+            promises.push(this.setStateChangedAsync(`${room.id}.temperatureOffset`, null, true));
+        }
+
+        // Update permanent setpoint temperature
+        const permSetpoint = parseFloat(room.perm_solltemperatur);
+        if (isFinite(permSetpoint)) {
+            const permTemp = roundTo(permSetpoint, 2);
+            promises.push(this.setStateChangedAsync(`${room.id}.setpointTemperaturePerm`, permTemp, true));
+        } else {
+            this.log.warn(
+                `Room ${room.id} (${room.name}): Invalid permanent setpoint temperature value: ${room.perm_solltemperatur}`,
+            );
+            promises.push(this.setStateChangedAsync(`${room.id}.setpointTemperaturePerm`, null, true));
+        }
+
+        // Directly update is_temporary_mode
         promises.push(this.setStateChangedAsync(`${room.id}.is_temporary_mode`, room.is_temporary_mode, true));
-        promises.push(
-            this.setStateChangedAsync(`${room.id}.temporary_mode_remaining`, parseInt(room.remaining_time), true),
-        );
+
+        // Update remaining time for temporary_mode
+        const remaining = parseInt(room.remaining_time);
+        if (!isNaN(remaining)) {
+            promises.push(this.setStateChangedAsync(`${room.id}.temporary_mode_remaining`, remaining, true));
+        } else {
+            this.log.warn(`Room ${room.id} (${room.name}): Invalid remaining time for temporary mode: ${room.remaining_time}`);
+            promises.push(this.setStateChangedAsync(`${room.id}.temporary_mode_remaining`, null, true));
+        }
+
+        // Update end time for temporary_mode
         if (room.mode_end_datetime == null) {
             promises.push(this.setStateChangedAsync(`${room.id}.temporary_mode_end`, null, true));
         } else {
-            promises.push(
-                this.setStateChangedAsync(`${room.id}.temporary_mode_end`, dayjs(room.mode_end_datetime).unix(), true),
-            );
+            const unixTime = dayjs(room.mode_end_datetime).unix();
+            if (isFinite(unixTime)) {
+                promises.push(this.setStateChangedAsync(`${room.id}.temporary_mode_end`, unixTime, true));
+            } else {
+                this.log.warn(
+                    `Room ${room.id} (${room.name}): Invalid end time for temporary mode: ${room.mode_end_datetime}`,
+                );
+                promises.push(this.setStateChangedAsync(`${room.id}.temporary_mode_end`, null, true));
+            }
         }
-        promises.push(this.setStateChangedAsync(`${room.id}.humidity`, parseInt(room.luftfeuchte), true));
+
+        // Update humidity
+        const humidity = parseInt(room.luftfeuchte);
+        if (!isNaN(humidity)) {
+            promises.push(this.setStateChangedAsync(`${room.id}.humidity`, humidity, true));
+        } else {
+            this.log.warn(`Room ${room.id} (${room.name}): Invalid humidity value: ${room.luftfeuchte}`);
+            promises.push(this.setStateChangedAsync(`${room.id}.humidity`, null, true));
+        }
+
+        // Directly update opting mode
         promises.push(this.setStateChangedAsync(`${room.id}.mode`, room.betriebsart, true));
+
         return Promise.all(promises);
     }
 
@@ -1120,47 +1169,74 @@ class Controme extends utils.Adapter {
     _updateOffsetItems(room, offsetKey, offsetObject) {
         const promises = [];
 
-        for (const offsetItemKey in offsetObject) {
-            if (Object.prototype.hasOwnProperty.call(offsetObject, offsetItemKey)) {
-                const value = roundTo(parseFloat(offsetObject[offsetItemKey]), 2);
-                this.log.silly(`Updating room ${room.id}: Offset ${offsetKey}.${offsetItemKey} to ${value} °C`);
+        // Iterate over each key/value pair in the offset object
+        for (const [offsetItemKey, rawValue] of Object.entries(offsetObject)) {
+
+            // Parse the value into a float
+            const parsedValue = parseFloat(rawValue);
+
+            // Check if the parsed value is a valid finite number
+            if (!isFinite(parsedValue)) {
+                this.log.warn(
+                    `Room ${room.id}: Offset ${offsetKey}.${offsetItemKey} has an invalid numeric value (${rawValue}). Setting value to null.`
+                );
+                promises.push(
+                    this.setStateChangedAsync(
+                        `${room.id}.offsets.${this.objSafeName(offsetKey)}.${this.objSafeName(offsetItemKey)}`,
+                        null,
+                        true
+                    )
+                );
+
+            } else {
+                const value = roundTo(parsedValue, 2);
+                this.log.silly(
+                    `Updating room ${room.id}: Offset ${offsetKey}.${offsetItemKey} to ${value} °C`
+                );
                 promises.push(
                     this.setStateChangedAsync(
                         `${room.id}.offsets.${this.objSafeName(offsetKey)}.${this.objSafeName(offsetItemKey)}`,
                         value,
-                        true,
-                    ),
+                        true
+                    )
                 );
             }
         }
-
         return promises;
     }
 
     async _updateSensorsForRoom(room) {
+        // Check if sensors are defined for the room
+        if (!room.sensoren || typeof room.sensoren !== 'object') {
+            this.log.warn(`Room ${room.id}: No sensors defined in API response.`);
+            return [];
+        }
         const promises = [];
-
-        for (const sensorKey in room.sensoren) {
-            if (!Object.prototype.hasOwnProperty.call(room.sensoren, sensorKey)) {
+        // Iterate over each sensor in the room
+        for (const [sensorKey, sensor] of Object.entries(room.sensoren)) {
+            // If the sensor object is missing, log a warning and skip it
+            if (!sensor) {
+                this.log.warn(`Room ${room.id}: Sensor with key ${sensorKey} is undefined.`);
                 continue;
             }
-
-            const sensor = room.sensoren[sensorKey];
+            // Construct a safe path for the sensor using a helper function to sanitize the sensor name
             const sensorPath = `${room.id}.sensors.${this.objSafeName(sensor.name)}`;
-
-            // Log and update room temperature sensor status
+            // Log the current room temperature sensor status for debugging purposes
             this.log.silly(`${sensorPath}.isRoomTemperatureSensor: ${sensor.raumtemperatursensor}`);
+            // Update the 'isRoomTemperatureSensor' state
             promises.push(
-                this.setStateChangedAsync(`${sensorPath}.isRoomTemperatureSensor`, sensor.raumtemperatursensor, true),
+                this.setStateChangedAsync(
+                    `${sensorPath}.isRoomTemperatureSensor`,
+                    sensor.raumtemperatursensor,
+                    true
+                )
             );
-
-            // Update based on sensor's value type (object or number)
+            // Delegate updating the sensor's value(s) to a helper function that handles different value types
             promises.push(...this._updateSensorValue(room, sensor, sensorPath));
         }
-
         return Promise.all(promises);
     }
-
+    
     _updateSensorValue(room, sensor, sensorPath) {
         const promises = [];
         const sensorValue = sensor.wert;
@@ -1182,7 +1258,7 @@ class Controme extends utils.Adapter {
         const promises = [];
         const temperature = sensorValue.Temperatur;
 
-        if (temperature && !isNaN(parseFloat(temperature))) {
+        if (temperature !== null && temperature !== undefined && !isNaN(parseFloat(temperature))) {
             this.log.silly(
                 `Updating ${sensorPath}: ${this.objSafeName(sensor.name)} (${sensor.beschreibung}) to ${temperature} °C`,
             );
@@ -1191,7 +1267,7 @@ class Controme extends utils.Adapter {
             );
         } else if (this.config.warnOnNull) {
             this.log.warn(
-                `Room ${room.id}: Temperature value for sensor ${this.objSafeName(sensor.name)} is invalid or null`,
+                `Room ${room.id}: Temperature value for sensor ${this.objSafeName(sensor.name)} is undefined, null or not a number`,
             );
         }
 
@@ -1201,13 +1277,13 @@ class Controme extends utils.Adapter {
     _handleNumericSensorValue(room, sensor, sensorPath, sensorValue) {
         const promises = [];
 
-        if (!isNaN(sensorValue)) {
+        if (sensorValue !== null && sensorValue !== undefined && !isNaN(sensorValue)) {
             this.log.silly(
                 `Updating ${sensorPath}: ${this.objSafeName(sensor.name)} (${sensor.beschreibung}) to ${roundTo(sensorValue, 2)} °C`,
             );
             promises.push(this.setStateChangedAsync(`${sensorPath}.actualTemperature`, roundTo(sensorValue, 2), true));
         } else {
-            this.log.warn(`Room ${room.id}: Value for sensor ${this.objSafeName(sensor.name)} is not a number`);
+            this.log.warn(`Room ${room.id}: Value for sensor ${this.objSafeName(sensor.name)} is undefined, null or not a number`);
         }
 
         return promises;
