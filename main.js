@@ -1127,9 +1127,11 @@ class Controme extends utils.Adapter {
         if (!isNaN(humidity)) {
             promises.push(this.setStateChangedAsync(`${room.id}.humidity`, humidity, true));
         } else {
-            if (room.luftfeuchte !== "kein Sensor vorhanden") { 
+            // Only log a warning if the room is expected to have a humidity sensor.
+            // For example, if the API returns a value different than "kein Sensor vorhanden".            
+            if (room.luftfeuchte !== 'kein Sensor vorhanden') {
                 this.log.warn(`Room ${room.id} (${room.name}): Invalid humidity value: ${room.luftfeuchte}`);
-            }
+            }            
             promises.push(this.setStateChangedAsync(`${room.id}.humidity`, null, true));
         }
 
