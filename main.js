@@ -1097,7 +1097,11 @@ class Controme extends utils.Adapter {
         if (!isNaN(remaining)) {
             promises.push(this.setStateChangedAsync(`${room.id}.temporary_mode_remaining`, remaining, true));
         } else {
-            this.log.warn(`Room ${room.id} (${room.name}): Invalid remaining time for temporary mode: ${room.remaining_time}`);
+            if (room.is_temporary_mode) {
+                this.log.warn(
+                    `Room ${room.id} (${room.name}): Invalid remaining time for temporary mode: ${room.remaining_time}`
+                );
+            }
             promises.push(this.setStateChangedAsync(`${room.id}.temporary_mode_remaining`, null, true));
         }
 
@@ -1109,9 +1113,11 @@ class Controme extends utils.Adapter {
             if (isFinite(unixTime)) {
                 promises.push(this.setStateChangedAsync(`${room.id}.temporary_mode_end`, unixTime, true));
             } else {
-                this.log.warn(
-                    `Room ${room.id} (${room.name}): Invalid end time for temporary mode: ${room.mode_end_datetime}`,
-                );
+                if (room.is_temporary_mode) {
+                    this.log.warn(
+                        `Room ${room.id} (${room.name}): Invalid end time for temporary mode: ${room.mode_end_datetime}`
+                    );
+                }
                 promises.push(this.setStateChangedAsync(`${room.id}.temporary_mode_end`, null, true));
             }
         }
