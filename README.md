@@ -90,6 +90,7 @@ To start the adapter, the following data need to be provided in the admin settin
 -->
 ### 0.5.7 (2025-02-22)
 * (MadErstam) Made adapter safe to handle different versions of API
+* (MadErstam) Switched from got to axios for future compatibility
 
 ### 0.5.6 (2025-02-21)
 * (MadErstam) Bugfixing regarding invalid API responses or invalid sensor values

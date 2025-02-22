@@ -5,8 +5,7 @@
 const utils = require('@iobroker/adapter-core');
 
 // Load your modules here, e.g.:
-const got = require('got').default;
-const { HTTPError } = require('got');
+const axios = require('axios').default;
 const dayjs = require('dayjs');
 const formData = require('form-data');
 const { isObject } = require('iobroker.controme/lib/tools');
@@ -48,8 +47,8 @@ class Controme extends utils.Adapter {
         // Set up poll interval and logging
         const pollInterval = Math.min(
             Number.isInteger(this.config.interval) && this.config.interval > 15 ? this.config.interval : 15,
-            3600000,
-        ); // pollInterval determines how often the server is polled; we set it to at least once per hour to also keep in line with technical limitations.
+            3600,
+        ); // pollInterval determines how often the server is polled; we set it to at least once per hour in seconds to also keep in line with technical limitations.
         this.temporary_mode_default_duration = Number.isInteger(this.config.temp_duration)
             ? this.config.temp_duration
             : 60;
@@ -153,17 +152,14 @@ class Controme extends utils.Adapter {
 
     async _delayPollingFunction() {
         this.delayPolling = true;
-        this.delayPollingTimeout = this.setTimeout(
-            () => {
-                this.delayPolling = false;
-            },
-            this.delayPollingCounter * 60 * 1000,
-        ); // delayPollingCounter is max 10, so timeout is max 600,000 ms = 10 minutes
-        this.delayPollingCounter < 10 ? this.delayPollingCounter++ : (this.delayPollingCounter = 10);
+        this.delayPollingCounter = Math.min(this.delayPollingCounter + 1, 10); // Limit to max 10
+
+        this.delayPollingTimeout = this.setTimeout(() => {
+            this.delayPolling = false;
+        }, this.delayPollingCounter * 60 * 1000);
+
         await this.setState('info.connection', { val: false, ack: true });
-        this.log.error(
-            `Error in polling data from Controme mini server; will retry in ${this.delayPollingCounter} minutes.`,
-        );
+        this.log.error(`Error in polling data from Controme mini server; will retry in ${this.delayPollingCounter} minutes.`);
     }
 
     async _resetPollingDelay() {
@@ -171,6 +167,19 @@ class Controme extends utils.Adapter {
         this.delayPollingCounter = 0;
         await this.setState('info.connection', { val: true, ack: true });
     }
+    
+    _logAxiosError(error, contextMessage = '') {
+        if (error.response) {
+            // Server responded with an error status (e.g., 404, 500)
+            this.log.error(`${contextMessage} - Request failed with status ${error.response.status}: ${JSON.stringify(error.response.data)}`);
+        } else if (error.request) {
+            // Request was sent but no response received (e.g., timeout, network issue)
+            this.log.error(`${contextMessage} - No response received from the server. Request details: ${JSON.stringify(error.request)}`);
+        } else {
+            // General error (e.g., invalid configuration, unexpected axios behavior)
+            this.log.error(`${contextMessage} - Request setup failed: ${error.message}`);
+        }
+    }    
 
     async _processTempsAPIforCreation(body) {
         this.log.silly(`Temps response from Controme mini server for creation of objects: "${JSON.stringify(body)}"`);
@@ -266,30 +275,28 @@ class Controme extends utils.Adapter {
         let body;
         try {
             const url = `http://${this.config.url}/get/json/v1/${this.config.houseID}/temps/`;
-            const response = await got.get(url);
-            body = JSON.parse(response.body);
+            const response = await axios.get(url, { timeout: 15000 });
+            body = response.data;
             await this._processTempsAPIforCreation(body);
         } catch (error) {
             await this._delayPollingFunction();
             this.log.error(
-                `Polling temps API from mini server to create data objects for rooms, offsets and sensor failed failed with error "${error}"`,
+                `Polling temps API from mini server to create data objects for rooms, offsets and sensor failed with error ${error instanceof Error ? error.message : String(error)}`
             );
         }
 
         this.log.debug(`~  Creating output objects for rooms`);
         try {
             const url = `http://${this.config.url}/get/json/v1/${this.config.houseID}/outs/`;
-            const response = await got.get(url);
-            body = JSON.parse(response.body);
+            const response = await axios.get(url, { timeout: 15000 });
+            body = response.data;
             await this._processOutsAPIforCreation(body);
         } catch (error) {
             await this._delayPollingFunction();
             this.log.error(
-                `Polling outs API from mini server to create data objects for outputs failed failed with error "${error}"`,
+                `Polling outs API from mini server to create data objects for outputs failed with error ${error instanceof Error ? error.message : String(error)}`
             );
         }
-
-        // the connection indicator is updated when the connection was successful
     }
 
     _createObjectsForRoom(room) {
@@ -913,22 +920,23 @@ class Controme extends utils.Adapter {
     }
 
     async _pollRoomTemps() {
-        // Poll data from temps API
-        this.log.debug('Polling temps API from mini server');
-        let body;
-
+        this.log.debug('Polling temperatures from Controme mini server');
         try {
             const url = `http://${this.config.url}/get/json/v1/${this.config.houseID}/temps/`;
-            const response = await got.get(url);
-            body = JSON.parse(response.body);
-            await this._processTempsAPIforUpdate(body);
+            const response = await axios.get(url, { timeout: 15000 });
+    
+            if (!response.data || typeof response.data !== 'object') {
+                throw new Error(`Unexpected response format: ${JSON.stringify(response.data)}`);
+            }
+    
+            await this._processTempsAPIforUpdate(response.data);
             await this._resetPollingDelay();
         } catch (error) {
             await this._delayPollingFunction();
-            this.log.error(`Polling temperature data from Controme mini server finished with error "${error}"`);
+            this._logAxiosError(error, 'Polling temperature data failed');
         }
     }
-
+    
     async _processOutsAPIforUpdate(body) {
         this.log.silly(`Outs response from Controme mini server: "${JSON.stringify(body)}"`);
         const promises = [];
@@ -948,22 +956,23 @@ class Controme extends utils.Adapter {
     }
 
     async _pollOuts() {
-        // Poll data from outs API
-        this.log.debug('Polling outs API  from mini server');
-        let body;
+        this.log.debug('Polling outputs from Controme mini server');
         try {
             const url = `http://${this.config.url}/get/json/v1/${this.config.houseID}/outs/`;
-            const response = await got.get(url);
-            body = JSON.parse(response.body);
-            await this._processOutsAPIforUpdate(body);
+            const response = await axios.get(url, { timeout: 15000 });
+    
+            if (!response.data || typeof response.data !== 'object') {
+                throw new Error(`Unexpected response format: ${JSON.stringify(response.data)}`);
+            }
+    
+            await this._processOutsAPIforUpdate(response.data);
             await this._resetPollingDelay();
         } catch (error) {
-            // when an error is received, the connection indicator is updated accordingly
             await this._delayPollingFunction();
-            this.log.error(`Polling outputs data from Controme mini server finished with error "${error}"`);
+            this._logAxiosError(error, 'Polling output data failed');
         }
     }
-
+    
     async _pollGateways() {
         const gateways = Array.isArray(this.config.gateways) ? this.config.gateways : [this.config.gateways];
         for (const gateway of gateways) {
@@ -982,19 +991,24 @@ class Controme extends utils.Adapter {
     }
 
     // Polls each output of a "gwUniPro" gateway individually
-    async _pollIndividualGatewayOutputs(gateway) {
-        this.log.debug(`Polling individual outputs for gateway ${gateway.gatewayName} from mini server`);
+    async _pollIndividualGatewayOutputs(gateway) { 
+        this.log.debug(`Polling individual outputs for gateway ${gateway.gatewayName}`);
         const outputs = await this.getStatesOfAsync(`${this.namespace}.${gateway.gatewayMAC}`, 'outputs');
-
+    
         for (const output of outputs) {
             const outputID = this._extractOutputID(output._id);
             const url = `http://${this.config.url}/get/${gateway.gatewayMAC}/${outputID}/`;
-
+    
             try {
-                const response = await got.get(url);
-                await this._setGatewayOutputState(gateway.gatewayMAC, output._id, response.body);
+                const response = await axios.get(url, { timeout: 15000 });
+    
+                if (!response.data || typeof response.data !== 'object') {
+                    throw new Error(`Unexpected response format: ${JSON.stringify(response.data)}`);
+                }
+    
+                await this._setGatewayOutputState(gateway.gatewayMAC, output._id, response.data);
             } catch (error) {
-                this.log.error(`Error polling data for output ${gateway.gatewayMAC}:${outputID}: ${error}`);
+                this._logAxiosError(error, `Failed to poll data for output ${gateway.gatewayMAC}:${outputID}`);
             }
         }
     }
@@ -1006,8 +1020,8 @@ class Controme extends utils.Adapter {
         const outputs = await this.getStatesOfAsync(`${this.namespace}.${gateway.gatewayMAC}`, 'outputs');
 
         try {
-            const response = await got.get(url);
-            const outputValues = this._parseGatewayOutputValues(response.body);
+            const response = await axios.get(url, { timeout: 15000 });
+            const outputValues = this._parseGatewayOutputValues(response.data);
 
             for (const [, output] of outputs.entries()) {
                 const outputID = this._extractOutputID(output._id);
@@ -1020,22 +1034,45 @@ class Controme extends utils.Adapter {
         }
     }
 
-    // Parses the gateway output values from the API response string
-    _parseGatewayOutputValues(responseBody) {
-        if (typeof responseBody === 'string') {
-            return responseBody.substring(1, responseBody.length - 1).split(';');
+    _parseGatewayOutputValues(responseData) {
+        if (typeof responseData === 'string') {
+            return responseData.trim().split(';'); // Axios might return a string, so we ensure it's formatted correctly
         }
+        if (Array.isArray(responseData)) {
+            return responseData; // If already an array, return as-is
+        }
+        this.log.warn(`Unexpected response format from gateway outputs API: ${JSON.stringify(responseData)}`);
         return [];
-    }
+    }    
 
     // Sets the state for a specific gateway output
-    async _setGatewayOutputState(gatewayMAC, outputId, body) {
-        if (typeof body === 'string') {
-            const value = parseInt(body.substring(1, body.length - 1));
-            await this.setState(outputId, value, true); // Use await with setState
-            this.log.silly(`Setting gateway output ${gatewayMAC}:${this._extractOutputID(outputId)} to ${value}`);
+    async _setGatewayOutputState(gatewayMAC, outputId, data) {
+        if (typeof data === 'string') {
+            try {
+                // If the API returns a string, attempt to parse it as JSON
+                data = JSON.parse(data);
+            } catch (e) {
+                this.log.error(`Failed to parse response from gateway ${gatewayMAC}: ${data}`);
+                return;
+            }
+        }
+    
+        if (typeof data === 'object' && data !== null) {
+            // If the API response has a known structure (e.g., { value: 0.75 })
+            const value = parseFloat(data.value || data[0]);
+    
+            if (!isNaN(value)) {
+                await this.setState(outputId, value, true);
+                this.log.silly(`Setting gateway output ${gatewayMAC}:${this._extractOutputID(outputId)} to ${value}`);
+            } else {
+                this.log.error(`Received unexpected data format from gateway ${gatewayMAC}: ${JSON.stringify(data)}`);
+            }
+        } else {
+            this.log.error(`Unexpected response format from gateway ${gatewayMAC}: ${JSON.stringify(data)}`);
         }
     }
+    
+
     // Extracts the output ID from a full state ID
     _extractOutputID(fullId) {
         return fullId.substring(fullId.lastIndexOf('.') + 1);
@@ -1469,25 +1506,27 @@ class Controme extends utils.Adapter {
     async _setSetpointTempPerm(roomID, setpointTemp) {
         const url = `http://${this.config.url}/set/json/v1/${this.config.houseID}/soll/${roomID}/`;
         const form = new formData();
-
+    
         form.append('user', this.config.user);
         form.append('password', this.config.password);
+    
         if (typeof setpointTemp === 'number' && isFinite(setpointTemp)) {
             setpointTemp = Math.trunc((Math.round(setpointTemp * 8) / 8) * 100) / 100;
             form.append('soll', setpointTemp);
-
-            this.log.debug(`_setSetpointTemp: url = "${url}" -- form = "${JSON.stringify(form)}"`);
+    
+            this.log.debug(`_setSetpointTempPerm: Sending request to "${url}" with form data: ${JSON.stringify(form)}`);
+            
             try {
-                await got.post(url, { body: form });
-                this.log.debug(`Room ${roomID}: Setting setpoint temperature to ${setpointTemp} °C`);
+                await axios.post(url, form, { headers: form.getHeaders(), timeout: 15000 });
+                this.log.debug(`Room ${roomID}: Successfully set permanent setpoint temperature to ${setpointTemp} °C`);
             } catch (error) {
-                await this.setState('info.connection', false, true);
-                this.log.error(`Room ${roomID}: Setting setpoint temperature returned an error "${error}"`);
+                await this.setState('info.connection', { val: false, ack: true });
+                this._logAxiosError(error, `Room ${roomID}: Failed to set permanent setpoint temperature`);
             }
         } else {
-            this.log.error(`Room ${roomID}: New setpoint temperature is not a number.`);
+            this.log.error(`Room ${roomID}: Invalid setpoint temperature value`);
         }
-    }
+    }    
 
     async _setSetpointTemp(roomID, targetTemp, targetDuration) {
         const url = `http://${this.config.url}/set/json/v1/${this.config.houseID}/ziel/${roomID}/`;
@@ -1510,28 +1549,11 @@ class Controme extends utils.Adapter {
                 this.log.silly(`_setSetpointTemp: form = "${JSON.stringify(form)}"`);
 
                 try {
-                    await got.post(url, { body: form });
-                    this.log.debug(
-                        `Room ${roomID}: Setting setpoint temperature (temporary mode) to ${targetTemp} °C for ${targetDuration} minutes`,
-                    );
+                    await axios.post(url, form, { headers: form.getHeaders(), timeout: 15000 });
+                    this.log.debug(`Room ${roomID}: Setting setpoint temperature (temporary mode) to ${targetTemp} °C for ${targetDuration} minutes`,);
                 } catch (error) {
-                    this.setState('info.connection', false, true);
-
-                    if (error instanceof HTTPError) {
-                        this.log.error(
-                            `Room ${roomID}: Setting setpoint temperature (temporary mode) returned an HTTP error: ${error.response?.body || error.message}`,
-                        );
-                    } else if (error instanceof Error) {
-                        // Generic Error handling
-                        this.log.error(
-                            `Room ${roomID}: Setting setpoint temperature (temporary mode) returned an error: ${error.message}`,
-                        );
-                    } else {
-                        // Fallback for unknown errors
-                        this.log.error(
-                            `Room ${roomID}: Setting setpoint temperature (temporary mode) returned an unknown error: ${String(error)}`,
-                        );
-                    }
+                    await this.setState('info.connection', { val: false, ack: true });
+                    this.log.error(`Room ${roomID}: Setting setpoint temperature (temporary mode) returned an error ${error instanceof Error ? error.message : String(error)}`);
                 }
             } else {
                 this.log.error(
@@ -1551,7 +1573,6 @@ class Controme extends utils.Adapter {
 
         form.append('user', this.config.user);
         form.append('password', this.config.password);
-        // [FIXME] SensorID should be checked for validity
         form.append('sensorid', sensorID);
 
         if (typeof actualTemp === 'number' && isFinite(actualTemp)) {
@@ -1563,24 +1584,11 @@ class Controme extends utils.Adapter {
             this.log.silly(`_setActualTemp: form = "${JSON.stringify(form)}"`);
 
             try {
-                await got.post(url, { body: form });
+                await axios.post(url, form, { headers: form.getHeaders(), timeout: 15000 });
                 this.log.debug(`Room ${roomID}: Setting actual temperature for sensor ${sensorID} to ${actualTemp} °C`);
             } catch (error) {
-                if (error instanceof HTTPError) {
-                    this.log.error(
-                        `Room ${roomID}: Setting actual temperature for sensor ${sensorID} returned an HTTP error: ${error.response?.body || error.message}`,
-                    );
-                } else if (error instanceof Error) {
-                    // Generic Error handling
-                    this.log.error(
-                        `Room ${roomID}: Setting actual temperature for sensor ${sensorID} returned an error: ${error.message}`,
-                    );
-                } else {
-                    // Fallback for unknown errors
-                    this.log.error(
-                        `Room ${roomID}: Setting actual temperature for sensor ${sensorID} returned an unknown error: ${String(error)}`,
-                    );
-                }
+                await this.setState('info.connection', { val: false, ack: true });
+                this.log.error(`Room ${roomID}: Setting actual temperature for sensor ${sensorID} returned an error ${error instanceof Error ? error.message : String(error)}`);
             }
         } else {
             this.log.error(`Room ${roomID}: Actual temperature for sensor "${sensorID}" is not a number.`);
@@ -1605,22 +1613,11 @@ class Controme extends utils.Adapter {
             this.log.debug(`_setOffsetTemp: form = "${JSON.stringify(form)}"`);
 
             try {
-                const { statusCode } = await got.post(url, { body: form });
-                if (statusCode === 200) {
-                    // Log success only if status code is 200 (OK)
-                    this.log.debug(
-                        `Room ${roomID}: Setting offset temperature for offset ${apiID} to ${offsetTemp} °C`,
-                    );
-                } else {
-                    // Log an error if any other status code is returned
-                    this.log.error(
-                        `Room ${roomID}: Failed to set offset temperature for offset ${apiID}. Received unexpected status code ${statusCode}`,
-                    );
-                }
+                await axios.post(url, form, { headers: form.getHeaders(), timeout: 15000 });
+                this.log.debug(`Room ${roomID}: Setting offset temperature for offset ${apiID} to ${offsetTemp} °C`);
             } catch (error) {
-                this.setState('info.connection', false, true);
-                this.log.error(
-                    `Room ${roomID}: Setting offset temperature for offset "${apiID}" returned an error "${error}"`,
+                await this.setState('info.connection', { val: false, ack: true });
+                this.log.error(`Room ${roomID}: Setting offset temperature for offset "${apiID}" returned an error "${error}"`,
                 );
             }
         } else {
