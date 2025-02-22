@@ -76,12 +76,8 @@ To start the adapter, the following data need to be provided in the admin settin
 
 ## To Dos
 
-1. (in progress) Publish the adapter :)
-2. Add data validation to config fields
-3. (done) Extend data fields received from Controme mini server (e.g. humidity)
-4. (done) Add sensor data for each sensor and room
-5. (done, testing pending) Implement temporary mode (temporary changes to desired temperature for room) next to setpoint temperature
-6. (done) Add option to set value for virtual sensors
+1. (in progress) Testing, testing, testing
+2. Release adapter to stable after thorough testing
 
 ## Know Bugs
 
@@ -92,6 +88,9 @@ To start the adapter, the following data need to be provided in the admin settin
   Placeholder for the next version (at the beginning of the line):
   ### **WORK IN PROGRESS**
 -->
+### 0.5.7 (2025-02-22)
+* (MadErstam) Made adapter safe to handle different versions of API
+
 ### 0.5.6 (2025-02-21)
 * (MadErstam) Bugfixing regarding invalid API responses or invalid sensor values
 

@@ -1,8 +1,11 @@
 {
     "common": {
         "name": "controme",
-        "version": "0.5.6",
+        "version": "0.5.7",
         "news": {
+            "0.5.7": {
+                "en": "Made adapter safe to handle different versions of API"
+            },
             "0.5.6": {
                 "en": "Bugfixing regarding invalid API responses or invalid sensor values",
                 "de": "Fehler in Bezug auf ungültige API-Antworten oder ungültige Sensorwerte",
