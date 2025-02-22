@@ -1052,7 +1052,9 @@ class Controme extends utils.Adapter {
             if (isFinite(value)) {
                 return roundTo(value, decimals);
             }
-            this.log.warn(`Room ${room.id} (${room.name}): Invalid ${fieldLabel} value: ${raw}`);
+            if (this.config.warnOnNull) {
+                this.log.warn(`Room ${room.id} (${room.name}): Invalid ${fieldLabel} value: ${raw}`);
+            }
         } else {
             this.log.debug(`Room ${room.id} (${room.name}): Value "${fieldLabel}" missing in API response`);
         }
