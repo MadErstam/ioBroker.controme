@@ -4,7 +4,17 @@
         "version": "0.5.7",
         "news": {
             "0.5.7": {
-                "en": "Made adapter safe to handle different versions of API"
+                "en": "Made adapter safe to handle different versions of API",
+                "de": "Adapter sicher gemacht, um verschiedene Versionen von API zu verarbeiten",
+                "ru": "Сделанный адаптер безопасным для обработки различных версий API",
+                "pt": "O adaptador tornado seguro para lidar com diferentes versões da API",
+                "nl": "Adapter veilig gemaakt om verschillende versies van API te verwerken",
+                "fr": "Adaptateur fait sûr pour gérer différentes versions d'API",
+                "it": "Adattatore reso sicuro per gestire diverse versioni di API",
+                "es": "El adaptador hecho seguro para manejar diferentes versiones de API",
+                "pl": "Uczynił adapter bezpieczny do obsługi różnych wersji API",
+                "uk": "Зробив адаптер безпечним для обробки різних версій API",
+                "zh-cn": "使适配器安全处理不同版本的API"
             },
             "0.5.6": {
                 "en": "Bugfixing regarding invalid API responses or invalid sensor values",
