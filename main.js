@@ -1041,102 +1041,98 @@ class Controme extends utils.Adapter {
         return fullId.substring(fullId.lastIndexOf('.') + 1);
     }
 
-    _updateRoom(room) {
+    // Extended helper: Parses the value from room[key] using the provided parser.
+    // Checks for existence and validity. If the parsed value is valid,
+    // it is rounded to the specified number of decimal places (if decimals is 0, returns an integer).
+    // If the value is missing or invalid, logs an appropriate message and returns null.
+    _safeParseValue(room, key, fieldLabel, parser = parseFloat, decimals = 2) {
+        const raw = room[key];
+        if (raw != null) {
+            const value = parser(raw);
+            if (isFinite(value)) {
+                return roundTo(value, decimals);
+            }
+            this.log.warn(`Room ${room.id} (${room.name}): Invalid ${fieldLabel} value: ${raw}`);
+        } else {
+            this.log.debug(`Room ${room.id} (${room.name}): Value "${fieldLabel}" missing in API response`);
+        }
+        return null;
+    }
+
+    async _updateRoom(room) {
         const promises = [];
+
         this.log.silly(
-            `Updating room ${room.id} (${room.name}): Actual temperature ${roundTo(parseFloat(room.temperatur), 2)} °C, setpoint temperature ${roundTo(parseFloat(room.solltemperatur), 2)} °C, temperature offset ${roundTo(parseFloat(room.total_offset), 2)} °C`,
+            `Updating room ${room.id} (${room.name}): Actual temperature ${this._safeParseValue(room, 'temperatur', 'actual temperature')} °C, ` +
+                `setpoint temperature ${this._safeParseValue(room, 'solltemperatur', 'setpoint temperature')} °C, ` +
+                `temperature offset ${this._safeParseValue(room, 'total_offset', 'temperature offset')} °C`,
         );
 
-        // Update actual temperature
-        const temp = parseFloat(room.temperatur);
-        if (isFinite(temp)) {
-            const actualTemp = roundTo(temp, 2);
-            promises.push(this.setStateChangedAsync(`${room.id}.actualTemperature`, actualTemp, true));
-        } else {
-            this.log.warn(`Room ${room.id} (${room.name}): Invalid actual temperature value: ${room.temperatur}`);
-            promises.push(this.setStateChangedAsync(`${room.id}.actualTemperature`, null, true));
-        }
+        // Actual temperature
+        const actualTemp = this._safeParseValue(room, 'temperatur', 'actual temperature');
+        promises.push(this.setStateChangedAsync(`${room.id}.actualTemperature`, actualTemp, true));
 
-        // Update setpoint temperature
-        const setpoint = parseFloat(room.solltemperatur);
-        if (isFinite(setpoint)) {
-            const setpointTemp = roundTo(setpoint, 2);
-            promises.push(this.setStateChangedAsync(`${room.id}.setpointTemperature`, setpointTemp, true));
-        } else {
-            this.log.warn(`Room ${room.id} (${room.name}): Invalid setpoint temperature value: ${room.solltemperatur}`);
-            promises.push(this.setStateChangedAsync(`${room.id}.setpointTemperature`, null, true));
-        }
+        // Setpoint temperature
+        const setpointTemp = this._safeParseValue(room, 'solltemperatur', 'setpoint temperature');
+        promises.push(this.setStateChangedAsync(`${room.id}.setpointTemperature`, setpointTemp, true));
 
-        // Update temperature offset
-        const offset = parseFloat(room.total_offset);
-        if (isFinite(offset)) {
-            const tempOffset = roundTo(offset, 2);
-            promises.push(this.setStateChangedAsync(`${room.id}.temperatureOffset`, tempOffset, true));
-        } else {
-            this.log.warn(`Room ${room.id} (${room.name}): Invalid temperature offset value: ${room.total_offset}`);
-            promises.push(this.setStateChangedAsync(`${room.id}.temperatureOffset`, null, true));
-        }
+        // Temperature offset
+        const tempOffset = this._safeParseValue(room, 'total_offset', 'temperature offset');
+        promises.push(this.setStateChangedAsync(`${room.id}.temperatureOffset`, tempOffset, true));
 
-        // Update permanent setpoint temperature
-        const permSetpoint = parseFloat(room.perm_solltemperatur);
-        if (isFinite(permSetpoint)) {
-            const permTemp = roundTo(permSetpoint, 2);
-            promises.push(this.setStateChangedAsync(`${room.id}.setpointTemperaturePerm`, permTemp, true));
-        } else {
-            this.log.warn(
-                `Room ${room.id} (${room.name}): Invalid permanent setpoint temperature value: ${room.perm_solltemperatur}`,
+        // Permanent setpoint temperature
+        const permTemp = this._safeParseValue(room, 'perm_solltemperatur', 'permanent setpoint temperature');
+        promises.push(this.setStateChangedAsync(`${room.id}.setpointTemperaturePerm`, permTemp, true));
+
+        // Humidity as integer (no decimals)
+        const humidity = this._safeParseValue(room, 'luftfeuchte', 'humidity', raw => parseInt(raw, 10), 0);
+        promises.push(this.setStateChangedAsync(`${room.id}.humidity`, humidity, true));
+
+        // Remaining time as integer (no decimals)
+        const remainingTime = this._safeParseValue(
+            room,
+            'remaining_time',
+            'remaining time',
+            raw => parseInt(raw, 10),
+            0,
+        );
+        promises.push(this.setStateChangedAsync(`${room.id}.temporary_mode_remaining`, remainingTime, true));
+
+        // is_temporary_mode: Expecting a boolean value
+        if (room.is_temporary_mode != null) {
+            promises.push(
+                this.setStateChangedAsync(`${room.id}.is_temporary_mode`, Boolean(room.is_temporary_mode), true),
             );
-            promises.push(this.setStateChangedAsync(`${room.id}.setpointTemperaturePerm`, null, true));
+        } else {
+            this.log.debug(`Room ${room.id} (${room.name}): Value "is_temporary_mode" missing in API response`);
+            promises.push(this.setStateChangedAsync(`${room.id}.is_temporary_mode`, null, true));
         }
 
-        // Directly update is_temporary_mode
-        promises.push(this.setStateChangedAsync(`${room.id}.is_temporary_mode`, room.is_temporary_mode, true));
-
-        // Update remaining time for temporary_mode
-        const remaining = parseInt(room.remaining_time);
-        if (!isNaN(remaining)) {
-            promises.push(this.setStateChangedAsync(`${room.id}.temporary_mode_remaining`, remaining, true));
-        } else {
-            if (room.is_temporary_mode) {
-                this.log.warn(
-                    `Room ${room.id} (${room.name}): Invalid remaining time for temporary mode: ${room.remaining_time}`,
-                );
-            }
-            promises.push(this.setStateChangedAsync(`${room.id}.temporary_mode_remaining`, null, true));
-        }
-
-        // Update end time for temporary_mode
-        if (room.mode_end_datetime == null) {
-            promises.push(this.setStateChangedAsync(`${room.id}.temporary_mode_end`, null, true));
-        } else {
+        // End time for temporary mode
+        if (room.mode_end_datetime != null) {
             const unixTime = dayjs(room.mode_end_datetime).unix();
             if (isFinite(unixTime)) {
                 promises.push(this.setStateChangedAsync(`${room.id}.temporary_mode_end`, unixTime, true));
             } else {
                 if (room.is_temporary_mode) {
                     this.log.warn(
-                        `Room ${room.id} (${room.name}): Invalid end time for temporary mode: ${room.mode_end_datetime}`,
+                        `Room ${room.id} (${room.name}): Invalid mode_end_datetime: ${room.mode_end_datetime}`,
                     );
                 }
                 promises.push(this.setStateChangedAsync(`${room.id}.temporary_mode_end`, null, true));
             }
-        }
-
-        // Update humidity
-        const humidity = parseInt(room.luftfeuchte);
-        if (!isNaN(humidity)) {
-            promises.push(this.setStateChangedAsync(`${room.id}.humidity`, humidity, true));
         } else {
-            // Only log a warning if the room is expected to have a humidity sensor.
-            // For example, if the API returns a value different than "kein Sensor vorhanden".
-            if (room.luftfeuchte !== 'kein Sensor vorhanden') {
-                this.log.warn(`Room ${room.id} (${room.name}): Invalid humidity value: ${room.luftfeuchte}`);
-            }
-            promises.push(this.setStateChangedAsync(`${room.id}.humidity`, null, true));
+            this.log.debug(`Room ${room.id} (${room.name}): Value "mode_end_datetime" missing in API response`);
+            promises.push(this.setStateChangedAsync(`${room.id}.temporary_mode_end`, null, true));
         }
 
-        // Directly update opting mode
-        promises.push(this.setStateChangedAsync(`${room.id}.mode`, room.betriebsart, true));
+        // Operating mode ("betriebsart"): Expecting a string
+        if (room.betriebsart != null && typeof room.betriebsart === 'string') {
+            promises.push(this.setStateChangedAsync(`${room.id}.mode`, room.betriebsart, true));
+        } else {
+            this.log.debug(`Room ${room.id} (${room.name}): Value "betriebsart" missing or invalid in API response`);
+            promises.push(this.setStateChangedAsync(`${room.id}.mode`, null, true));
+        }
 
         return Promise.all(promises);
     }
