@@ -14,6 +14,20 @@ function roundTo(number, decimals = 0) {
     return Math.round(number * Math.pow(10, decimals)) / Math.pow(10, decimals);
 }
 
+function safeStringify(obj, indent = 2) {
+    const cache = new Set();
+    return JSON.stringify(obj, (key, value) => {
+        if (typeof value === 'object' && value !== null) {
+            if (cache.has(value)) {
+                // Zirkuläre Referenz gefunden, diesen Schlüssel überspringen
+                return;
+            }
+            cache.add(value);
+        }
+        return value;
+    }, indent);
+}
+
 class Controme extends utils.Adapter {
     /**
      * Creates a new Controme adapter instance.
@@ -170,17 +184,24 @@ class Controme extends utils.Adapter {
     
     _logAxiosError(error, contextMessage = '') {
         if (error.response) {
-            // Server responded with an error status (e.g., 404, 500)
-            this.log.error(`${contextMessage} - Request failed with status ${error.response.status}: ${JSON.stringify(error.response.data)}`);
+            // Server responded with an error status (z. B. 404, 500)
+            this.log.error(`${contextMessage} - Request failed with status ${error.response.status}: ${safeStringify(error.response.data)}`);
         } else if (error.request) {
-            // Request was sent but no response received (e.g., timeout, network issue)
-            this.log.error(`${contextMessage} - No response received from the server. Request details: ${JSON.stringify(error.request)}`);
+            // Request was sent but no response received (z. B. timeout, network issue)
+            const req = error.request;
+            const requestDetails = {
+                method: req.method,
+                path: req.path,
+            };
+            this.log.error(`${contextMessage} - No response received. Request details: ${safeStringify(requestDetails)}`);
         } else {
-            // General error (e.g., invalid configuration, unexpected axios behavior)
-            this.log.error(`${contextMessage} - Request setup failed: ${error.message}`);
+            // If neither  response nor request exists (e.g. DNS errors)
+            // or general errosr (e.g., invalid configuration, unexpected axios behavior)
+            const code = error.code ? ` (Code: ${error.code})` : '';
+            this.log.error(`${contextMessage} - Request setup failed: ${error.toString()} ${code}`);
         }
-    }    
-
+    }     
+    
     async _processTempsAPIforCreation(body) {
         this.log.silly(`Temps response from Controme mini server for creation of objects: "${JSON.stringify(body)}"`);
         this.log.debug(`~  Creating room objects (incl. offsets and sensors)`);
@@ -923,8 +944,8 @@ class Controme extends utils.Adapter {
         this.log.debug('Polling temperatures from Controme mini server');
         try {
             const url = `http://${this.config.url}/get/json/v1/${this.config.houseID}/temps/`;
-            const response = await axios.get(url, { timeout: 15000 });
-    
+            const response = await axios.get(url);
+   
             if (!response.data || typeof response.data !== 'object') {
                 throw new Error(`Unexpected response format: ${JSON.stringify(response.data)}`);
             }
@@ -1082,7 +1103,7 @@ class Controme extends utils.Adapter {
     // Checks for existence and validity. If the parsed value is valid,
     // it is rounded to the specified number of decimal places (if decimals is 0, returns an integer).
     // If the value is missing or invalid, logs an appropriate message and returns null.
-    _safeParseValue(room, key, fieldLabel, parser = parseFloat, decimals = 2) {
+    _safeParseValue(room, key, fieldLabel, parser = parseFloat, decimals = 2, suppressWarning = false) {
         const raw = room[key];
         if (raw != null) {
             const value = parser(raw);
@@ -1090,7 +1111,9 @@ class Controme extends utils.Adapter {
                 return roundTo(value, decimals);
             }
             if (this.config.warnOnNull) {
-                this.log.warn(`Room ${room.id} (${room.name}): Invalid ${fieldLabel} value: ${raw}`);
+                if (!suppressWarning) {
+                    this.log.warn(`Room ${room.id} (${room.name}): Invalid ${fieldLabel} value: ${raw}`);
+                }
             }
         } else {
             this.log.debug(`Room ${room.id} (${room.name}): Value "${fieldLabel}" missing in API response`);
@@ -1127,16 +1150,6 @@ class Controme extends utils.Adapter {
         const humidity = this._safeParseValue(room, 'luftfeuchte', 'humidity', raw => parseInt(raw, 10), 0);
         promises.push(this.setStateChangedAsync(`${room.id}.humidity`, humidity, true));
 
-        // Remaining time as integer (no decimals)
-        const remainingTime = this._safeParseValue(
-            room,
-            'remaining_time',
-            'remaining time',
-            raw => parseInt(raw, 10),
-            0,
-        );
-        promises.push(this.setStateChangedAsync(`${room.id}.temporary_mode_remaining`, remainingTime, true));
-
         // is_temporary_mode: Expecting a boolean value
         if (room.is_temporary_mode != null) {
             promises.push(
@@ -1146,6 +1159,17 @@ class Controme extends utils.Adapter {
             this.log.debug(`Room ${room.id} (${room.name}): Value "is_temporary_mode" missing in API response`);
             promises.push(this.setStateChangedAsync(`${room.id}.is_temporary_mode`, null, true));
         }
+       
+        // Remaining time as integer (no decimals)
+        const remainingTime = this._safeParseValue(
+            room,
+            'remaining_time',
+            'remaining time',
+            raw => parseInt(raw, 10),
+            0,
+            !room.is_temporary_mode
+        );
+        promises.push(this.setStateChangedAsync(`${room.id}.temporary_mode_remaining`, remainingTime, true));
 
         // End time for temporary mode
         if (room.mode_end_datetime != null) {
@@ -1352,9 +1376,9 @@ class Controme extends utils.Adapter {
             if (this.updateInterval != null) {
                 this.clearInterval(this.updateInterval);
             }
-            if (typeof this.delayPollingTimeout === 'number') {
+            if (this.delayPollingTimeout) {
                 this.clearTimeout(this.delayPollingTimeout);
-            }
+            }            
             callback();
         } catch {
             callback();
@@ -1514,7 +1538,7 @@ class Controme extends utils.Adapter {
             setpointTemp = Math.trunc((Math.round(setpointTemp * 8) / 8) * 100) / 100;
             form.append('soll', setpointTemp);
     
-            this.log.debug(`_setSetpointTempPerm: Sending request to "${url}" with form data: ${JSON.stringify(form)}`);
+            this.log.silly(`_setSetpointTempPerm: Sending request to "${url}" with permanent setpoint temperature ${setpointTemp}`);
             
             try {
                 await axios.post(url, form, { headers: form.getHeaders(), timeout: 15000 });
@@ -1546,7 +1570,7 @@ class Controme extends utils.Adapter {
                 // There is some unclarity in the API documentation if duration needs to be a numeric value in minutes or if it can also be "default" as string; we use the default defined in config
                 form.append('duration', targetDuration);
 
-                this.log.silly(`_setSetpointTemp: form = "${JSON.stringify(form)}"`);
+                this.log.silly(`_setSetpointTemp: Sending request to "${url}" with setpoint temperature ${targetTemp} and duration ${targetDuration}`);
 
                 try {
                     await axios.post(url, form, { headers: form.getHeaders(), timeout: 15000 });
@@ -1581,7 +1605,7 @@ class Controme extends utils.Adapter {
             actualTemp = Math.trunc((Math.round(actualTemp * 8) / 8) * 100) / 100;
             form.append('value', actualTemp);
 
-            this.log.silly(`_setActualTemp: form = "${JSON.stringify(form)}"`);
+            this.log.silly(`_setActualTemp: Sending request to "${url}" with actual temperature ${actualTemp}`);
 
             try {
                 await axios.post(url, form, { headers: form.getHeaders(), timeout: 15000 });
@@ -1610,7 +1634,7 @@ class Controme extends utils.Adapter {
             offsetTemp = Math.trunc((Math.round(offsetTemp * 8) / 8) * 100) / 100;
             form.append('offset', offsetTemp);
 
-            this.log.debug(`_setOffsetTemp: form = "${JSON.stringify(form)}"`);
+            this.log.silly(`_setOffsetTemp: Sending request to "${url}" with offset temperature ${offsetTemp}`);
 
             try {
                 await axios.post(url, form, { headers: form.getHeaders(), timeout: 15000 });
