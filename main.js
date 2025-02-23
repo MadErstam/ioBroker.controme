@@ -185,7 +185,7 @@ class Controme extends utils.Adapter {
     _logAxiosError(error, contextMessage = '') {
         if (error.response) {
             // Server responded with an error status (z. B. 404, 500)
-            this.log.error(`${contextMessage} - Request failed with status ${error.response.status}: ${safeStringify(error.response.data)}`);
+            this.log.error(`${contextMessage} - Axios request failed with status ${error.response.status}: ${safeStringify(error.response.data)}`);
         } else if (error.request) {
             // Request was sent but no response received (z. B. timeout, network issue)
             const req = error.request;
@@ -193,12 +193,12 @@ class Controme extends utils.Adapter {
                 method: req.method,
                 path: req.path,
             };
-            this.log.error(`${contextMessage} - No response received. Request details: ${safeStringify(requestDetails)}`);
+            this.log.error(`${contextMessage} - No response received. Axios request details: ${safeStringify(requestDetails)}`);
         } else {
             // If neither  response nor request exists (e.g. DNS errors)
             // or general errosr (e.g., invalid configuration, unexpected axios behavior)
             const code = error.code ? ` (Code: ${error.code})` : '';
-            this.log.error(`${contextMessage} - Request setup failed: ${error.toString()} ${code}`);
+            this.log.error(`${contextMessage} - Axios request failed: ${error.toString()} ${code}`);
         }
     }     
     
@@ -1022,7 +1022,9 @@ class Controme extends utils.Adapter {
     
             try {
                 const response = await axios.get(url, { timeout: 15000 });
-    
+
+                this.log.debug(`_pollIndividualGatewayOutputs: ${url}: Response: JSON.stringify(response.data) - typeof ${typeof(response.data)}`);
+
                 if (!response.data || typeof response.data !== 'object') {
                     throw new Error(`Unexpected response format: ${JSON.stringify(response.data)}`);
                 }
