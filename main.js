@@ -16,16 +16,20 @@ function roundTo(number, decimals = 0) {
 
 function safeStringify(obj, indent = 2) {
     const cache = new Set();
-    return JSON.stringify(obj, (key, value) => {
-        if (typeof value === 'object' && value !== null) {
-            if (cache.has(value)) {
-                // Zirkuläre Referenz gefunden, diesen Schlüssel überspringen
-                return;
+    return JSON.stringify(
+        obj,
+        (key, value) => {
+            if (typeof value === 'object' && value !== null) {
+                if (cache.has(value)) {
+                    // Zirkuläre Referenz gefunden, diesen Schlüssel überspringen
+                    return;
+                }
+                cache.add(value);
             }
-            cache.add(value);
-        }
-        return value;
-    }, indent);
+            return value;
+        },
+        indent,
+    );
 }
 
 class Controme extends utils.Adapter {
@@ -168,12 +172,17 @@ class Controme extends utils.Adapter {
         this.delayPolling = true;
         this.delayPollingCounter = Math.min(this.delayPollingCounter + 1, 10); // Limit to max 10
 
-        this.delayPollingTimeout = this.setTimeout(() => {
-            this.delayPolling = false;
-        }, this.delayPollingCounter * 60 * 1000);
+        this.delayPollingTimeout = this.setTimeout(
+            () => {
+                this.delayPolling = false;
+            },
+            this.delayPollingCounter * 60 * 1000,
+        );
 
         await this.setState('info.connection', { val: false, ack: true });
-        this.log.error(`Error in polling data from Controme mini server; will retry in ${this.delayPollingCounter} minutes.`);
+        this.log.error(
+            `Error in polling data from Controme mini server; will retry in ${this.delayPollingCounter} minutes.`,
+        );
     }
 
     async _resetPollingDelay() {
@@ -181,27 +190,31 @@ class Controme extends utils.Adapter {
         this.delayPollingCounter = 0;
         await this.setState('info.connection', { val: true, ack: true });
     }
-    
+
     _logAxiosError(error, contextMessage = '') {
         if (error.response) {
-            // Server responded with an error status (z. B. 404, 500)
-            this.log.error(`${contextMessage} - Axios request failed with status ${error.response.status}: ${safeStringify(error.response.data)}`);
+            // Server responded with an error status (z.B. 404, 500)
+            this.log.error(
+                `${contextMessage} - Axios request failed with status ${error.response.status}: ${safeStringify(error.response.data)}`,
+            );
         } else if (error.request) {
-            // Request was sent but no response received (z. B. timeout, network issue)
+            // Request was sent but no response received (z.B. timeout, network issue)
             const req = error.request;
             const requestDetails = {
                 method: req.method,
                 path: req.path,
             };
-            this.log.error(`${contextMessage} - No response received. Axios request details: ${safeStringify(requestDetails)}`);
+            this.log.error(
+                `${contextMessage} - No response received. Axios request details: ${safeStringify(requestDetails)}`,
+            );
         } else {
             // If neither  response nor request exists (e.g. DNS errors)
             // or general errosr (e.g., invalid configuration, unexpected axios behavior)
             const code = error.code ? ` (Code: ${error.code})` : '';
             this.log.error(`${contextMessage} - Axios request failed: ${error.toString()} ${code}`);
         }
-    }     
-    
+    }
+
     async _processTempsAPIforCreation(body) {
         this.log.silly(`Temps response from Controme mini server for creation of objects: "${JSON.stringify(body)}"`);
         this.log.debug(`~  Creating room objects (incl. offsets and sensors)`);
@@ -302,7 +315,7 @@ class Controme extends utils.Adapter {
         } catch (error) {
             await this._delayPollingFunction();
             this.log.error(
-                `Polling temps API from mini server to create data objects for rooms, offsets and sensor failed with error ${error instanceof Error ? error.message : String(error)}`
+                `Polling temps API from mini server to create data objects for rooms, offsets and sensor failed with error ${error instanceof Error ? error.message : String(error)}`,
             );
         }
 
@@ -315,7 +328,7 @@ class Controme extends utils.Adapter {
         } catch (error) {
             await this._delayPollingFunction();
             this.log.error(
-                `Polling outs API from mini server to create data objects for outputs failed with error ${error instanceof Error ? error.message : String(error)}`
+                `Polling outs API from mini server to create data objects for outputs failed with error ${error instanceof Error ? error.message : String(error)}`,
             );
         }
     }
@@ -945,11 +958,11 @@ class Controme extends utils.Adapter {
         try {
             const url = `http://${this.config.url}/get/json/v1/${this.config.houseID}/temps/`;
             const response = await axios.get(url);
-   
+
             if (!response.data || typeof response.data !== 'object') {
                 throw new Error(`Unexpected response format: ${JSON.stringify(response.data)}`);
             }
-    
+
             await this._processTempsAPIforUpdate(response.data);
             await this._resetPollingDelay();
         } catch (error) {
@@ -957,7 +970,7 @@ class Controme extends utils.Adapter {
             this._logAxiosError(error, 'Polling temperature data failed');
         }
     }
-    
+
     async _processOutsAPIforUpdate(body) {
         this.log.silly(`Outs response from Controme mini server: "${JSON.stringify(body)}"`);
         const promises = [];
@@ -981,11 +994,11 @@ class Controme extends utils.Adapter {
         try {
             const url = `http://${this.config.url}/get/json/v1/${this.config.houseID}/outs/`;
             const response = await axios.get(url, { timeout: 15000 });
-    
+
             if (!response.data || typeof response.data !== 'object') {
                 throw new Error(`Unexpected response format: ${JSON.stringify(response.data)}`);
             }
-    
+
             await this._processOutsAPIforUpdate(response.data);
             await this._resetPollingDelay();
         } catch (error) {
@@ -993,7 +1006,7 @@ class Controme extends utils.Adapter {
             this._logAxiosError(error, 'Polling output data failed');
         }
     }
-    
+
     async _pollGateways() {
         const gateways = Array.isArray(this.config.gateways) ? this.config.gateways : [this.config.gateways];
         for (const gateway of gateways) {
@@ -1012,23 +1025,26 @@ class Controme extends utils.Adapter {
     }
 
     // Polls each output of a "gwUniPro" gateway individually
-    async _pollIndividualGatewayOutputs(gateway) { 
+    async _pollIndividualGatewayOutputs(gateway) {
         this.log.debug(`Polling individual outputs for gateway ${gateway.gatewayName}`);
         const outputs = await this.getStatesOfAsync(`${this.namespace}.${gateway.gatewayMAC}`, 'outputs');
-    
+
         for (const output of outputs) {
             const outputID = this._extractOutputID(output._id);
             const url = `http://${this.config.url}/get/${gateway.gatewayMAC}/${outputID}/`;
-    
+
             try {
                 const response = await axios.get(url, { timeout: 15000 });
 
-                this.log.debug(`_pollIndividualGatewayOutputs: ${url}: Response: JSON.stringify(response.data) - typeof ${typeof(response.data)}`);
+                this.log.debug(
+                    `_pollIndividualGatewayOutputs: ${url}: Response: JSON.stringify(response.data) - typeof ${typeof response.data}`,
+                );
 
-                if (!response.data || typeof response.data !== 'object') {
+                // For each output, a response in the format "<0>" or "<1>" is returned
+                if (!response.data || typeof response.data !== 'string') {
                     throw new Error(`Unexpected response format: ${JSON.stringify(response.data)}`);
                 }
-    
+
                 await this._setGatewayOutputState(gateway.gatewayMAC, output._id, response.data);
             } catch (error) {
                 this._logAxiosError(error, `Failed to poll data for output ${gateway.gatewayMAC}:${outputID}`);
@@ -1066,35 +1082,39 @@ class Controme extends utils.Adapter {
         }
         this.log.warn(`Unexpected response format from gateway outputs API: ${JSON.stringify(responseData)}`);
         return [];
-    }    
+    }
 
     // Sets the state for a specific gateway output
     async _setGatewayOutputState(gatewayMAC, outputId, data) {
         if (typeof data === 'string') {
-            try {
-                // If the API returns a string, attempt to parse it as JSON
-                data = JSON.parse(data);
-            } catch (e) {
-                this.log.error(`Failed to parse response from gateway ${gatewayMAC}: ${data}`);
-                return;
+            // If the string has the format "<0>" or "<1>", extract the content
+            if (data.startsWith('<') && data.endsWith('>')) {
+                data = data.slice(1, -1); // remove brackets
+            } else {
+                try {
+                    data = JSON.parse(data);
+                } catch (e) {
+                    this.log.error(`Failed to parse response from gateway ${gatewayMAC}: ${data}. Error: ${e.message}`);
+                    return;
+                }
             }
         }
-    
-        if (typeof data === 'object' && data !== null) {
-            // If the API response has a known structure (e.g., { value: 0.75 })
-            const value = parseFloat(data.value || data[0]);
-    
-            if (!isNaN(value)) {
-                await this.setState(outputId, value, true);
-                this.log.silly(`Setting gateway output ${gatewayMAC}:${this._extractOutputID(outputId)} to ${value}`);
-            } else {
-                this.log.error(`Received unexpected data format from gateway ${gatewayMAC}: ${JSON.stringify(data)}`);
-            }
+
+        let value;
+        if (typeof data === 'string') {
+            value = parseFloat(data);
+        } else if (typeof data === 'object' && data !== null) {
+            // If the API returns an object, e.g. { value: 0.75 }
+            value = parseFloat(data.value || data[0]);
+        }
+
+        if (!isNaN(value)) {
+            await this.setState(outputId, value, true);
+            this.log.silly(`Setting gateway output ${gatewayMAC}:${this._extractOutputID(outputId)} to ${value}`);
         } else {
-            this.log.error(`Unexpected response format from gateway ${gatewayMAC}: ${JSON.stringify(data)}`);
+            this.log.error(`Received unexpected data format from gateway ${gatewayMAC}: ${safeStringify(data)}`);
         }
     }
-    
 
     // Extracts the output ID from a full state ID
     _extractOutputID(fullId) {
@@ -1161,7 +1181,7 @@ class Controme extends utils.Adapter {
             this.log.debug(`Room ${room.id} (${room.name}): Value "is_temporary_mode" missing in API response`);
             promises.push(this.setStateChangedAsync(`${room.id}.is_temporary_mode`, null, true));
         }
-       
+
         // Remaining time as integer (no decimals)
         const remainingTime = this._safeParseValue(
             room,
@@ -1169,7 +1189,7 @@ class Controme extends utils.Adapter {
             'remaining time',
             raw => parseInt(raw, 10),
             0,
-            !room.is_temporary_mode
+            !room.is_temporary_mode,
         );
         promises.push(this.setStateChangedAsync(`${room.id}.temporary_mode_remaining`, remainingTime, true));
 
@@ -1380,7 +1400,7 @@ class Controme extends utils.Adapter {
             }
             if (this.delayPollingTimeout) {
                 this.clearTimeout(this.delayPollingTimeout);
-            }            
+            }
             callback();
         } catch {
             callback();
@@ -1532,16 +1552,18 @@ class Controme extends utils.Adapter {
     async _setSetpointTempPerm(roomID, setpointTemp) {
         const url = `http://${this.config.url}/set/json/v1/${this.config.houseID}/soll/${roomID}/`;
         const form = new formData();
-    
+
         form.append('user', this.config.user);
         form.append('password', this.config.password);
-    
+
         if (typeof setpointTemp === 'number' && isFinite(setpointTemp)) {
             setpointTemp = Math.trunc((Math.round(setpointTemp * 8) / 8) * 100) / 100;
             form.append('soll', setpointTemp);
-    
-            this.log.silly(`_setSetpointTempPerm: Sending request to "${url}" with permanent setpoint temperature ${setpointTemp}`);
-            
+
+            this.log.silly(
+                `_setSetpointTempPerm: Sending request to "${url}" with permanent setpoint temperature ${setpointTemp}`,
+            );
+
             try {
                 await axios.post(url, form, { headers: form.getHeaders(), timeout: 15000 });
                 this.log.debug(`Room ${roomID}: Successfully set permanent setpoint temperature to ${setpointTemp} °C`);
@@ -1552,7 +1574,7 @@ class Controme extends utils.Adapter {
         } else {
             this.log.error(`Room ${roomID}: Invalid setpoint temperature value`);
         }
-    }    
+    }
 
     async _setSetpointTemp(roomID, targetTemp, targetDuration) {
         const url = `http://${this.config.url}/set/json/v1/${this.config.houseID}/ziel/${roomID}/`;
@@ -1572,14 +1594,20 @@ class Controme extends utils.Adapter {
                 // There is some unclarity in the API documentation if duration needs to be a numeric value in minutes or if it can also be "default" as string; we use the default defined in config
                 form.append('duration', targetDuration);
 
-                this.log.silly(`_setSetpointTemp: Sending request to "${url}" with setpoint temperature ${targetTemp} and duration ${targetDuration}`);
+                this.log.silly(
+                    `_setSetpointTemp: Sending request to "${url}" with setpoint temperature ${targetTemp} and duration ${targetDuration}`,
+                );
 
                 try {
                     await axios.post(url, form, { headers: form.getHeaders(), timeout: 15000 });
-                    this.log.debug(`Room ${roomID}: Setting setpoint temperature (temporary mode) to ${targetTemp} °C for ${targetDuration} minutes`,);
+                    this.log.debug(
+                        `Room ${roomID}: Setting setpoint temperature (temporary mode) to ${targetTemp} °C for ${targetDuration} minutes`,
+                    );
                 } catch (error) {
                     await this.setState('info.connection', { val: false, ack: true });
-                    this.log.error(`Room ${roomID}: Setting setpoint temperature (temporary mode) returned an error ${error instanceof Error ? error.message : String(error)}`);
+                    this.log.error(
+                        `Room ${roomID}: Setting setpoint temperature (temporary mode) returned an error ${error instanceof Error ? error.message : String(error)}`,
+                    );
                 }
             } else {
                 this.log.error(
@@ -1614,7 +1642,9 @@ class Controme extends utils.Adapter {
                 this.log.debug(`Room ${roomID}: Setting actual temperature for sensor ${sensorID} to ${actualTemp} °C`);
             } catch (error) {
                 await this.setState('info.connection', { val: false, ack: true });
-                this.log.error(`Room ${roomID}: Setting actual temperature for sensor ${sensorID} returned an error ${error instanceof Error ? error.message : String(error)}`);
+                this.log.error(
+                    `Room ${roomID}: Setting actual temperature for sensor ${sensorID} returned an error ${error instanceof Error ? error.message : String(error)}`,
+                );
             }
         } else {
             this.log.error(`Room ${roomID}: Actual temperature for sensor "${sensorID}" is not a number.`);
@@ -1643,7 +1673,8 @@ class Controme extends utils.Adapter {
                 this.log.debug(`Room ${roomID}: Setting offset temperature for offset ${apiID} to ${offsetTemp} °C`);
             } catch (error) {
                 await this.setState('info.connection', { val: false, ack: true });
-                this.log.error(`Room ${roomID}: Setting offset temperature for offset "${apiID}" returned an error "${error}"`,
+                this.log.error(
+                    `Room ${roomID}: Setting offset temperature for offset "${apiID}" returned an error "${error}"`,
                 );
             }
         } else {
