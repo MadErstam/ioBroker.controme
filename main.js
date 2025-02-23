@@ -1101,16 +1101,15 @@ class Controme extends utils.Adapter {
                 }
             }
         }
-    
+
         // 2) Determine the numericValue based on the processed data
         let numericValue;
-    
+
         // If data is a string, parse it as a float
         if (typeof data === 'string') {
             numericValue = parseFloat(data);
-        }
-        // If data is an object, it might look like { value: 0.75 } or [0.75]
-        else if (data && typeof data === 'object') {
+        } else if (data && typeof data === 'object') {
+            // If data is an object, it might look like { value: 0.75 } or [0.75]
             const obj = data;
             // Attempt to extract either obj.value or obj[0]
             const maybeValue = obj.value ?? obj[0];
@@ -1118,12 +1117,14 @@ class Controme extends utils.Adapter {
                 numericValue = parseFloat(String(maybeValue));
             }
         }
-    
+
         // 3) Check if numericValue is a valid number
         if (typeof numericValue === 'number' && !isNaN(numericValue)) {
             // At this point, numericValue is guaranteed to be a valid number
             await this.setState(outputId, numericValue, true);
-            this.log.silly(`Setting gateway output ${gatewayMAC}:${this._extractOutputID(outputId)} to ${numericValue}`);
+            this.log.silly(
+                `Setting gateway output ${gatewayMAC}:${this._extractOutputID(outputId)} to ${numericValue}`,
+            );
         } else {
             // numericValue is undefined or NaN
             this.log.error(`Received unexpected data format from gateway ${gatewayMAC}: ${JSON.stringify(data)}`);
