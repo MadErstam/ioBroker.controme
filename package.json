@@ -11,8 +11,7 @@
   "dependencies": {
     "@iobroker/adapter-core": "^3.2.3",
     "axios": "^1.7.9",
-    "dayjs": "^1.11.13",
-    "got": "^11.8.5"
+    "dayjs": "^1.11.13"
   },
   "description": "Connect to local Controme mini server that controls you home heating system",
   "devDependencies": {
