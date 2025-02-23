@@ -199,14 +199,17 @@ class Controme extends utils.Adapter {
             );
         } else if (error.request) {
             // Request was sent but no response received (z.B. timeout, network issue)
-            const req = error.request;
-            const requestDetails = {
-                method: req.method,
-                path: req.path,
-            };
-            this.log.error(
-                `${contextMessage} - No response received. Axios request details: ${safeStringify(requestDetails)}`,
-            );
+            // Log additional info from error.config
+            const configDetails = error.config
+                ? {
+                      url: error.config.url,
+                      method: error.config.method,
+                      timeout: error.config.timeout,
+                      // ... any other fields you want to log
+                  }
+                : {};
+
+            this.log.error(`${contextMessage} - No response received. Config details: ${safeStringify(configDetails)}`);
         } else {
             // If neither  response nor request exists (e.g. DNS errors)
             // or general errosr (e.g., invalid configuration, unexpected axios behavior)
@@ -957,7 +960,7 @@ class Controme extends utils.Adapter {
         this.log.debug('Polling temperatures from Controme mini server');
         try {
             const url = `http://${this.config.url}/get/json/v1/${this.config.houseID}/temps/`;
-            const response = await axios.get(url);
+            const response = await axios.get(url, { timeout: 30000 });
 
             if (!response.data || typeof response.data !== 'object') {
                 throw new Error(`Unexpected response format: ${JSON.stringify(response.data)}`);
