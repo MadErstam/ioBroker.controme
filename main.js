@@ -1036,8 +1036,8 @@ class Controme extends utils.Adapter {
             try {
                 const response = await axios.get(url, { timeout: 15000 });
 
-                this.log.debug(
-                    `_pollIndividualGatewayOutputs: ${url}: Response: JSON.stringify(response.data) - typeof ${typeof response.data}`,
+                this.log.silly(
+                    `_pollIndividualGatewayOutputs: ${url}: Response: ${JSON.stringify(response.data)} - typeof ${typeof response.data}`,
                 );
 
                 // For each output, a response in the format "<0>" or "<1>" is returned
