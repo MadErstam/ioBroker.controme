@@ -1086,33 +1086,47 @@ class Controme extends utils.Adapter {
 
     // Sets the state for a specific gateway output
     async _setGatewayOutputState(gatewayMAC, outputId, data) {
+        // 1) If data is a string in the format "<0>" or "<1>", remove the angle brackets
         if (typeof data === 'string') {
-            // If the string has the format "<0>" or "<1>", extract the content
             if (data.startsWith('<') && data.endsWith('>')) {
-                data = data.slice(1, -1); // remove brackets
+                data = data.slice(1, -1);
             } else {
+                // Try to parse the string as JSON
                 try {
                     data = JSON.parse(data);
                 } catch (e) {
-                    this.log.error(`Failed to parse response from gateway ${gatewayMAC}: ${data}. Error: ${e.message}`);
+                    const errMsg = e instanceof Error ? e.message : String(e);
+                    this.log.error(`Failed to parse response from gateway ${gatewayMAC}: ${data}. Error: ${errMsg}`);
                     return;
                 }
             }
         }
-
-        let value;
+    
+        // 2) Determine the numericValue based on the processed data
+        let numericValue;
+    
+        // If data is a string, parse it as a float
         if (typeof data === 'string') {
-            value = parseFloat(data);
-        } else if (typeof data === 'object' && data !== null) {
-            // If the API returns an object, e.g. { value: 0.75 }
-            value = parseFloat(data.value || data[0]);
+            numericValue = parseFloat(data);
         }
-
-        if (!isNaN(value)) {
-            await this.setState(outputId, value, true);
-            this.log.silly(`Setting gateway output ${gatewayMAC}:${this._extractOutputID(outputId)} to ${value}`);
+        // If data is an object, it might look like { value: 0.75 } or [0.75]
+        else if (data && typeof data === 'object') {
+            const obj = data;
+            // Attempt to extract either obj.value or obj[0]
+            const maybeValue = obj.value ?? obj[0];
+            if (typeof maybeValue === 'string' || typeof maybeValue === 'number') {
+                numericValue = parseFloat(String(maybeValue));
+            }
+        }
+    
+        // 3) Check if numericValue is a valid number
+        if (typeof numericValue === 'number' && !isNaN(numericValue)) {
+            // At this point, numericValue is guaranteed to be a valid number
+            await this.setState(outputId, numericValue, true);
+            this.log.silly(`Setting gateway output ${gatewayMAC}:${this._extractOutputID(outputId)} to ${numericValue}`);
         } else {
-            this.log.error(`Received unexpected data format from gateway ${gatewayMAC}: ${safeStringify(data)}`);
+            // numericValue is undefined or NaN
+            this.log.error(`Received unexpected data format from gateway ${gatewayMAC}: ${JSON.stringify(data)}`);
         }
     }
 
