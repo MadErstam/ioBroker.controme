@@ -13,14 +13,25 @@ jobs:
     if: ${{github.actor == 'dependabot[bot]'}}
     runs-on: ubuntu-latest
     steps:
+      - name: Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@d7267f607e9d3fb96fc2fbe83e0af444713e90b7
+        with:
+          github-token: "${{ secrets.AUTO_MERGE_TOKEN }}"
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Check if PR should be auto-merged
-        uses: ahmadnassri/action-dependabot-auto-merge@v2
-        with:
-          # In order to use this, you need to go to https://github.com/settings/tokens and
-          # create a Personal Access Token with the permission "public_repo".
-          # Enter this token in your repository settings under "Secrets" and name it AUTO_MERGE_TOKEN
-          github-token: ${{ secrets.AUTO_MERGE_TOKEN }}
-          # By default, squash and merge, so Github chooses nice commit messages
-          command: "squash and merge"
+      # - name: Check if PR should be auto-merged
+      #  uses: ahmadnassri/action-dependabot-auto-merge@v2
+      #  with:
+      #    # In order to use this, you need to go to https://github.com/settings/tokens and
+      #    # create a Personal Access Token with the permission "public_repo".
+      #    # Enter this token in your repository settings under "Secrets" and name it AUTO_MERGE_TOKEN
+      #    github-token: ${{ secrets.AUTO_MERGE_TOKEN }}
+      #    # By default, squash and merge, so Github chooses nice commit messages
+      #    command: "squash and merge"
+      - name: Enable auto-merge for Dependabot PRs
+        if: contains(steps.metadata.outputs.dependency-names, 'my-dependency') && steps.metadata.outputs.update-type == 'version-update:semver-patch'
+        run: gh pr merge --auto --merge "$PR_URL"
+        env:
+          PR_URL: ${{github.event.pull_request.html_url}}
+          GH_TOKEN: ${{secrets.AUTO_MERGE_TOKEN}}
