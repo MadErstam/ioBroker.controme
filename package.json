@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@iobroker/adapter-core": "^3.2.3",
-    "axios": "^1.7.9",
+    "axios": "^1.8.1",
     "dayjs": "^1.11.13"
   },
   "description": "Connect to local Controme mini server that controls you home heating system",
