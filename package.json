@@ -9,7 +9,7 @@
     "url": "https://github.com/MadErstam/ioBroker.controme/issues"
   },
   "dependencies": {
-    "@iobroker/adapter-core": "^3.2.3",
+    "@iobroker/adapter-core": "^3.3.2",
     "axios": "^1.9.0",
     "dayjs": "^1.11.13"
   },
