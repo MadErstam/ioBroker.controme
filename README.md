@@ -189,7 +189,7 @@ To start the adapter, the following data need to be provided in the admin settin
 * (MadErstam) initial release
 
 ## License
-Copyright (c) 2025 MadErstam <erstam@gmx.de>
+Copyright (c) 2025-2026 MadErstam <erstam@gmx.de>
 
 MIT License
 
