@@ -84,6 +84,9 @@ To start the adapter, the following data need to be provided in the admin settin
 1. ...
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+- (iobroker-bot) Adapter requires node.js >= 20 now.
 <!--
   Placeholder for the next version (at the beginning of the line):
   ### **WORK IN PROGRESS**
