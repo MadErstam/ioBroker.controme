@@ -75,6 +75,6 @@
     "url": "git+https://github.com/MadErstam/ioBroker.controme.git"
   },
   "engines": {
-    "node": ">= 18"
+    "node": ">= 20"
   }
 }
