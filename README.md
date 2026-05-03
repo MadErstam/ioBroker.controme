@@ -188,6 +188,8 @@ To start the adapter, the following data need to be provided in the admin settin
 ### 0.1.0
 * (MadErstam) initial release
 
+[Older changelogs can be found there](CHANGELOG_OLD.md)
+
 ## License
 Copyright (c) 2025 MadErstam <erstam@gmx.de>
 
