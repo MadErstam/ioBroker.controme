@@ -88,6 +88,10 @@ To start the adapter, the following data need to be provided in the admin settin
   Placeholder for the next version (at the beginning of the line):
   ### **WORK IN PROGRESS**
 -->
+
+### **WORK IN PROGRESS**
+- (ioBroker-Bot) Adapter requires js-controller >= 6.0.11 now.
+
 ### 0.5.7 (2025-02-22)
 * (MadErstam) Made adapter safe to handle different versions of API
 * (MadErstam) Switched from got to axios for future compatibility
