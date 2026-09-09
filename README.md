@@ -47,7 +47,7 @@ The adapter provides the following data for each room defined in the Controme UI
 | roomID.outputs.[OUTPUT-ID] | state | Each output is represented by a state within the output channel of the room it belongs to. The output ID number represents the number of the output on the gateway. | read |
 | gatewayMAC | device | Each gateway is represented with its MAC address and the gateway name as device name. | |
 | gatewayMAC.gatewayType | state | The type of the gateway. Currently, there are four controme gateways: floor gateway smart, floor gateway pro, universal gateway mini, universal gateway pro. | read |
-| gatewayMAC.isUniversal | state | Indicates if gateway is one of the universal gateways. Data from universal gateways need to be polled in a different way. |
+| gatewayMAC.isUniversal | state | Indicates if gateway is one of the universal gateways. Data from universal gateways need to be polled in a different way. | read |
 | gatewayMAC.outputs | channel | Outputs typically control valves that control the room's heating for floor gateways or devices in the heating room (pumps, valves). This channel groups all outputs of the respective gateway. | read |
 | gatewayMAC.outputs.[OUTPUT-ID] | state | Each output is represented by a state within the output channel of the gateway it is assigned to. The output ID number represents the number of the output on the gateway as setup in the configuration. | read |
 
